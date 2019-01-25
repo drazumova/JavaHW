@@ -9,174 +9,168 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class HashTableTest {
 
-    private HashTable hashTab;
+    private HashTable hashTable;
 
     @BeforeEach
-    void init(){
-        hashTab = new HashTable(10);
+    void init() {
+        hashTable = new HashTable(10);
     }
 
     @Test
     void sizeEmpty() {
-        assertEquals(0, hashTab.size());
+        assertEquals(0, hashTable.size());
     }
 
 
     @Test
-    void sizeDelete(){
-        hashTab.put("a", "b");
-        hashTab.remove("a");
-        assertEquals(hashTab.size(), 0);
+    void sizeDelete() {
+        hashTable.put("a", "b");
+        hashTable.remove("a");
+        assertEquals(hashTable.size(), 0);
     }
 
     @Test
     void sizeAdded() {
-        hashTab.put("a", "b");
-        assertEquals(1, hashTab.size());
+        hashTable.put("a", "b");
+        assertEquals(1, hashTable.size());
     }
 
     @Test
     void sizeAddExisting() {
-        hashTab.put("a", "b");
-        hashTab.put("a", "c");
-        assertEquals(1, hashTab.size());
+        hashTable.put("a", "b");
+        hashTable.put("a", "c");
+        assertEquals(1, hashTable.size());
     }
 
 
     @Test
     void sizeClear() {
-        hashTab.put("a", "b");
-        hashTab.clear();
-        assertEquals(0, hashTab.size());
+        hashTable.put("a", "b");
+        hashTable.clear();
+        assertEquals(0, hashTable.size());
     }
 
     @Test
     void containsExisting() {
-        hashTab.put("a", "b");
-        assertTrue(hashTab.contains("a"));
+        hashTable.put("a", "b");
+        assertTrue(hashTable.contains("a"));
     }
 
     @Test
     void containsNull() {
         assertThrows(InvalidParameterException.class, () -> {
-            hashTab.put(null, "b");
+            hashTable.put(null, "b");
         });
     }
 
     @Test
     void containsDefunct() {
-        hashTab.put("a", "b");
-        assertFalse(hashTab.contains("c"));
+        hashTable.put("a", "b");
+        assertFalse(hashTable.contains("c"));
     }
 
     @Test
     void getExisting() {
-        hashTab.put("a", "b");
-        assertEquals("b", hashTab.get("a"));
+        hashTable.put("a", "b");
+        assertEquals("b", hashTable.get("a"));
     }
 
     @Test
     void getNull(){
-        assertThrows(InvalidParameterException.class, () -> {
-            hashTab.get(null);
-        });
+        assertThrows(InvalidParameterException.class, () -> hashTable.get(null));
     }
 
     @Test
     void getDefunct() {
-        hashTab.put("a", "b");
-        assertNull(hashTab.get("c"));
+        hashTable.put("a", "b");
+        assertNull(hashTable.get("c"));
     }
 
     @Test
     void putNew() {
-        hashTab.put("a", "b");
-        assertEquals("b", hashTab.get("a"));
+        hashTable.put("a", "b");
+        assertEquals("b", hashTable.get("a"));
     }
 
     @Test
     void putNull() {
-        assertThrows(InvalidParameterException.class, () -> {
-            hashTab.put(null, "b");
-        });
+        assertThrows(InvalidParameterException.class, () -> hashTable.put(null, "b"));
     }
 
     @Test
     void putNewReturn() {
-        assertNull(hashTab.put("a", "b"));
+        assertNull(hashTable.put("a", "b"));
     }
 
     @Test
     void putExisting() {
-        hashTab.put("a", "b");
-        hashTab.put("a", "c");
-        assertEquals("c", hashTab.get("a"));
+        hashTable.put("a", "b");
+        hashTable.put("a", "c");
+        assertEquals("c", hashTable.get("a"));
     }
 
     @Test
     void putExistingReturn() {
-        hashTab.put("a", "b");
-        assertEquals("b", hashTab.put("a", "c"));
+        hashTable.put("a", "b");
+        assertEquals("b", hashTable.put("a", "c"));
     }
 
 
     @Test
     void putWithResize() {
-        hashTab.put("a", "b");
-        hashTab.put("b", "c");
-        hashTab.put("c", "d");
-        hashTab.put("1", "2");
-        hashTab.put("2", "3");
+        hashTable.put("a", "b");
+        hashTable.put("b", "c");
+        hashTable.put("c", "d");
+        hashTable.put("1", "2");
+        hashTable.put("2", "3");
 
-        boolean c1 = hashTab.get("a").equals("b");
-        boolean c2 = hashTab.get("b").equals("c");
-        boolean c3 = hashTab.get("c").equals("d");
-        boolean c4 = hashTab.get("1").equals("2");
-        boolean c5 = hashTab.get("2").equals("3");
+        boolean c1 = hashTable.get("a").equals("b");
+        boolean c2 = hashTable.get("b").equals("c");
+        boolean c3 = hashTable.get("c").equals("d");
+        boolean c4 = hashTable.get("1").equals("2");
+        boolean c5 = hashTable.get("2").equals("3");
 
         assertTrue(c1 && c2 && c3 && c4 && c5);
     }
 
     @Test
     void removeDefunct() {
-        hashTab.put("a", "b");
-        hashTab.remove("c");
-        assertEquals("b", hashTab.get("a"));
+        hashTable.put("a", "b");
+        hashTable.remove("c");
+        assertEquals("b", hashTable.get("a"));
     }
 
     @Test
     void removaNull() {
-        assertThrows(InvalidParameterException.class, () -> {
-            hashTab.remove(null);
-        });
+        assertThrows(InvalidParameterException.class, () -> hashTable.remove(null));
     }
 
     @Test
     void removeDefunctReturn() {
-        hashTab.put("a", "b");
-        assertNull(hashTab.remove("c"));
+        hashTable.put("a", "b");
+        assertNull(hashTable.remove("c"));
 
     }
 
     @Test
     void removeExisting() {
-        hashTab.put("a", "b");
-        hashTab.remove("a");
-        assertNull( hashTab.get("a"));
+        hashTable.put("a", "b");
+        hashTable.remove("a");
+        assertNull( hashTable.get("a"));
     }
 
     @Test
     void removeExistingReturn() {
-        hashTab.put("a", "b");
-        assertEquals("b", hashTab.remove("a"));
+        hashTable.put("a", "b");
+        assertEquals("b", hashTable.remove("a"));
     }
 
     @Test
     void clear() {
-        hashTab.put("a", "b");
-        hashTab.put("c", "d");
-        hashTab.clear();
-        assertEquals(0, hashTab.size());
+        hashTable.put("a", "b");
+        hashTable.put("c", "d");
+        hashTable.clear();
+        assertEquals(0, hashTable.size());
     }
 
 }

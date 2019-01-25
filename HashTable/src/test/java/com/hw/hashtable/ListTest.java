@@ -9,108 +9,100 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ListTest {
 
-    private List lst;
+    private List list;
 
     @BeforeEach
-    void init(){
-        lst = new List();
+    void init() {
+        list = new List();
     }
 
     @Test
-    void add(){
-        lst.add("a", "b");
-        assertEquals("b", lst.findValueByKey("a"));
+    void add() {
+        list.add("a", "b");
+        assertEquals("b", list.findValueByKey("a"));
     }
 
     @Test
-    void addNull(){
-        assertThrows(InvalidParameterException.class, () -> {
-            lst.add(null, "b");
-        });
+    void addNull() {
+        assertThrows(InvalidParameterException.class, () -> list.add(null, "b"));
 
     }
 
     @Test
-    void getHeadKeyTestNull(){
-        assertNull(lst.getHeadKey());
+    void getHeadKeyTestNull() {
+        assertNull(list.getHeadKey());
     }
 
     @Test
-    void getHeadKeyTest(){
-        lst.add("a", "b");
-        assertEquals(lst.getHeadKey(), "a");
+    void getHeadKeyTest() {
+        list.add("a", "b");
+        assertEquals(list.getHeadKey(), "a");
     }
 
     @Test
-    void getHeadValueTestNull(){
-        assertNull(lst.getHeadValue());
+    void getHeadValueTestNull() {
+        assertNull(list.getHeadValue());
     }
 
     @Test
-    void getHeadValueTest(){
-        lst.add("a", "b");
-        assertEquals(lst.getHeadValue(), "b");
+    void getHeadValueTest() {
+        list.add("a", "b");
+        assertEquals(list.getHeadValue(), "b");
     }
 
     @Test
     void findValueByKeyInEmpty() {
-        assertNull(lst.findValueByKey("a"));
+        assertNull(list.findValueByKey("a"));
     }
 
     @Test
     void findValueByKeyExisting() {
-        lst.add("a", "b");
-        assertEquals("b", lst.findValueByKey("a"));
+        list.add("a", "b");
+        assertEquals("b", list.findValueByKey("a"));
     }
 
     @Test
     void findValueByKeyNull() {
-        assertThrows(InvalidParameterException.class, () -> {
-            lst.findValueByKey(null);
-        });
+        assertThrows(InvalidParameterException.class, () -> list.findValueByKey(null));
     }
 
     @Test
     void replaceExistingKey() {
-        lst.add("a", "b");
-        lst.replace("a", "c");
-        assertEquals("c", lst.findValueByKey("a"));
+        list.add("a", "b");
+        list.replace("a", "c");
+        assertEquals("c", list.findValueByKey("a"));
     }
 
     @Test
     void replaceNewKey() {
-        lst.add("a", "b");
-        lst.replace("b", "c");
-        assertEquals("c", lst.findValueByKey("b"));
+        list.add("a", "b");
+        list.replace("b", "c");
+        assertEquals("c", list.findValueByKey("b"));
     }
 
     @Test
     void replaceNull() {
-        assertThrows(InvalidParameterException.class, () -> {
-            lst.replace("a", null);
-        });
+        assertThrows(InvalidParameterException.class, () -> list.replace("a", null));
     }
 
 
     @Test
     void deleteExisting() {
-        lst.add("a", "b");
-        lst.delete("a");
-        assertNull(lst.findValueByKey("a"));
+        list.add("a", "b");
+        list.delete("a");
+        assertNull(list.findValueByKey("a"));
 
     }
 
     @Test
-    void deleteNew(){
-        lst.add("a", "b");
-        lst.delete("c");
-        assertEquals("b", lst.findValueByKey("a"));
+    void deleteNew() {
+        list.add("a", "b");
+        list.delete("c");
+        assertEquals("b", list.findValueByKey("a"));
     }
 
     @Test
-    void deleteNull(){
-        assertThrows(InvalidParameterException.class, () -> {
-            lst.delete(null);
-        });
+    void deleteNull() {
+        assertThrows(InvalidParameterException.class, () -> list.delete(null));
     }
 }

@@ -13,43 +13,48 @@ public class HashTable {
 
     private List[] table;
     private int size;
-    private int cnt;
+    private int counter;
     private int oldSize;
 
     /**
      * Creating hash table
      * @param size size of new table
      */
-    public HashTable(int size){
-        oldSize = this.size = size;
-        cnt = 0;
+    public HashTable(int size) {
+        oldSize = size;
+        this.size = size;
+        counter = 0;
         table = new List[size];
-        for(int i = 0; i < size; i++)
+
+        for(int i = 0; i < size; i++) {
             table[i] = new List();
+        }
     }
 
     /**
      * Returns number of elements in the table
      */
-    public int size(){
-        return cnt;
+    public int size() {
+        return counter;
     }
 
     private void resize() {
-        var oldTable = table;
+        List[] oldTable = table;
         size *= 2;
-        cnt = 0;
+        counter = 0;
         table = new List[size];
 
-        for(int i = 0; i < size; i++)
+        for(int i = 0; i < size; i++) {
             table[i] = new List();
+        }
 
 
 
-        for(int i = 0; i < size/2; i++){
+        for(int i = 0; i < size / 2; i++) {
             String currentKey, currentValue;
             List currentList = oldTable[i];
-            while((currentKey = currentList.getHeadKey()) != null){
+
+            while((currentKey = currentList.getHeadKey()) != null) {
                 currentValue = currentList.getHeadValue();
                 put(currentKey, currentValue);
                 currentList.delete(currentKey);
@@ -58,8 +63,7 @@ public class HashTable {
 
     }
 
-    private int getIndex(String key){
-
+    private int getIndex(String key) {
         return abs(key.hashCode()) % size;
     }
 
@@ -68,8 +72,8 @@ public class HashTable {
      * Tells whether there is an element with such a key in the table
      * @param key key on which value is searched
      */
-    public boolean contains(String key){
-        if (key == null){
+    public boolean contains(String key) {
+        if (key == null) {
             throw new InvalidParameterException("Null parameter found");
         }
 
@@ -80,8 +84,8 @@ public class HashTable {
      * Returns value by given key
      * If there is no such key returns null
      */
-    public String get(String key){
-        if (key == null){
+    public String get(String key) {
+        if (key == null) {
             throw new InvalidParameterException("Null parameter found");
         }
         return table[getIndex(key)].findValueByKey(key);
@@ -100,17 +104,18 @@ public class HashTable {
         }
 
         List curList = table[getIndex(key)];
-        String old_value = curList.findValueByKey(key);
+        String oldValue = curList.findValueByKey(key);
         curList.replace(key, value);
 
-        if (old_value == null)
-            cnt++;
+        if (oldValue == null) {
+            counter++;
+        }
 
-        if (2*cnt >= size){
+        if (2 * counter >= size) {
             resize();
         }
 
-        return old_value;
+        return oldValue;
     }
 
     /**
@@ -119,28 +124,32 @@ public class HashTable {
      * @return result of getting value by the key before removing
      */
 
-    public String remove(String key){
-        if (key == null){
+    public String remove(String key) {
+        if (key == null) {
             throw new InvalidParameterException("Null parameter found");
         }
 
         List curList = table[getIndex(key)];
-        String old_value = curList.findValueByKey(key);
+        String oldValue = curList.findValueByKey(key);
         curList.delete(key);
-        if (old_value != null)
-            cnt--;
-        return old_value;
+
+        if (oldValue != null) {
+            counter--;
+        }
+
+        return oldValue;
     }
 
     /**
      * Removes all elements from the table
      */
-    public void clear(){
+    public void clear() {
         table = new List[oldSize];
-        for(int i = 0; i < oldSize; i++)
+        for(int i = 0; i < oldSize; i++) {
             table[i] = new List();
+        }
 
         size = oldSize;
-        cnt = 0;
+        counter = 0;
     }
 }

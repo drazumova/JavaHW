@@ -7,60 +7,64 @@ import java.security.InvalidParameterException;
  * Special double-linked list for Hash table with separate chaining.
  * Contains pairs of strings with unique first elements.
  */
-public class List{
+public class List {
 
-    private class PairStrStr{
+    private class PairStrStr {
         private String key, value;
 
-        private PairStrStr(String key, String value){
+        private PairStrStr(String key, String value) {
             this.key = key;
             this.value = value;
         }
 
-        private boolean equalKey(String other){
-            return (key.equals(other));
+        private boolean equalKey(String other) {
+            return key.equals(other);
         }
 
 
     }
 
-    private class Node{
+    private class Node {
         private PairStrStr value;
-        private Node next, prev;
+        private Node next, previous;
 
-        private Node(PairStrStr value, Node next, Node prev){
+        private Node(PairStrStr value, Node next, Node previous) {
             this.value = value;
             this.next = next;
-            this.prev = prev;
+            this.previous = previous;
         }
 
         private void setNext(Node next){
             this.next = next;
+
             if (next != null) {
-                next.prev = this;
+                next.previous = this;
             }
         }
 
-        private void setPrev(Node prev){
-            this.prev = prev;
-            if (prev != null) {
-                prev.next = this;
+        private void setPrev(Node previous) {
+            this.previous = previous;
+            if (previous != null) {
+                previous.next = this;
             }
         }
 
-        private void delete(){
-            if (next != null)
-                next.setPrev(prev);
-            if (prev != null)
-                prev.setNext(next);
+        private void delete() {
+            if (next != null) {
+                next.setPrev(previous);
+            }
+            if (previous != null) {
+                previous.setNext(next);
+            }
         }
 
     }
 
     private Node head, tail;
 
-    public List(){
-        head = tail = null;
+    public List() {
+        head = null;
+        tail = null;
     }
 
     /**
@@ -68,17 +72,18 @@ public class List{
      * @param key first element of added pair
      * @param value second element of added pair
      */
-    public void add(String key, String value){
-        if (key == null || value == null){
+    public void add(String key, String value) {
+        if (key == null || value == null) {
             throw new InvalidParameterException("Null parameter found");
         }
 
-        Node newNode = new Node (new PairStrStr (key, value), null, null);
+        Node newNode = new Node(new PairStrStr (key, value), null, null);
 
         if (head == null) {
-            head = tail = newNode;
+            head = newNode;
+            tail = newNode;
         }
-        else{
+        else {
             tail.setNext(newNode);
             tail = newNode;
         }
@@ -88,9 +93,10 @@ public class List{
      * Returns key of first element in list
      * If list is empty returns null
      */
-    public String getHeadKey(){
-        if (head == null)
+    public String getHeadKey() {
+        if (head == null) {
             return null;
+        }
         return head.value.key;
     }
 
@@ -98,34 +104,37 @@ public class List{
      * Returns value of first element in list
      * If list is empty returns null
      */
-    public String getHeadValue(){
-        if (head == null)
+    public String getHeadValue() {
+        if (head == null) {
             return null;
+        }
         return head.value.value;
     }
 
-    private Node findByKey(String key){
+    private Node findByKey(String key) {
 
-        Node cur = head;
-        while(cur != null && !cur.value.equalKey(key))
-            cur = cur.next;
+        Node current = head;
+        while(current != null && !current.value.equalKey(key)) {
+            current = current.next;
+        }
 
-        return cur;
+        return current;
     }
 
     /**
      * Finds a pair having the given key as the first element
      * @return second element of found pair
      */
-    public String findValueByKey(String key){
-        if (key == null){
+    public String findValueByKey(String key) {
+        if (key == null) {
             throw new InvalidParameterException("Null parameter found");
         }
 
-        Node cur = findByKey(key);
-        if (cur == null)
+        Node current = findByKey(key);
+        if (current == null) {
             return null;
-        return cur.value.value;
+        }
+        return current.value.value;
     }
 
     /**
@@ -134,16 +143,18 @@ public class List{
      * @param key first element of added pair
      * @param value second element
      */
-    public void replace(String key, String value){
-        if (key == null || value == null){
+    public void replace(String key, String value) {
+        if (key == null || value == null) {
             throw new InvalidParameterException("Null parameter found");
         }
 
-        Node cur = findByKey(key);
-        if (cur == null)
+        Node current = findByKey(key);
+        if (current == null) {
             add(key, value);
-        else
-            cur.value.value = value;
+        }
+        else{
+            current.value.value = value;
+        }
     }
 
 
@@ -151,26 +162,30 @@ public class List{
      * Removes a pair having given key as a first element
      * If there is no such pair does nothing
      */
-    public void delete(String key){
-        if (key == null){
+    public void delete(String key) {
+        if (key == null) {
             throw new InvalidParameterException("Null parameter found");
         }
 
-        if (head == null)
+        if (head == null){
             return;
+        }
 
-        Node cur = findByKey(key);
+        Node current = findByKey(key);
 
-        if (cur == null)
+        if (current == null) {
             return;
+        }
 
-        if (cur == head)
+        if (current == head) {
             head = head.next;
+        }
 
-        if (cur == tail)
-            tail = tail.prev;
+        if (current == tail) {
+            tail = tail.previous;
+        }
 
-        cur.delete();
+        current.delete();
     }
 
 }
