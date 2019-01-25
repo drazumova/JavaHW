@@ -1,5 +1,12 @@
 package com.hw.hashtable;
 
+
+import java.security.InvalidParameterException;
+
+/**
+ * Special double-linked list for Hash table with separate chaining.
+ * Contains pairs of strings with unique first elements.
+ */
 public class List{
 
     private class PairStrStr{
@@ -29,12 +36,16 @@ public class List{
 
         private void setNext(Node next){
             this.next = next;
-            next.prev = this;
+            if (next != null) {
+                next.prev = this;
+            }
         }
 
         private void setPrev(Node prev){
             this.prev = prev;
-            prev.next = this;
+            if (prev != null) {
+                prev.next = this;
+            }
         }
 
         private void delete(){
@@ -58,16 +69,43 @@ public class List{
      * @param value second element of added pair
      */
     public void add(String key, String value){
+        if (key == null || value == null){
+            throw new InvalidParameterException("Null parameter found");
+        }
+
         Node newNode = new Node (new PairStrStr (key, value), null, null);
-        if (head == null)
+
+        if (head == null) {
             head = tail = newNode;
+        }
         else{
             tail.setNext(newNode);
             tail = newNode;
         }
     }
 
+    /**
+     * Returns key of first element in list
+     * If list is empty returns null
+     */
+    public String getHeadKey(){
+        if (head == null)
+            return null;
+        return head.value.key;
+    }
+
+    /**
+     * Returns value of first element in list
+     * If list is empty returns null
+     */
+    public String getHeadValue(){
+        if (head == null)
+            return null;
+        return head.value.value;
+    }
+
     private Node findByKey(String key){
+
         Node cur = head;
         while(cur != null && !cur.value.equalKey(key))
             cur = cur.next;
@@ -80,6 +118,10 @@ public class List{
      * @return second element of found pair
      */
     public String findValueByKey(String key){
+        if (key == null){
+            throw new InvalidParameterException("Null parameter found");
+        }
+
         Node cur = findByKey(key);
         if (cur == null)
             return null;
@@ -93,6 +135,10 @@ public class List{
      * @param value second element
      */
     public void replace(String key, String value){
+        if (key == null || value == null){
+            throw new InvalidParameterException("Null parameter found");
+        }
+
         Node cur = findByKey(key);
         if (cur == null)
             add(key, value);
@@ -106,6 +152,10 @@ public class List{
      * If there is no such pair does nothing
      */
     public void delete(String key){
+        if (key == null){
+            throw new InvalidParameterException("Null parameter found");
+        }
+
         if (head == null)
             return;
 
