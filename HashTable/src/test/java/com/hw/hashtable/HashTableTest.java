@@ -58,9 +58,7 @@ class HashTableTest {
 
     @Test
     void containsNull() {
-        assertThrows(InvalidParameterException.class, () -> {
-            hashTable.put(null, "b");
-        });
+        assertThrows(InvalidParameterException.class, () -> hashTable.put(null, "b"));
     }
 
     @Test

@@ -23,7 +23,6 @@ public class HashTable {
     public HashTable(int size) {
         oldSize = size;
         this.size = size;
-        counter = 0;
         table = new List[size];
 
         for(int i = 0; i < size; i++) {

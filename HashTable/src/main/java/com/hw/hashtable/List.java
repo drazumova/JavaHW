@@ -62,10 +62,6 @@ public class List {
 
     private Node head, tail;
 
-    public List() {
-        head = null;
-        tail = null;
-    }
 
     /**
      * Adding a pair of two strings to the list
@@ -77,7 +73,7 @@ public class List {
             throw new InvalidParameterException("Null parameter found");
         }
 
-        Node newNode = new Node(new PairStrStr (key, value), null, null);
+        var newNode = new Node(new PairStrStr (key, value), null, null);
 
         if (head == null) {
             head = newNode;
