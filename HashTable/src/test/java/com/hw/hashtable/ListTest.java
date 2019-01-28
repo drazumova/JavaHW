@@ -3,8 +3,6 @@ package com.hw.hashtable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.security.InvalidParameterException;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class ListTest {
@@ -24,7 +22,7 @@ class ListTest {
 
     @Test
     void addNull() {
-        assertThrows(InvalidParameterException.class, () -> list.add(null, "b"));
+        assertThrows(IllegalArgumentException.class, () -> list.add(null, "b"));
 
     }
 
@@ -63,7 +61,7 @@ class ListTest {
 
     @Test
     void findValueByKeyNull() {
-        assertThrows(InvalidParameterException.class, () -> list.findValueByKey(null));
+        assertThrows(IllegalArgumentException.class, () -> list.findValueByKey(null));
     }
 
     @Test
@@ -82,7 +80,7 @@ class ListTest {
 
     @Test
     void replaceNull() {
-        assertThrows(InvalidParameterException.class, () -> list.replace("a", null));
+        assertThrows(IllegalArgumentException.class, () -> list.replace("a", null));
     }
 
 
@@ -103,6 +101,6 @@ class ListTest {
 
     @Test
     void deleteNull() {
-        assertThrows(InvalidParameterException.class, () -> list.delete(null));
+        assertThrows(IllegalArgumentException.class, () -> list.delete(null));
     }
 }

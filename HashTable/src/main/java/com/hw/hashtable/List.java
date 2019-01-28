@@ -1,8 +1,6 @@
 package com.hw.hashtable;
 
 
-import java.security.InvalidParameterException;
-
 /**
  * Special double-linked list for Hash table with separate chaining.
  * Contains pairs of strings with unique first elements.
@@ -10,7 +8,8 @@ import java.security.InvalidParameterException;
 public class List {
 
     private class PairStrStr {
-        private String key, value;
+        private String key;
+        private String value;
 
         private PairStrStr(String key, String value) {
             this.key = key;
@@ -20,13 +19,12 @@ public class List {
         private boolean equalKey(String other) {
             return key.equals(other);
         }
-
-
     }
 
     private class Node {
         private PairStrStr value;
-        private Node next, previous;
+        private Node next;
+        private Node previous;
 
         private Node(PairStrStr value, Node next, Node previous) {
             this.value = value;
@@ -34,7 +32,7 @@ public class List {
             this.previous = previous;
         }
 
-        private void setNext(Node next){
+        private void setNext(Node next) {
             this.next = next;
 
             if (next != null) {
@@ -70,7 +68,7 @@ public class List {
      */
     public void add(String key, String value) {
         if (key == null || value == null) {
-            throw new InvalidParameterException("Null parameter found");
+            throw new IllegalArgumentException("Null parameter found");
         }
 
         var newNode = new Node(new PairStrStr (key, value), null, null);
@@ -78,8 +76,7 @@ public class List {
         if (head == null) {
             head = newNode;
             tail = newNode;
-        }
-        else {
+        } else {
             tail.setNext(newNode);
             tail = newNode;
         }
@@ -110,7 +107,7 @@ public class List {
     private Node findByKey(String key) {
 
         Node current = head;
-        while(current != null && !current.value.equalKey(key)) {
+        while (current != null && !current.value.equalKey(key)) {
             current = current.next;
         }
 
@@ -123,7 +120,7 @@ public class List {
      */
     public String findValueByKey(String key) {
         if (key == null) {
-            throw new InvalidParameterException("Null parameter found");
+            throw new IllegalArgumentException("Null parameter found");
         }
 
         Node current = findByKey(key);
@@ -141,18 +138,16 @@ public class List {
      */
     public void replace(String key, String value) {
         if (key == null || value == null) {
-            throw new InvalidParameterException("Null parameter found");
+            throw new IllegalArgumentException("Null parameter found");
         }
 
         Node current = findByKey(key);
         if (current == null) {
             add(key, value);
-        }
-        else{
+        } else {
             current.value.value = value;
         }
     }
-
 
     /**
      * Removes a pair having given key as a first element
@@ -160,10 +155,10 @@ public class List {
      */
     public void delete(String key) {
         if (key == null) {
-            throw new InvalidParameterException("Null parameter found");
+            throw new IllegalArgumentException("Null parameter found");
         }
 
-        if (head == null){
+        if (head == null) {
             return;
         }
 

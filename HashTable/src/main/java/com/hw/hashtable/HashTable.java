@@ -1,6 +1,5 @@
 package com.hw.hashtable;
 
-import java.security.InvalidParameterException;
 
 import static java.lang.Math.abs;
 
@@ -12,20 +11,18 @@ import static java.lang.Math.abs;
 public class HashTable {
 
     private List[] table;
-    private int size;
+    private int initialSize;
     private int counter;
-    private int oldSize;
 
     /**
      * Creating hash table
-     * @param size size of new table
+     * @param size initial size of new table
      */
     public HashTable(int size) {
-        oldSize = size;
-        this.size = size;
+        initialSize = size;
         table = new List[size];
 
-        for(int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             table[i] = new List();
         }
     }
@@ -38,34 +35,31 @@ public class HashTable {
     }
 
     private void resize() {
+        int newSize = 2 * table.length;
         List[] oldTable = table;
-        size *= 2;
         counter = 0;
-        table = new List[size];
+        table = new List[newSize];
 
-        for(int i = 0; i < size; i++) {
+        for (int i = 0; i < newSize; i++) {
             table[i] = new List();
         }
 
-
-
-        for(int i = 0; i < size / 2; i++) {
-            String currentKey, currentValue;
+        for (int i = 0; i < newSize / 2; i++) {
+            String currentKey;
+            String currentValue;
             List currentList = oldTable[i];
 
-            while((currentKey = currentList.getHeadKey()) != null) {
+            while ((currentKey = currentList.getHeadKey()) != null) {
                 currentValue = currentList.getHeadValue();
                 put(currentKey, currentValue);
                 currentList.delete(currentKey);
             }
         }
-
     }
 
     private int getIndex(String key) {
-        return abs(key.hashCode()) % size;
+        return abs(key.hashCode()) % table.length;
     }
-
 
     /**
      * Tells whether there is an element with such a key in the table
@@ -73,7 +67,7 @@ public class HashTable {
      */
     public boolean contains(String key) {
         if (key == null) {
-            throw new InvalidParameterException("Null parameter found");
+            throw new IllegalArgumentException("Null parameter found");
         }
 
         return (table[getIndex(key)].findValueByKey(key) != null);
@@ -85,7 +79,7 @@ public class HashTable {
      */
     public String get(String key) {
         if (key == null) {
-            throw new InvalidParameterException("Null parameter found");
+            throw new IllegalArgumentException("Null parameter found");
         }
         return table[getIndex(key)].findValueByKey(key);
     }
@@ -96,10 +90,9 @@ public class HashTable {
      * @param value value added
      * @return value for given key before adding
      */
-
     public String put(String key, String value) {
         if (key == null || value == null) {
-            throw new InvalidParameterException("Null parameter found");
+            throw new IllegalArgumentException("Null parameter found");
         }
 
         List curList = table[getIndex(key)];
@@ -110,7 +103,7 @@ public class HashTable {
             counter++;
         }
 
-        if (2 * counter >= size) {
+        if (2 * counter >= table.length) {
             resize();
         }
 
@@ -122,10 +115,9 @@ public class HashTable {
      * If there is no such key does nothing
      * @return result of getting value by the key before removing
      */
-
     public String remove(String key) {
         if (key == null) {
-            throw new InvalidParameterException("Null parameter found");
+            throw new IllegalArgumentException("Null parameter found");
         }
 
         List curList = table[getIndex(key)];
@@ -143,12 +135,11 @@ public class HashTable {
      * Removes all elements from the table
      */
     public void clear() {
-        table = new List[oldSize];
-        for(int i = 0; i < oldSize; i++) {
+        table = new List[initialSize];
+        for (int i = 0; i < initialSize; i++) {
             table[i] = new List();
         }
 
-        size = oldSize;
         counter = 0;
     }
 }

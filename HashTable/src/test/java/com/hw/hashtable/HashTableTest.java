@@ -3,8 +3,6 @@ package com.hw.hashtable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.security.InvalidParameterException;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class HashTableTest {
@@ -58,7 +56,7 @@ class HashTableTest {
 
     @Test
     void containsNull() {
-        assertThrows(InvalidParameterException.class, () -> hashTable.put(null, "b"));
+        assertThrows(IllegalArgumentException.class, () -> hashTable.put(null, "b"));
     }
 
     @Test
@@ -75,7 +73,7 @@ class HashTableTest {
 
     @Test
     void getNull(){
-        assertThrows(InvalidParameterException.class, () -> hashTable.get(null));
+        assertThrows(IllegalArgumentException.class, () -> hashTable.get(null));
     }
 
     @Test
@@ -92,7 +90,7 @@ class HashTableTest {
 
     @Test
     void putNull() {
-        assertThrows(InvalidParameterException.class, () -> hashTable.put(null, "b"));
+        assertThrows(IllegalArgumentException.class, () -> hashTable.put(null, "b"));
     }
 
     @Test
@@ -122,13 +120,11 @@ class HashTableTest {
         hashTable.put("1", "2");
         hashTable.put("2", "3");
 
-        boolean c1 = hashTable.get("a").equals("b");
-        boolean c2 = hashTable.get("b").equals("c");
-        boolean c3 = hashTable.get("c").equals("d");
-        boolean c4 = hashTable.get("1").equals("2");
-        boolean c5 = hashTable.get("2").equals("3");
-
-        assertTrue(c1 && c2 && c3 && c4 && c5);
+        assertEquals("b", hashTable.get("a"));
+        assertEquals("c", hashTable.get("b"));
+        assertEquals("d", hashTable.get("c"));
+        assertEquals("2", hashTable.get("1"));
+        assertEquals("3", hashTable.get("2"));
     }
 
     @Test
@@ -140,7 +136,7 @@ class HashTableTest {
 
     @Test
     void removaNull() {
-        assertThrows(InvalidParameterException.class, () -> hashTable.remove(null));
+        assertThrows(IllegalArgumentException.class, () -> hashTable.remove(null));
     }
 
     @Test
@@ -154,7 +150,7 @@ class HashTableTest {
     void removeExisting() {
         hashTable.put("a", "b");
         hashTable.remove("a");
-        assertNull( hashTable.get("a"));
+        assertNull(hashTable.get("a"));
     }
 
     @Test
