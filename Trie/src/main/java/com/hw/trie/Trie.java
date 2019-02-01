@@ -9,16 +9,16 @@ public class Trie implements Serialize {
 
     private TrieNode root;
 
-    private class TrieNode{
+    private class TrieNode {
         private TrieNode[] edges;
         private int stringsCounter;
         private int endsCounter;
-        private static final int listLenght = Character.MAX_VALUE + 1;
+        private static final int listLength = Character.MAX_VALUE + 1;
 
 
 
         private TrieNode() {
-            edges = new TrieNode[listLenght];
+            edges = new TrieNode[listLength];
         }
 
         private TrieNode goByLetter(char character) {
