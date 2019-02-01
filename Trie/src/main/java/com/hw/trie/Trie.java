@@ -2,19 +2,14 @@ package com.hw.trie;
 
 import java.io.*;
 
-interface Serialize{
-    void serialize(OutputStream out) throws IOException;
-    void deserialize(InputStream in) throws IOException;
-}
-
 /**
  * String storage structure. Adds, removes and finds element for O(|element|).
  */
-public class Trie implements Serialize{
+public class Trie implements Serialize {
 
     private TrieNode root;
 
-    private class TrieNode implements Serialize{
+    private class TrieNode implements Serialize {
         private TrieNode[] edges;
         private int stringsCounter;
         private int endsCounter;
@@ -91,7 +86,7 @@ public class Trie implements Serialize{
     }
 
     /**
-     * Write trie to a stream
+     * Writes trie to a stream
      * @param out the stream to write
      * @throws IOException
      */
@@ -123,7 +118,7 @@ public class Trie implements Serialize{
     }
 
     /**
-     * Adding element to trie
+     * Adds element to trie
      * @return is it a new element for the trie
      */
     boolean add(String element) {
