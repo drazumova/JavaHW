@@ -136,7 +136,7 @@ public class Trie implements Serialize{
         }
         current.stringsCounter++;
         current.endsCounter++;
-        return result;
+        return !result;
     }
 
     /**
