@@ -9,7 +9,7 @@ public class Trie implements Serialize {
 
     private TrieNode root;
 
-    private class TrieNode implements Serialize {
+    private class TrieNode{
         private TrieNode[] edges;
         private int stringsCounter;
         private int endsCounter;
@@ -29,14 +29,12 @@ public class Trie implements Serialize {
             return edges[character];
         }
 
-
-        @Override
-        public void serialize(OutputStream out) throws IOException {
+        private void serialize(OutputStream out) throws IOException {
             out.write(stringsCounter);
             out.write(endsCounter);
 
-            for (int i = 0; i < edges.length; i++) {
-                if (edges[i] != null) {
+            for (TrieNode edge : edges) {
+                if (edge != null) {
                     out.write(1);
                 } else {
                     out.write(0);
@@ -44,8 +42,7 @@ public class Trie implements Serialize {
             }
         }
 
-        @Override
-        public void deserialize(InputStream in) throws IOException {
+        private void deserialize(InputStream in) throws IOException {
             stringsCounter = in.read();
             endsCounter = in.read();
 
@@ -88,7 +85,6 @@ public class Trie implements Serialize {
     /**
      * Writes trie to a stream
      * @param out the stream to write
-     * @throws IOException
      */
     @Override
     public void serialize(OutputStream out) throws IOException {
@@ -98,7 +94,6 @@ public class Trie implements Serialize {
     /**
      * Reads trie from a stream
      * @param in the stream from which trie will be read
-     * @throws IOException
      */
     @Override
     public void deserialize(InputStream in) throws IOException {
@@ -121,7 +116,7 @@ public class Trie implements Serialize {
      * Adds element to trie
      * @return is it a new element for the trie
      */
-    boolean add(String element) {
+    public boolean add(String element) {
         TrieNode current = root;
         boolean result = contains(element);
         var characterList = element.toCharArray();
@@ -137,7 +132,7 @@ public class Trie implements Serialize {
     /**
      * Tells does trie contain such element
      */
-    boolean contains(String element) {
+    public boolean contains(String element) {
         TrieNode node = getNodeByString(element);
         return (node != null && node.endsCounter > 0);
     }
@@ -146,7 +141,7 @@ public class Trie implements Serialize {
      * Removes element from the trie
      * @return did trie contain this element
      */
-    boolean remove(String element) {
+    public boolean remove(String element) {
         if (!contains(element)) {
             return false;
         }
@@ -154,9 +149,13 @@ public class Trie implements Serialize {
         TrieNode current = root;
         var characterList = element.toCharArray();
 
-        for(int i = 0; i < element.length(); i++) {
+        for (int i = 0; i < element.length(); i++) {
             current.stringsCounter--;
-            current = current.edges[characterList[i]];
+            TrieNode next = current.edges[characterList[i]];
+            if (next.stringsCounter == 1) {
+                current.edges[characterList[i]] = null;
+            }
+            current = next;
         }
         current.stringsCounter--;
         current.endsCounter--;
@@ -166,14 +165,14 @@ public class Trie implements Serialize {
     /**
      * Returns total strings in trie
      */
-    int size() {
+    public int size() {
         return root.stringsCounter;
     }
 
     /**
      * Returns count of strings in trie that have such prefix
      */
-    int howManyStartsWithPrefix(String prefix) {
+    public int howManyStartsWithPrefix(String prefix) {
         TrieNode node = getNodeByString(prefix);
         if (node == null) {
             return 0;

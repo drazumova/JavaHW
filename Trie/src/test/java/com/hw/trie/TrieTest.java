@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TrieTest {
 
-    Trie trie;
+    private Trie trie;
 
     @BeforeEach
     void init() {
@@ -34,7 +34,15 @@ class TrieTest {
     }
 
     @Test
-    void deserialize() {
+    void serializeAndDeserializeEmpty() throws IOException {
+        var fileOutStream = new FileOutputStream("kek.txt");
+        trie.serialize(fileOutStream);
+        fileOutStream.close();
+
+        var fileInStream = new FileInputStream("kek.txt");
+        trie.deserialize(fileInStream);
+
+        assertEquals(0, trie.size());
     }
 
     @Test
@@ -127,6 +135,14 @@ class TrieTest {
         trie.add("b");
         trie.remove("c");
         assertEquals(2, trie.size());
+    }
+
+    @Test
+    void addAfterRemove() {
+        trie.add("a");
+        trie.remove("a");
+        trie.add("a");
+        assertEquals(1, trie.howManyStartsWithPrefix("a"));
     }
 
     @Test
