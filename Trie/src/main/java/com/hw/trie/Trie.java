@@ -1,5 +1,7 @@
 package com.hw.trie;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.*;
 
 /**
@@ -116,7 +118,7 @@ public class Trie implements Serialize {
      * Adds element to trie
      * @return is it a new element for the trie
      */
-    public boolean add(String element) {
+    public boolean add(@NotNull String element) {
         TrieNode current = root;
         boolean result = contains(element);
         var characterList = element.toCharArray();
@@ -132,7 +134,7 @@ public class Trie implements Serialize {
     /**
      * Tells does trie contain such element
      */
-    public boolean contains(String element) {
+    public boolean contains(@NotNull String element) {
         TrieNode node = getNodeByString(element);
         return (node != null && node.endsCounter > 0);
     }
@@ -141,7 +143,7 @@ public class Trie implements Serialize {
      * Removes element from the trie
      * @return did trie contain this element
      */
-    public boolean remove(String element) {
+    public boolean remove(@NotNull String element) {
         if (!contains(element)) {
             return false;
         }
@@ -172,7 +174,7 @@ public class Trie implements Serialize {
     /**
      * Returns count of strings in trie that have such prefix
      */
-    public int howManyStartsWithPrefix(String prefix) {
+    public int howManyStartsWithPrefix(@NotNull String prefix) {
         TrieNode node = getNodeByString(prefix);
         if (node == null) {
             return 0;
