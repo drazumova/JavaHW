@@ -3,6 +3,7 @@ package com.hw.trie;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.util.HashMap;
 
 /**
  * String storage structure. Adds, removes and finds element for O(|element|).
@@ -12,29 +13,29 @@ public class Trie implements Serializable {
     private TrieNode root;
 
     private class TrieNode implements Serializable {
-        private TrieNode[] edges;
+        private HashMap<Character, TrieNode> edges;
         private int stringsCounter;
         private int endsCounter;
         private static final int listLength = Character.MAX_VALUE + 1;
 
         private TrieNode() {
-            edges = new TrieNode[listLength];
+            edges = new HashMap<>();
         }
 
         private TrieNode goByLetter(char character) {
             stringsCounter++;
-            if (edges[character] == null) {
-                edges[character] = new TrieNode();
+            if (!edges.containsKey(character)) {
+                edges.put(character, new TrieNode());
             }
-            return edges[character];
+            return edges.get(character);
         }
 
         public void serialize(@NotNull OutputStream out) throws IOException {
             out.write(stringsCounter);
             out.write(endsCounter);
 
-            for (TrieNode edge : edges) {
-                if (edge != null) {
+            for (int i = 0; i < listLength; i++) {
+                if (edges.containsKey((char) i)) {
                     out.write(1);
                 } else {
                     out.write(0);
@@ -46,33 +47,28 @@ public class Trie implements Serializable {
             stringsCounter = in.read();
             endsCounter = in.read();
 
-            for (int i = 0; i < edges.length; i++) {
+            for (int i = 0; i < listLength; i++) {
                 int currentEdge = in.read();
                 if (currentEdge == 1) {
-                    edges[i] = this;
+                    edges.put((char) i, null);
                 }
             }
         }
-
     }
 
     private TrieNode deserializeTree(InputStream in) throws IOException {
         var node = new TrieNode();
         node.deserialize(in);
-        for (int i = 0; i < node.edges.length; i++) {
-            if (node.edges[i] != null) {
-                node.edges[i] = deserializeTree(in);
-            }
+        for (var letter : node.edges.keySet()) {
+            node.edges.put(letter, deserializeTree(in));
         }
         return node;
     }
 
     private void serializeTree(TrieNode node, OutputStream out) throws IOException {
         node.serialize(out);
-        for (int i = 0; i < node.edges.length; i++) {
-            if (node.edges[i] != null) {
-                serializeTree(node.edges[i], out);
-            }
+        for (var currentNode : node.edges.values()) {
+            serializeTree(currentNode, out);
         }
     }
 
@@ -103,9 +99,8 @@ public class Trie implements Serializable {
         var characterList = string.toCharArray();
 
         for (int i = 0; i < string.length() && current != null; i++) {
-            current = current.edges[characterList[i]];
+            current = current.edges.get(characterList[i]);
         }
-
         return current;
     }
 
@@ -148,9 +143,9 @@ public class Trie implements Serializable {
 
         for (int i = 0; i < element.length(); i++) {
             current.stringsCounter--;
-            TrieNode next = current.edges[characterList[i]];
+            TrieNode next = current.edges.get(characterList[i]);
             if (next.stringsCounter == 1) {
-                current.edges[characterList[i]] = null;
+                current.edges.remove(characterList[i]);
             }
             current = next;
         }

@@ -19,19 +19,15 @@ class TrieTest {
     @Test
     void serializeAndDeserialize() throws IOException {
         File kek = new File("kek.txt");
+        kek.deleteOnExit();
 
         trie.add("a");
         trie.add("b");
         trie.add("a");
-        try (var fileOutStream = new FileOutputStream(kek)) {
+        try (var fileOutStream = new FileOutputStream(kek); var fileInStream = new FileInputStream(kek)) {
             trie.serialize(fileOutStream);
-        }
-
-        try (var fileInStream = new FileInputStream(kek)) {
             trie.deserialize(fileInStream);
         }
-
-        kek.delete();
 
         assertTrue(trie.contains("a"));
         assertTrue(trie.contains("b"));
@@ -41,16 +37,13 @@ class TrieTest {
     @Test
     void serializeAndDeserializeEmpty() throws IOException {
         File kek = new File("kek.txt");
+        kek.deleteOnExit();
 
-        try (var fileOutStream = new FileOutputStream(kek)) {
+        try (var fileOutStream = new FileOutputStream(kek); var fileInStream = new FileInputStream(kek)) {
             trie.serialize(fileOutStream);
-        }
-
-        try (var fileInStream = new FileInputStream(kek)) {
             trie.deserialize(fileInStream);
         }
 
-        kek.delete();
         assertEquals(0, trie.size());
     }
 
