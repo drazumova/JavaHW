@@ -7,17 +7,15 @@ import java.io.*;
 /**
  * String storage structure. Adds, removes and finds element for O(|element|).
  */
-public class Trie implements Serialize {
+public class Trie implements Serializable {
 
     private TrieNode root;
 
-    private class TrieNode {
+    private class TrieNode implements Serializable {
         private TrieNode[] edges;
         private int stringsCounter;
         private int endsCounter;
         private static final int listLength = Character.MAX_VALUE + 1;
-
-
 
         private TrieNode() {
             edges = new TrieNode[listLength];
@@ -31,7 +29,7 @@ public class Trie implements Serialize {
             return edges[character];
         }
 
-        private void serialize(OutputStream out) throws IOException {
+        public void serialize(@NotNull OutputStream out) throws IOException {
             out.write(stringsCounter);
             out.write(endsCounter);
 
@@ -44,7 +42,7 @@ public class Trie implements Serialize {
             }
         }
 
-        private void deserialize(InputStream in) throws IOException {
+        public void deserialize(@NotNull InputStream in) throws IOException {
             stringsCounter = in.read();
             endsCounter = in.read();
 
@@ -78,8 +76,6 @@ public class Trie implements Serialize {
         }
     }
 
-
-
     public Trie() {
         root = new TrieNode();
     }
@@ -89,7 +85,7 @@ public class Trie implements Serialize {
      * @param out the stream to write
      */
     @Override
-    public void serialize(OutputStream out) throws IOException {
+    public void serialize(@NotNull OutputStream out) throws IOException {
         serializeTree(root, out);
     }
 
@@ -98,7 +94,7 @@ public class Trie implements Serialize {
      * @param in the stream from which trie will be read
      */
     @Override
-    public void deserialize(InputStream in) throws IOException {
+    public void deserialize(@NotNull InputStream in) throws IOException {
         root = deserializeTree(in);
     }
 
@@ -111,7 +107,6 @@ public class Trie implements Serialize {
         }
 
         return current;
-
     }
 
     /**
@@ -181,5 +176,4 @@ public class Trie implements Serialize {
         }
         return node.stringsCounter;
     }
-
 }
