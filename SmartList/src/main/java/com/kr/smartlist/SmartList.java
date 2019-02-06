@@ -2,6 +2,11 @@ package com.kr.smartlist;
 
 import java.util.*;
 
+/**
+ * Structure contains elements in leaner order.
+ * Contains elements as single element if its size 1, as simple array is case size from 2 to 5 and as ArrayList otherwise;
+ * @param <E> type of elements
+ */
 public class SmartList<E> extends AbstractList<E> implements List<E> {
     private int size;
     private Object list;
@@ -21,6 +26,7 @@ public class SmartList<E> extends AbstractList<E> implements List<E> {
         }
     }
 
+
     @Override
     public boolean add(E element) {
         if (size == 0) {
@@ -28,14 +34,14 @@ public class SmartList<E> extends AbstractList<E> implements List<E> {
         }
         if (size == 1) {
             var newList = new Object[5];
-            newList[0] = (E) list;
+            newList[0] = list;
             newList[1] = element;
             list = newList;
 
         }
         if (size < 5 && size > 1) {
             var oldList = (Object[]) list;
-            oldList[0] = (E) list;
+            oldList[0] = list;
             oldList[size] = element;
             list = oldList;
         }
