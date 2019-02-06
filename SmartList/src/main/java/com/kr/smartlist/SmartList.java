@@ -39,9 +39,8 @@ public class SmartList<E> extends AbstractList<E> implements List<E> {
             list = newList;
 
         }
-        if (size < 5 && size > 1) {
+        if (size <= 4 && size > 1) {
             var oldList = (Object[]) list;
-            oldList[0] = list;
             oldList[size] = element;
             list = oldList;
         }
@@ -123,8 +122,8 @@ public class SmartList<E> extends AbstractList<E> implements List<E> {
 
         if (size > 2 && size < 6){
             var oldList = (Object[]) list;
-            if (5 - index >= 0) {
-                System.arraycopy(oldList, index + 1, oldList, index, 5 - index);
+            for (int i = index; i < 4; i++) {
+                oldList[i] = oldList[i + 1];
             }
             oldList[4] = null;
             list = oldList;
