@@ -19,6 +19,7 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
         private Node<E> parent;
         private Node<E> left;
         private Node<E> right;
+
         private Node(E value, Node<E> parent, Node<E> left, Node<E> right) {
             this.value = value;
             this.parent = parent;
@@ -77,8 +78,6 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
 
             return parentNode;
         }
-
-
     }
 
     private final class TreeSetIterator implements Iterator<E> {
@@ -90,7 +89,7 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
             this.version = version;
         }
 
-        private void checkVersion() throws ConcurrentModificationException{
+        private void checkVersion() throws ConcurrentModificationException {
             if (currentVersion > version) {
                 throw new ConcurrentModificationException();
             }
@@ -103,23 +102,22 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
         }
 
         @Override
-        public E next() {
+        public E next() throws NoSuchElementException {
             checkVersion();
-            E value = last.value;
             if (last == null) {
                 throw new NoSuchElementException();
             }
+            E value = last.value;
             last = last.next();
             return value;
         }
-
     }
 
     private final class TreeSetReversedIterator implements Iterator<E> {
         private Node<E> next;
         private final int version;
 
-        private void checkVersion() throws ConcurrentModificationException{
+        private void checkVersion() throws ConcurrentModificationException {
             if (currentVersion > version) {
                 throw new ConcurrentModificationException();
             }
@@ -137,16 +135,15 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
         }
 
         @Override
-        public E next() {
+        public E next() throws NoSuchElementException {
             checkVersion();
-            E value = next.value;
             if (next == null) {
                 throw new NoSuchElementException();
             }
+            E value = next.value;
             next = next.previous();
             return value;
         }
-
     }
 
     private final class ReversedTreeSet extends AbstractSet<E> implements MyTreeSet<E>{
@@ -225,9 +222,7 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
     /**
      * Create new set using Comparator.naturalOrder.
      */
-    TreeSet() {
-//        comparator = (Comparator<E>) Comparator.naturalOrder();
-    }
+    TreeSet() {}
 
     /**
      * Create new set using given comparator.
@@ -292,7 +287,7 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
                 node.left = removeNode(node.left, node.value);
                 node.left.parent = node;
             }
-        } else if (compare(node.value, value) > 0){
+        } else if (compare(node.value, value) > 0) {
             node.left = removeNode(node.left, value);
             node.left.parent = node;
         } else {
@@ -328,7 +323,7 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
 
     private Node<E> addNode(Node<E> node, E value) {
         if (node == null) {
-            return new Node<E>(value, null, null, null);
+            return new Node<>(value, null, null, null);
         }
         if (compare(node.value, value) > 0) {
             node.left = addNode(node.left, value);
@@ -368,7 +363,6 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
         if (node == null) {
             return null;
         }
-
         return node.value;
     }
 

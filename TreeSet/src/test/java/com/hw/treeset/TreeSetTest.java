@@ -50,7 +50,6 @@ class TreeSetTest {
         assertEquals(Integer.valueOf(0), iterator.next());
     }
 
-
     private void findsInit() {
         treeSet.add(1);
         treeSet.add(2);
