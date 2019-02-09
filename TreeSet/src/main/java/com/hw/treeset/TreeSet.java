@@ -11,11 +11,11 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
 
     private Node<E> root;
     private int size;
-    private final Comparator<E> comparator;
+    private Comparator<E> comparator;
     private int currentVersion;
 
     private static final class Node<E> {
-        private E value;
+        @NotNull private E value;
         private Node<E> parent;
         private Node<E> left;
         private Node<E> right;
@@ -115,10 +115,119 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
 
     }
 
+    private final class TreeSetReversedIterator implements Iterator<E> {
+        private Node<E> next;
+        private final int version;
+
+        private void checkVersion() throws ConcurrentModificationException{
+            if (currentVersion > version) {
+                throw new ConcurrentModificationException();
+            }
+        }
+
+        private TreeSetReversedIterator(Node<E> start, int version) {
+            next = start;
+            this.version = version;
+        }
+
+        @Override
+        public boolean hasNext() {
+            checkVersion();
+            return next != null;
+        }
+
+        @Override
+        public E next() {
+            checkVersion();
+            E value = next.value;
+            if (next == null) {
+                throw new NoSuchElementException();
+            }
+            next = next.previous();
+            return value;
+        }
+
+    }
+
+    private final class ReversedTreeSet extends AbstractSet<E> implements MyTreeSet<E>{
+        @NotNull private final TreeSet<E> initalSet;
+
+        ReversedTreeSet(TreeSet<E> set) {
+            initalSet = set;
+        }
+
+        @Override
+        public Iterator<E> descendingIterator() {
+            return initalSet.iterator();
+        }
+
+        @Override
+        public MyTreeSet<E> descendingSet() {
+            return initalSet;
+        }
+
+        @Override
+        public E first() {
+            return initalSet.last();
+        }
+
+        @Override
+        public E last() {
+            return initalSet.first();
+        }
+
+        @Override
+        public E lower(E e) {
+            return initalSet.higher(e);
+        }
+
+        @Override
+        public E floor(E e) {
+            return initalSet.ceiling(e);
+        }
+
+        @Override
+        public E ceiling(E e) {
+            return initalSet.floor(e);
+        }
+
+        @Override
+        public E higher(E e) {
+            return initalSet.lower(e);
+        }
+
+        @Override
+        public Iterator<E> iterator() {
+            return initalSet.descendingIterator();
+        }
+
+        @Override
+        public int size() {
+            return initalSet.size();
+        }
+
+        @Override
+        public boolean add(E element) {
+            return initalSet.add(element);
+        }
+
+        @Override
+        public boolean remove(Object element) {
+            return initalSet.remove(element);
+        }
+
+        @Override
+        public boolean contains(Object element) {
+            return initalSet.contains(element);
+        }
+    }
+
     /**
      * Create new set using Comparator.naturalOrder.
      */
-    TreeSet() {}
+    TreeSet() {
+//        comparator = (Comparator<E>) Comparator.naturalOrder();
+    }
 
     /**
      * Create new set using given comparator.
@@ -127,13 +236,15 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
         this.comparator = comparator;
     }
 
-    private int compare(E first, E second) {
+    private int compare(@NotNull E first, E second) {
         if (comparator == null) {
-            return 1;
+            var newFirst = (Comparable<E>) first;
+            return newFirst.compareTo(second);
         }
         return comparator.compare(first, second);
     }
 
+    @Nullable
     private Node<E> findCloseNode(Node<E> node, E element) {
         if (node == null) {
             return null;
@@ -157,7 +268,7 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
         }
     }
 
-    private Node<E> removeNode(Node<E> node, E value) {
+    private Node<E> removeNode(@NotNull Node<E> node, E value) {
         if (compare(node.value, value) == 0) {
             if (node.right == null && node.left == null) {
                 return null;
@@ -215,7 +326,6 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
         return element.equals(getValue(findCloseNode(root, (E) element)));
     }
 
-    @Contract("null, _ -> new")
     private Node<E> addNode(Node<E> node, E value) {
         if (node == null) {
             return new Node<E>(value, null, null, null);
@@ -267,6 +377,7 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
      * After set changing iterator becomes invalid
      * and throws ConcurrentModificationException when calling methods.
      */
+    @Nullable
     @Override
     public Iterator<E> iterator() {
         if (root == null) {
@@ -274,10 +385,35 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
         }
         return new TreeSetIterator(root.minimum(), currentVersion);
     }
-    
+
+    /**
+     * Returns an iterator over the elements in the set, in descending order.
+     * After set changing iterator becomes invalid
+     * and throws ConcurrentModificationException when calling methods.
+     */
+    @Nullable
+    @Override
+    public Iterator<E> descendingIterator() {
+        if (root == null) {
+            return new TreeSetReversedIterator(null, currentVersion);
+        }
+        return new TreeSetReversedIterator(root.maximum(), currentVersion);
+    }
+
+    /**
+     * Returns set with inversed elements order.
+     * Dont copy elements, will change in case of inital set changing.
+     * And in case of descendind set changing inital set will change.
+     */
+    @Override
+    public MyTreeSet<E> descendingSet() {
+        return new ReversedTreeSet(this);
+    }
+
     /**
      * Returns the least element in the set.
      */
+    @Nullable
     @Override
     public E first() {
         if (root == null) {
@@ -289,6 +425,7 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
     /**
      * Returns the greatest elements in the set.
      */
+    @Nullable
     @Override
     public E last() {
         if (root == null) {
@@ -301,6 +438,7 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
      * Returns the greatest element in the set, that is lower than given.
      * If where no such elements returns null.
      */
+    @Nullable
     @Override
     public E lower(@NotNull E e) {
         Node<E> node = findCloseNode(root, e);
@@ -318,6 +456,7 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
      * Returns the greatest element in the set, that is lower than given or equal.
      * If where no such elements returns null.
      */
+    @Nullable
     @Override
     public E floor(@NotNull E e) {
         Node<E> node = findCloseNode(root, e);
@@ -334,6 +473,7 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
      * Returns the least element in the set, that greater than given or equal.
      * If where no such elements returns null.
      */
+    @Nullable
     @Override
     public E ceiling(@NotNull E e) {
         Node<E> node = findCloseNode(root, e);
@@ -350,6 +490,7 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
      * Returns the least element in the set, that greater than given.
      * If where no such elements returns null.
      */
+    @Nullable
     @Override
     public E higher(@NotNull E e) {
         Node<E> node = findCloseNode(root, e);
