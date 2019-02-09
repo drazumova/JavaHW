@@ -146,7 +146,7 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
         }
     }
 
-    private final class ReversedTreeSet extends AbstractSet<E> implements MyTreeSet<E>{
+    private final class ReversedTreeSet extends AbstractSet<E> implements MyTreeSet<E> {
         @NotNull private final TreeSet<E> initalSet;
 
         ReversedTreeSet(TreeSet<E> set) {

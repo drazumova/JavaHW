@@ -7,7 +7,7 @@
     <groupId>42</groupId>
     <artifactId>TreeSet</artifactId>
     <version>1.0</version>
-    
+
     <build>
         <plugins>
             <plugin>
