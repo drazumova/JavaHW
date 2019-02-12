@@ -248,18 +248,17 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
             return node;
         }
 
+        Node<E> result;
         if (compare(node.value, element) < 0) {
-            if (node.right == null) {
-                return node;
-            } else {
-                return findCloseNode(node.right, element);
-            }
+            result = findCloseNode(node.right, element);
         } else {
-            if (node.left == null) {
-                return node;
-            } else {
-                return findCloseNode(node.left, element);
-            }
+            result = findCloseNode(node.left, element);
+        }
+
+        if (result == null) {
+            return node;
+        } else {
+            return result;
         }
     }
 
@@ -270,29 +269,27 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
             }
             if (node.right == null) {
                 node.left.parent = node.parent;
-                if (node == node.parent.left) {
-                    node.parent.left = node.left;
-                } else {
-                    node.parent.right = node.left;
-                }
+                return node.left;
             } else if (node.left == null) {
                 node.right.parent = node.parent;
-                if (node == node.parent.left) {
-                    node.parent.left = node.right;
-                } else {
-                    node.parent.right = node.right;
-                }
+                return node.right;
             } else {
                 node.value = node.left.maximum().value;
                 node.left = removeNode(node.left, node.value);
-                node.left.parent = node;
+                if (node.left != null) {
+                    node.left.parent = node;
+                }
             }
         } else if (compare(node.value, value) > 0) {
             node.left = removeNode(node.left, value);
-            node.left.parent = node;
+            if (node.left != null) {
+                node.left.parent = node;
+            }
         } else {
             node.right = removeNode(node.right, value);
-            node.right.parent = node;
+            if (node.right != null) {
+                node.right.parent = node;
+            }
         }
         return node;
     }
@@ -314,11 +311,12 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
     }
 
     /**
-     * Tells is this element is the set or not
+     * Tells is this element is in the set or not
      */
     @Override
     public boolean contains(@NotNull Object element) {
-        return element.equals(getValue(findCloseNode(root, (E) element)));
+        var closeValue = getValue(findCloseNode(root, (E) element));
+        return closeValue != null && compare((E) element, closeValue) == 0;
     }
 
     private Node<E> addNode(Node<E> node, E value) {

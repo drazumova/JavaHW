@@ -1,9 +1,12 @@
 package com.hw.treeset;
 
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
 
+import java.util.ArrayList;
 import java.util.*;
+
+import static java.util.Arrays.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 class TreeSetTest {
@@ -14,6 +17,62 @@ class TreeSetTest {
     private void init() {
         treeSet = new TreeSet<>();
     }
+
+    private int generate(int previous) {
+        return (previous + 10 >> 2) * 7 + 42;
+    }
+
+    @Test
+    void testComparator() {
+        TreeSet<String> newTreeSet = new TreeSet<>(Comparator.comparingInt(String::length));
+        newTreeSet.add("aaaa");
+        newTreeSet.add("bbb");
+        newTreeSet.add("cc");
+        newTreeSet.add("d");
+
+        var list = newTreeSet.toArray();
+        assertEquals("d", list[0]);
+        assertEquals("cc", list[1]);
+        assertEquals("bbb", list[2]);
+        assertEquals("aaaa", list[3]);
+    }
+
+    @Test
+    void testIsSortedAfterAdd() {
+        Integer[] list = new Integer[1000];
+
+        for (int i = 0, current = 20; i < 1000; i++) {
+            list[i] = current;
+            treeSet.add(current);
+            current = generate(current);
+        }
+
+        sort(list);
+        assertArrayEquals(list, treeSet.toArray());
+    }
+
+    @Test
+    void testIsSortedAfterRemove() {
+        Integer[] list = new Integer[1000];
+
+        for (int i = 0, current = 20; i < 1000; i++) {
+            list[i] = current;
+            treeSet.add(current);
+            current = generate(current);
+        }
+
+        for (int i = 0; i < 1000; i++) {
+            assertTrue(treeSet.remove(list[i]));
+        }
+
+        for (int i = 0; i < 1000; i++) {
+            assertTrue(treeSet.add(list[i]));
+        }
+
+        sort(list);
+        assertArrayEquals(list, treeSet.toArray());
+    }
+
 
     @Test
     void testIterator() {
@@ -112,15 +171,15 @@ class TreeSetTest {
         treeSet.add(10);
         treeSet.add(-100);
 
-        var list1 = treeSet.toArray();
-        var list2 = new ArrayList<>();
+        var listInital = treeSet.toArray();
+        var listFromIterator = new ArrayList<>();
         var iterator = treeSet.descendingIterator();
         while (iterator.hasNext()) {
-            list2.add(iterator.next());
+            listFromIterator.add(iterator.next());
         }
 
         for (int i = 0; i < 4; i++) {
-            assertEquals(list1[i], list2.get(3 - i));
+            assertEquals(listInital[i], listFromIterator.get(3 - i));
         }
     }
 
