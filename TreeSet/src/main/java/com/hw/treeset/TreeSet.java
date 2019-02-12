@@ -11,7 +11,7 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
 
     private Node<E> root;
     private int size;
-    private Comparator<E> comparator;
+    private Comparator<? super E> comparator;
     private int currentVersion;
 
     private static final class Node<E> {
@@ -227,7 +227,7 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
     /**
      * Create new set using given comparator.
      */
-    TreeSet(@NotNull Comparator<E> comparator) {
+    TreeSet(@NotNull Comparator<? super E> comparator) {
         this.comparator = comparator;
     }
 
