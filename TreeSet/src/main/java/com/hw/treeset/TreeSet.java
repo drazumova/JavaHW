@@ -255,11 +255,9 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
             result = findCloseNode(node.left, element);
         }
 
-        if (result == null) {
+        if (result == null)
             return node;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     private Node<E> removeNode(@NotNull Node<E> node, E value) {
