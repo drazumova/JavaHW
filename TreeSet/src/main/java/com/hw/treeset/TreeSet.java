@@ -9,16 +9,17 @@ import java.util.*;
  */
 public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
 
-    private Node<E> root;
+    @Nullable private Node<E> root;
     private int size;
-    private Comparator<? super E> comparator;
+    @Nullable private Comparator<? super E> comparator;
     private int currentVersion;
+    @Nullable private MyTreeSet<E> reversedSet;
 
     private static final class Node<E> {
         @NotNull private E value;
-        private Node<E> parent;
-        private Node<E> left;
-        private Node<E> right;
+        @Nullable private Node<E> parent;
+        @Nullable private Node<E> left;
+        @Nullable private Node<E> right;
 
         private Node(E value, Node<E> parent, Node<E> left, Node<E> right) {
             this.value = value;
@@ -81,12 +82,12 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
     }
 
     private final class TreeSetIterator implements Iterator<E> {
-        private Node<E> last;
+        @Nullable private Node<E> last;
         private final int version;
 
-        private TreeSetIterator(Node<E> start, int version) {
+        private TreeSetIterator(Node<E> start) {
             last = start;
-            this.version = version;
+            this.version = currentVersion;
         }
 
         private void checkVersion() throws ConcurrentModificationException {
@@ -114,7 +115,7 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
     }
 
     private final class TreeSetReversedIterator implements Iterator<E> {
-        private Node<E> next;
+        @Nullable private Node<E> next;
         private final int version;
 
         private void checkVersion() throws ConcurrentModificationException {
@@ -123,9 +124,9 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
             }
         }
 
-        private TreeSetReversedIterator(Node<E> start, int version) {
+        private TreeSetReversedIterator(Node<E> start) {
             next = start;
-            this.version = version;
+            this.version = currentVersion;
         }
 
         @Override
@@ -222,12 +223,12 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
     /**
      * Create new set using Comparator.naturalOrder.
      */
-    TreeSet() {}
+    public TreeSet() {}
 
     /**
      * Create new set using given comparator.
      */
-    TreeSet(@NotNull Comparator<? super E> comparator) {
+    public TreeSet(@NotNull Comparator<? super E> comparator) {
         this.comparator = comparator;
     }
 
@@ -255,8 +256,9 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
             result = findCloseNode(node.left, element);
         }
 
-        if (result == null)
+        if (result == null) {
             return node;
+        }
         return result;
     }
 
@@ -371,9 +373,9 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
     @Override
     public Iterator<E> iterator() {
         if (root == null) {
-            return new TreeSetIterator(null, currentVersion);
+            return new TreeSetIterator(null);
         }
-        return new TreeSetIterator(root.minimum(), currentVersion);
+        return new TreeSetIterator(root.minimum());
     }
 
     /**
@@ -385,9 +387,9 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
     @Override
     public Iterator<E> descendingIterator() {
         if (root == null) {
-            return new TreeSetReversedIterator(null, currentVersion);
+            return new TreeSetReversedIterator(null);
         }
-        return new TreeSetReversedIterator(root.maximum(), currentVersion);
+        return new TreeSetReversedIterator(root.maximum());
     }
 
     /**
@@ -397,7 +399,10 @@ public class TreeSet<E> extends AbstractSet<E> implements MyTreeSet<E> {
      */
     @Override
     public MyTreeSet<E> descendingSet() {
-        return new ReversedTreeSet(this);
+        if (reversedSet == null) {
+            return reversedSet = new ReversedTreeSet(this);
+        }
+        return reversedSet;
     }
 
     /**

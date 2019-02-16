@@ -24,7 +24,7 @@ class TreeSetTest {
 
     @Test
     void testComparator() {
-        TreeSet<String> newTreeSet = new TreeSet<>(Comparator.comparingInt(String::length));
+        var newTreeSet = new TreeSet<>(Comparator.comparingInt(String::length));
         newTreeSet.add("aaaa");
         newTreeSet.add("bbb");
         newTreeSet.add("cc");
@@ -39,7 +39,7 @@ class TreeSetTest {
 
     @Test
     void testIsSortedAfterAdd() {
-        Integer[] list = new Integer[1000];
+        var list = new Integer[1000];
 
         for (int i = 0, current = 20; i < 1000; i++) {
             list[i] = current;
@@ -53,7 +53,7 @@ class TreeSetTest {
 
     @Test
     void testIsSortedAfterRemove() {
-        Integer[] list = new Integer[1000];
+        var list = new Integer[1000];
 
         for (int i = 0, current = 20; i < 1000; i++) {
             list[i] = current;
