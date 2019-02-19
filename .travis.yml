@@ -1,0 +1,13 @@
+language: java
+
+jdk:
+- openjdk11
+
+os:
+- linux
+
+env:
+- PROJECT_DIR=HashTable
+- PROJECT_DIR=Trie
+
+script: cd $PROJECT_DIR && mvn test
