@@ -1,0 +1,12 @@
+language: java
+
+jdk:
+- openjdk11
+
+os:
+- linux
+
+env:
+- PROJECT_DIR=TreeSet
+
+script: cd $PROJECT_DIR && mvn test
