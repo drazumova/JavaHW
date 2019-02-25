@@ -89,8 +89,9 @@ public class DataBase {
     public List<String> getNames(String number) throws SQLException {
         final String sql = "select name, number from " + table + " where number = ?";
         List<String> names = new ArrayList<>();
-        try (PreparedStatement statement = connection.prepareStatement(sql); ResultSet resultSet = statement.executeQuery()) {
+        try (PreparedStatement statement = connection.prepareStatement(sql); ) {
             statement.setString(1, number);
+            ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 names.add(resultSet.getString("name"));
             }
