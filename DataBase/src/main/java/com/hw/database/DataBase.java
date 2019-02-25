@@ -5,34 +5,43 @@ import org.jetbrains.annotations.*;
 import java.sql.*;
 import java.util.*;
 
-class PhonebookPair {
-    private final String name;
-    private final String number;
-
-    PhonebookPair(@NotNull String name, @NotNull String number) {
-        this.name = name;
-        this.number = number;
-    }
-
-    @Override
-    public String toString() {
-        return "Contact: " + name + " this number : " + number;
-    }
-
-    @Override
-    public boolean equals(Object other){
-        if (other instanceof PhonebookPair) {
-            var casted = (PhonebookPair) other;
-            return name.equals(casted.name) && number.equals(casted.number);
-        }
-        return false;
-    }
-}
-
+/**
+ * Structure stores unique name-number pairs via SQL-table.
+ */
 public class DataBase {
     private final Connection connection;
     private static final String table = "phonebook";
 
+    /**
+     * (String, String) pair for convenience, returning table elements.
+     */
+    public static class PhonebookPair {
+        private final String name;
+        private final String number;
+
+        public PhonebookPair(@NotNull String name, @NotNull String number) {
+            this.name = name;
+            this.number = number;
+        }
+
+        @Override
+        public String toString() {
+            return "Contact: " + name + " this number : " + number;
+        }
+
+        @Override
+        public boolean equals(Object other){
+            if (other instanceof PhonebookPair) {
+                var casted = (PhonebookPair) other;
+                return name.equals(casted.name) && number.equals(casted.number);
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Creates new table named phonebook.
+     */
     public DataBase() throws SQLException {
         connection = DriverManager.getConnection("jdbc:sqlite::memory");
         try (Statement statement = connection.createStatement()) {
@@ -41,6 +50,12 @@ public class DataBase {
         }
     }
 
+    /**
+     * Adds new pair to the talbe.
+     * If table already contains such pair, does nothing.
+     * @param name name of the pair
+     * @param number number of the pair
+     */
     public void add(@NotNull String name, @NotNull String number) throws SQLException {
         if (getNumbers(name).contains(number)) {
             return;
@@ -53,6 +68,9 @@ public class DataBase {
         }
     }
 
+    /**
+     * Changes name in given pair.
+     */
     public void updateName(@NotNull String name, @NotNull String newName, @NotNull String number) throws SQLException {
         final String sql = "update " +  table + " set name = ? where name = ? and number = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -63,6 +81,9 @@ public class DataBase {
         }
     }
 
+    /**
+     * Changes number in given pair.
+     */
     public void updateNumber(String name, String number, String newNumber) throws SQLException {
         final String sql = "update " + table + " set number = ? where name = ? and number = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -73,19 +94,26 @@ public class DataBase {
         }
     }
 
+    /**
+     * Returns the list of numbers contained in the table by given name.
+     */
     public List<String> getNumbers(String name) throws SQLException {
         final String sql = "select name, number from " + table + " where name = ?";
         List<String> numbers = new ArrayList<>();
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, name);
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                numbers.add(resultSet.getString("number"));
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    numbers.add(resultSet.getString("number"));
+                }
             }
         }
         return numbers;
     }
 
+    /**
+     * Returns the list of names contained in the table by given number.
+     */
     public List<String> getNames(String number) throws SQLException {
         final String sql = "select name, number from " + table + " where number = ?";
         List<String> names = new ArrayList<>();
@@ -99,6 +127,11 @@ public class DataBase {
         return names;
     }
 
+    /**
+     * Removes pair from the table.
+     * @param name name of the pair
+     * @param number number of the pair
+     */
     public void delete(String name, String number) throws SQLException {
         final String sql = "delete from " + table + " where name = ? and number = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -108,6 +141,9 @@ public class DataBase {
         }
     }
 
+    /**
+     * Returns list of all name-number pairs in the table.
+     */
     public List<PhonebookPair> getAll() throws SQLException {
         final String sql = "select * from " + table;
         List<PhonebookPair> all = new ArrayList<>();
@@ -118,6 +154,5 @@ public class DataBase {
             }
         }
         return all;
-
     }
 }

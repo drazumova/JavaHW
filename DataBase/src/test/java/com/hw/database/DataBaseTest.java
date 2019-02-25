@@ -21,8 +21,8 @@ class DataBaseTest {
         dataBase.add("Sasha", "8 (812) 678-95-26");
         dataBase.add("Dasha", "88124386031");
         var all = dataBase.getAll();
-        assertEquals(List.of(new PhonebookPair("Sasha", "8 (812) 678-95-26"),
-                new PhonebookPair("Dasha", "88124386031")), all);
+        assertEquals(List.of(new DataBase.PhonebookPair("Sasha", "8 (812) 678-95-26"),
+                new DataBase.PhonebookPair("Dasha", "88124386031")), all);
     }
 
     @Test
@@ -166,4 +166,14 @@ class DataBaseTest {
         assertEquals(3, dataBase.getAll().size());
     }
 
+    @Test
+    void getAllEqualsTest() throws SQLException {
+        dataBase.add("Sasha", "88124386031");
+        dataBase.add("Dasha", "+79119405740");
+        dataBase.add("Masha", "8 (812) 678-95-26");
+        assertEquals(List.of(new DataBase.PhonebookPair("Sasha", "88124386031"),
+                            new DataBase.PhonebookPair("Dasha", "+79119405740"),
+                            new DataBase.PhonebookPair("Masha", "8 (812) 678-95-26")),
+                            dataBase.getAll());
+    }
 }
