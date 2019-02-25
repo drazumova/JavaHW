@@ -119,10 +119,12 @@ public class DataBase {
         List<String> names = new ArrayList<>();
         try (PreparedStatement statement = connection.prepareStatement(sql); ) {
             statement.setString(1, number);
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                names.add(resultSet.getString("name"));
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    names.add(resultSet.getString("name"));
+                }
             }
+
         }
         return names;
     }
