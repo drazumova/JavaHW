@@ -26,11 +26,11 @@ public class DataBase {
 
         @Override
         public String toString() {
-            return "Contact: " + name + " this number : " + number;
+            return "Contact: " + name + " with number : " + number;
         }
 
         @Override
-        public boolean equals(Object other){
+        public boolean equals(Object other) {
             if (other instanceof PhonebookPair) {
                 var casted = (PhonebookPair) other;
                 return name.equals(casted.name) && number.equals(casted.number);
@@ -117,7 +117,7 @@ public class DataBase {
     public List<String> getNames(String number) throws SQLException {
         final String sql = "select name, number from " + table + " where number = ?";
         List<String> names = new ArrayList<>();
-        try (PreparedStatement statement = connection.prepareStatement(sql); ) {
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, number);
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
