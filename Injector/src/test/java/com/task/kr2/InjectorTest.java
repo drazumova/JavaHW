@@ -28,6 +28,18 @@ public class InjectorTest {
     }
 
     @Test
+    public void injectorShouldInitializeClassWithOneClassDependencyByExtended()
+            throws Exception {
+        Object object = Injector.initialize(
+                "com.task.kr2.ClassWithOneClassDependency",
+                Collections.singletonList("com.task.kr2.ClassExtend")
+        );
+        assertTrue(object instanceof ClassWithOneClassDependency);
+        ClassWithOneClassDependency instance = (ClassWithOneClassDependency) object;
+        assertTrue(instance.dependency != null);
+    }
+
+    @Test
     public void injectorShouldInitializeClassWithOneInterfaceDependency()
             throws Exception {
         Object object = Injector.initialize(
