@@ -33,7 +33,7 @@ public class Injector {
                         }
                     }
                 }
-                else if (impl.equals(kek)) {
+                else if (kek.isAssignableFrom(impl)) {
                    counter++;
                 }
             }
@@ -54,7 +54,7 @@ public class Injector {
                         }
                     }
                 }
-                else if (impl.equals(kek)) {
+                else if (kek.isAssignableFrom(impl)) {
                     parameters.add(initialize(impl.getName(), implementationClassNames));
                 }
             }
