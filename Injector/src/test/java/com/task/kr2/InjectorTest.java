@@ -40,6 +40,22 @@ public class InjectorTest {
     }
 
     @Test
+    public void ThrowCheckZeroParameters()
+            throws Exception {
+        assertThrows(ImplementationNotFoundException.class, () -> Injector.initialize(
+                "com.task.kr2.ClassWithOneClassDependency",
+                Collections.emptyList()));
+    }
+
+    @Test
+    public void ThrowCheckManyParameters()
+            throws Exception {
+        assertThrows(AmbiguousImplementationException.class, () -> Injector.initialize(
+                "com.task.kr2.ClassWithOneClassDependency",
+                List.of("com.task.kr2.ClassExtend", "com.task.kr2.ClassExtend")));
+    }
+
+    @Test
     public void injectorShouldInitializeClassWithOneInterfaceDependency()
             throws Exception {
         Object object = Injector.initialize(
