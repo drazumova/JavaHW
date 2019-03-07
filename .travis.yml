@@ -7,6 +7,7 @@ os:
 - linux
 
 env:
+- PROJECT_DIR=TreeSet
 - PROJECT_DIR=HashTable
 - PROJECT_DIR=Trie
 
