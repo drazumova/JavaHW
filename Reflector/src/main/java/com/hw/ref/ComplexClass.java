@@ -31,3 +31,19 @@ class NewClassWithOneMethodWithException {
     }
 
 }
+
+class GenericClass<E> {
+    private E field;
+}
+
+class AnotherGenericClass<U> {
+    private U field;
+}
+
+class GenericClassExtendsObject<U extends Object> {
+    private U field;
+}
+
+class GenericClassExtendsInteger<E extends Integer> {
+    private E field;
+}

@@ -10,12 +10,8 @@ import java.nio.charset.*;
 import java.util.*;
 import java.util.stream.*;
 
-import static java.util.Arrays.sort;
-import static java.util.stream.Collectors.joining;
-
 public class Reflector {
 
-    private static final String fileName2 = "testResault";
     private static final String fileName = "src/main/java/com/hw/ref/SomeClass.java";
     private static final String fileDifference = "diff";
     
@@ -33,19 +29,19 @@ public class Reflector {
         writer.print(")");
         var exceptionList = List.of(method.getExceptionTypes());
         if (!exceptionList.isEmpty()) {
-            writer.print(" throws " + exceptionList.stream().map(Class::getName).collect( joining( ", " ) ));
+            writer.print(" throws " + exceptionList.stream().map(Class::getName).collect( Collectors.joining( ", " ) ));
         }
 
         writer.println(";");
     }
 
-    private static void printConstructor(Constructor<?> constructor, PrintWriter writer, String tabs) {
+    private static void printConstructor(Constructor<?> constructor, PrintWriter writer, String tabs, String className) {
         String modifiers = Modifier.toString(constructor.getModifiers() + Modifier.ABSTRACT);
         if (!modifiers.isEmpty()) {
             modifiers += " ";
         }
 
-        writer.print(tabs + modifiers + constructor.getName() + "(");
+        writer.print(tabs + modifiers + className + "(");
 
         char name = 'a';
         for (var parameter : constructor.getParameterTypes()) {
@@ -55,7 +51,7 @@ public class Reflector {
         writer.print(")");
         var exceptionList = List.of(constructor.getExceptionTypes());
         if (!exceptionList.isEmpty()) {
-            writer.print(" throws " + exceptionList.stream().map(Class::getName).collect( joining( ", " ) ));
+            writer.print(" throws " + exceptionList.stream().map(Class::getName).collect( Collectors.joining( ", " ) ));
         }
 
         writer.println(";");
@@ -70,18 +66,18 @@ public class Reflector {
         writer.println(tabs + modifiers + field.getType() + " " + field.getName() + ";");
     }
     
-    private static void printClass(Class<?> clazz, PrintWriter writer, String tabs) {
+    private static void printClass(Class<?> clazz, PrintWriter writer, String tabs, String className) {
         var mod = clazz.getModifiers();
         var superClass = clazz.getSuperclass();
         String innerTabs = tabs + "    ";
 
-        writer.print(tabs + Modifier.toString(mod) + " class " + clazz.getSimpleName() + " ");
+        writer.print(tabs + Modifier.toString(mod) + " class " + className + " ");
 
         writer.print("extends " + superClass.getName());
 
         List<Class<?>> interfacesList = List.of(clazz.getInterfaces());
         if (!interfacesList.isEmpty()) {
-            writer.print(" implements " + interfacesList.stream().map(Class::getName).collect( joining( ", " ) ));
+            writer.print(" implements " + interfacesList.stream().map(Class::getName).collect( Collectors.joining( ", " ) ));
         }
 
         writer.println(" {\n");
@@ -92,9 +88,9 @@ public class Reflector {
 
         writer.println();
 
-//        for (var i : clazz.getDeclaredConstructors()) {
-//            printConstructor(i, writer, innerTabs);
-//        }
+        for (var i : clazz.getDeclaredConstructors()) {
+            printConstructor(i, writer, innerTabs, className);
+        }
 
         writer.println();
 
@@ -105,7 +101,7 @@ public class Reflector {
         writer.println();
 
         for (var i : clazz.getDeclaredClasses()) {
-            printClass(i, writer, innerTabs);
+            printClass(i, writer, innerTabs, i.getSimpleName());
         }
 
         writer.println(tabs + "}\n");
@@ -120,7 +116,7 @@ public class Reflector {
         try (var writer = new PrintWriter(new FileWriter(fileName, StandardCharsets.UTF_8))) {
             writer.println("package " + someClass.getPackageName() + ";\n");
             writer.print("abstract ");
-            printClass(someClass, writer, "");
+            printClass(someClass, writer, "", "SomeClass");
         }
     }
 
@@ -151,7 +147,7 @@ public class Reflector {
         resault += modifiers + " " + method.getReturnType().getName() + " " + method.getName() + "(";
 
         var parameters = method.getParameterTypes();
-        sort(parameters);
+        Arrays.sort(parameters);
         for (var parameter : parameters) {
             resault += parameter.getName() + " ";
         }
@@ -159,8 +155,8 @@ public class Reflector {
         resault += ")";
 
         var exceptionList = method.getExceptionTypes();
-        sort(exceptionList);
-        resault += " throws " + List.of(exceptionList).stream().map(Class::getName).collect( joining( ", " ) );
+        Arrays.sort(exceptionList);
+        resault += " throws " + List.of(exceptionList).stream().map(Class::getName).collect( Collectors.joining( ", " ) );
 
         return resault;
     }
@@ -183,25 +179,6 @@ public class Reflector {
                 writer.println(method);
             }
         }
-    }
-
-    private static boolean classesEquals(Class<?> first, Class<?> second, PrintWriter writer) {
-        var firstClassesList = Set.of(first.getDeclaredClasses());
-        var secondClassesList = Set.of(second.getDeclaredClasses());
-
-        for (var clazz : firstClassesList) {
-            if (!secondClassesList.contains(clazz)) {
-                printClass(clazz, writer, "");
-            }
-        }
-
-        for (var clazz : secondClassesList) {
-            if (!firstClassesList.contains(clazz)) {
-                printClass(clazz, writer, "");
-            }
-        }
-
-        return true;
     }
 
     private static void compareClasses(Class<?> first, Class<?> second, PrintWriter writer) {

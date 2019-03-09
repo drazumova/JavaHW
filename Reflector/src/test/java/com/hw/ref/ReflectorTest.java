@@ -78,4 +78,30 @@ class ReflectorTest {
                 "private void com.hw.ref.NewClassWithOneMethod.method()",
                 "private void com.hw.ref.NewClassWithOneMethodWithException.method() throws java.lang.Exception"), list);
     }
+
+    @Test
+    void diffGenericTest() throws IOException {
+        Reflector.diffClasses(GenericClass.class, AnotherGenericClass.class);
+        var list = Files.readAllLines(Paths.get("diff"));
+
+        assertEquals(List.of(""), list);
+    }
+
+    @Test
+    void diffGenericExtendsObjectTest() throws IOException {
+        Reflector.diffClasses(GenericClass.class, GenericClassExtendsObject.class);
+        var list = Files.readAllLines(Paths.get("diff"));
+
+        assertEquals(List.of(""), list);
+    }
+
+    @Test
+    void diffGenericExtendsIntegerTest() throws IOException {
+        Reflector.diffClasses(GenericClass.class, GenericClassExtendsInteger.class);
+        var list = Files.readAllLines(Paths.get("diff"));
+
+        assertEquals(List.of("private java.lang.Object com.hw.ref.GenericClass.field",
+                            "private java.lang.Integer com.hw.ref.GenericClassExtendsInteger.field",
+                            ""), list);
+    }
 }
