@@ -18,16 +18,14 @@ class ReflectorTest {
     void simpleDiffTest() throws IOException {
         Reflector.diffClasses(SimpleClass.class, SimpleClass.class);
         var list = Files.readAllLines(Paths.get("diff"));
-        assertTrue(list.isEmpty());
+        assertEquals(List.of(""), list);
     }
 
     @Test
     void diffWtihEmptyClassTest() throws IOException {
         Reflector.diffClasses(SimpleClass.class, ComplexClass.class);
         var list = Files.readAllLines(Paths.get("diff"));
-        for (var s : list) {
-            System.out.println(s);
-        }
+
         assertEquals(List.of("long com.hw.ref.SimpleClass.longField",
                 "public char com.hw.ref.SimpleClass.charField",
                 "private int com.hw.ref.SimpleClass.intField",
