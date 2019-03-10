@@ -8,7 +8,6 @@ public class Main {
     public static void main(String... args) {
         try (Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8)) {
             DataBase dataBase = new DataBase();
-            boolean going = true;
             final String greeting = "Welcome to the incredible console phonebook!\n" +
                     "It contains unique (name, number) pairs.\n" +
                     "All input is separated by line breaks.\n";
@@ -22,6 +21,7 @@ public class Main {
                     "To get all (name, number) pairs in the phonebook enter 7\n" +
                     "To get usage again enter 8\n";
             System.out.println(greeting + "\n" + usage);
+            boolean going = true;
             while (going) {
                 int action = Integer.parseInt(scanner.nextLine());
                 String name;
