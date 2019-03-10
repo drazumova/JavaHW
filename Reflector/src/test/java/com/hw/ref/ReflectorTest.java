@@ -3,6 +3,7 @@ package com.hw.ref;
 import org.junit.jupiter.api.*;
 import com.hw.ref.SimpleClass;
 
+import javax.tools.*;
 import java.io.*;
 import java.lang.reflect.*;
 import java.nio.file.*;
@@ -16,8 +17,8 @@ class ReflectorTest {
     @Test
     void complexGenericClassPrintAndDiffTest() throws IOException, ClassNotFoundException, InterruptedException {
         Reflector.printStructure(SimpleGenericClass.class);
-        Process process = Runtime.getRuntime().exec("javac src/test/java/com/hw/ref/SomeClass.java");
-        process.waitFor();
+        var compiler = ToolProvider.getSystemJavaCompiler();
+        compiler.run(null, null, null, "src/test/java/com/hw/ref/SomeClass.java");
         var classLoad = SimpleGenericClass.class.getClassLoader();
         classLoad.loadClass("com.hw.ref.SomeClass");
 
