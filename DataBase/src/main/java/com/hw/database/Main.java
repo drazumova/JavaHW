@@ -8,11 +8,24 @@ public class Main {
     public static void main(String... args) {
         try (Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8)) {
             DataBase dataBase = new DataBase();
-            String name;
-            String number;
             boolean going = true;
+            final String greeting = "Welcome to the incredible console phonebook!\n" +
+                    "It contains unique (name, number) pairs.\n" +
+                    "All input is separated by line breaks.\n";
+            final String usage = "To exit enter 0\n" +
+                    "To add (name, number) pair to phonebook enter 1 <name> <number>\n" +
+                    "To get all numbers by name enter 2 <name>\n" +
+                    "To get all names by number enter 3 <number>\n" +
+                    "To delete (name, number) pair from phonebook enter 4 <name> <number>\n" +
+                    "To update name in (name, number) pair enter 5 <name> <number> <new name>\n" +
+                    "To update number in (name, number) pair enter 6 <name> <number> <new number>\n" +
+                    "To get all (name, number) pairs in the phonebook enter 7\n" +
+                    "To get usage again enter 8\n";
+            System.out.println(greeting + "\n" + usage);
             while (going) {
                 int action = Integer.parseInt(scanner.nextLine());
+                String name;
+                String number;
                 switch (action) {
                     case 0:
                         going = false;
@@ -58,6 +71,9 @@ public class Main {
                         for (var current : all) {
                             System.out.println(current);
                         }
+                        break;
+                    case 8:
+                        System.out.println(usage);
                         break;
                     default:
                         System.out.println("Wrong command");
