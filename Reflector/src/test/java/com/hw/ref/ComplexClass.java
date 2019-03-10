@@ -8,6 +8,10 @@ class NewClass {
     private int field;
 }
 
+class ChildClass extends NewClass {
+
+}
+
 class AnotherClass {
     public int field;
 }
@@ -69,5 +73,12 @@ class NextGenericClass<E> extends GenericClass<E> implements GenericInterface<E>
 
     private <U, T> T print(U o, T a) {
         return a;
+    }
+}
+
+
+class ClassWithInterface {
+    private interface InnerInterface extends MyInterface, CoolInterface{
+        int field = 42;
     }
 }

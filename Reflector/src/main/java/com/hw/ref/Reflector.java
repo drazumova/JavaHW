@@ -14,8 +14,8 @@ import java.util.stream.*;
  * Class allows compare and print structure of classes.
  */
 public class Reflector {
-    private static final String fileName = "src/main/java/com/hw/ref/SomeClass.java";
-    private static final String fileDifference = "diff";
+    public static final String fileName = "src/test/java/com/hw/ref/SomeClass.java";
+    public static final String fileDifference = "diffClassesResault";
 
     private static void printMethod(Method method, PrintWriter writer, String tabs) {
         String modifiers = Modifier.toString(method.getModifiers());
@@ -90,22 +90,37 @@ public class Reflector {
         return "<" +list.stream().map(TypeVariable::getName).collect( Collectors.joining(", ")) + ">";
     }
 
-    private static void printClass(Class<?> clazz, PrintWriter writer, String tabs, String className) {
-        var mod = clazz.getModifiers();
-        var superClass = clazz.getGenericSuperclass();
+    private static void printClassHead(Class<?> clazz, PrintWriter writer, String tabs, String className){
+        if (clazz.isInterface()) {
+            var mod = clazz.getModifiers();
+            var superClass = clazz.getGenericSuperclass();
+            writer.print(tabs + Modifier.toString(mod) + " " + className + printGenericType(clazz) + " ");
 
-        String innerTabs = tabs + "    ";
+            List<Type> interfacesList = List.of(clazz.getGenericInterfaces());
+            if (!interfacesList.isEmpty()) {
+                writer.print(" extends " + interfacesList.stream()
+                        .map(Type::getTypeName)
+                        .collect( Collectors.joining( ", " ) ));
+            }
+        } else {
+            var mod = clazz.getModifiers();
+            var superClass = clazz.getGenericSuperclass();
+            writer.print(tabs + Modifier.toString(mod) + " class " + className + printGenericType(clazz) + " ");
 
-        writer.print(tabs + Modifier.toString(mod) + " class " + className + printGenericType(clazz) + " ");
+            writer.print("extends " + superClass.getTypeName());
 
-        writer.print("extends " + superClass.getTypeName());
-
-        List<Type> interfacesList = List.of(clazz.getGenericInterfaces());
-        if (!interfacesList.isEmpty()) {
-            writer.print(" implements " + interfacesList.stream()
-                    .map(Type::getTypeName)
-                    .collect( Collectors.joining( ", " ) ));
+            List<Type> interfacesList = List.of(clazz.getGenericInterfaces());
+            if (!interfacesList.isEmpty()) {
+                writer.print(" implements " + interfacesList.stream()
+                        .map(Type::getTypeName)
+                        .collect( Collectors.joining( ", " ) ));
+            }
         }
+    }
+
+    private static void printClass(Class<?> clazz, PrintWriter writer, String tabs, String className) {
+        String innerTabs = tabs + "    ";
+        printClassHead(clazz, writer, tabs, className);
 
         writer.println(" {");
 
@@ -148,16 +163,26 @@ public class Reflector {
         }
     }
 
-    private static void fieldsEquals(Class<?> first, Class<?> second, PrintWriter writer) {
+    private static Set<Field> getFieldsSet(Class<?> clazz) {
         var comparator = Comparator.comparing(Field::getModifiers)
                 .thenComparing(f -> f.getType()
-                .toString());
-        
-        var firstFieldsSet = new TreeSet<>(comparator);
-        firstFieldsSet.addAll(List.of(first.getDeclaredFields()));
-        var secondFieldsSet = new TreeSet<>(comparator);
+                        .toString());
+
+        var fieldsSet = new TreeSet<>(comparator);
+
+        var currentClass = clazz;
+        while (!currentClass.equals(Object.class)) {
+            fieldsSet.addAll(List.of(currentClass.getDeclaredFields()));
+            currentClass = currentClass.getSuperclass();
+        }
+        return fieldsSet;
+    }
+
+    private static void fieldsEquals(Class<?> first, Class<?> second, PrintWriter writer) {
+        var firstFieldsSet = getFieldsSet(first);
+        var secondFieldsSet = getFieldsSet(second);
         secondFieldsSet.addAll(List.of(second.getDeclaredFields()));
-        
+
         for (var field : firstFieldsSet) {
             if (!secondFieldsSet.contains(field)) {
                 writer.println(field);
@@ -194,12 +219,20 @@ public class Reflector {
         return resault;
     }
 
+    private static Set<Method> getMethodsSet(Class<?> clazz) {
+        var currentClass = clazz;
+        var fieldsSet = new TreeSet<>(Comparator.comparing(Reflector::methodToString));
+        while (!currentClass.equals(Object.class)) {
+            fieldsSet.addAll(List.of(currentClass.getDeclaredMethods()));
+            currentClass = currentClass.getSuperclass();
+        }
+        return fieldsSet;
+    }
+    
     private static void methodsEquals(Class<?> first, Class<?> second, PrintWriter writer) {
-        var firstMethodsSet = new TreeSet<>(Comparator.comparing(Reflector::methodToString));
-        firstMethodsSet.addAll(List.of(first.getDeclaredMethods()));
-        var secondMethodsSet = new TreeSet<>(Comparator.comparing(Reflector::methodToString));
-        secondMethodsSet.addAll(List.of(second.getDeclaredMethods()));
-
+        var firstMethodsSet = getMethodsSet(first);
+        var secondMethodsSet = getMethodsSet(second);
+        
         for (var method : firstMethodsSet) {
             if (!secondMethodsSet.contains(method)) {
                 writer.println(method);
@@ -220,10 +253,9 @@ public class Reflector {
     }
 
     /**
-     * Create file "diff" with all different methods and fields in given classes.
+     * Create file "diffClassesResault" with all different methods and fields in given classes.
      * In comparing methods order of types of parameters is matter.
      * Does not compare constructors.
-     * Does not compare methods from superclasses.
      * Does not compare implemented interfaces.
      */
     public static void diffClasses(Class<?> a, Class<?> b) throws IOException {

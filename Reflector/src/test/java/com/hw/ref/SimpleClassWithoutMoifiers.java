@@ -1,7 +1,7 @@
 package com.hw.ref;
 
 
-class SimpleClassWithoutMoifiers{
+class SimpleClassWithoutMoifiers extends Clazz implements MyInterface{
     private int intField;
     public char charField;
     long longField;
