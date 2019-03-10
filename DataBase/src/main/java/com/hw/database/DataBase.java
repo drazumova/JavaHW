@@ -44,14 +44,20 @@ public class DataBase {
     }
 
     /**
-     * Creates new table named phonebook.
+     * Creates new tables if they do not exist named phonebook, namesTable and numbersTable.
      */
     public DataBase() throws SQLException {
         connection = DriverManager.getConnection("jdbc:sqlite::memory");
         try (Statement statement = connection.createStatement()) {
-            statement.execute("create table if not exists " + tableWithNames + "(id integer primary key, name text)");
-            statement.execute("create table if not exists " + tableWithNumbers + "(id integer primary key , number text)");
-            statement.execute("create table if not exists " + tableWithPairs + "(name integer , number integer)");
+            statement.execute("create table if not exists "
+                    + tableWithNames
+                    + "(id integer primary key, name text)");
+            statement.execute("create table if not exists "
+                    + tableWithNumbers
+                    + "(id integer primary key , number text)");
+            statement.execute("create table if not exists "
+                    + tableWithPairs
+                    + "(name integer , number integer)");
         }
     }
 
@@ -144,8 +150,8 @@ public class DataBase {
     }
 
     private void tryRemoveNumber(String number) throws SQLException {
-        if (getNumbers(number).isEmpty()) {
-            final String sql = "delete from " + tableWithNumbers + " where name = ?";
+        if (getNames(number).isEmpty()) {
+            final String sql = "delete from " + tableWithNumbers + " where number = ?";
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setString(1, number);
                 statement.executeUpdate();
@@ -278,6 +284,9 @@ public class DataBase {
             statement.setInt(2, numberId);
             statement.executeUpdate();
         }
+
+        tryRemoveName(name);
+        tryRemoveNumber(number);
     }
 
     /**
