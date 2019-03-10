@@ -9,16 +9,31 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class DataBaseTest {
 
-    private final DataBase dataBase;
+    private DataBase dataBase;
 
-    DataBaseTest() throws SQLException {
+    @BeforeEach
+    void init() throws SQLException {
         dataBase = new DataBase();
         dataBase.clear();
     }
 
-    @AfterEach
-    void clearPhooneBook() throws SQLException {
-        dataBase.clear();
+    @Test
+    void dataAfterClosingSizeTest() throws SQLException {
+        dataBase.add("Sasha", "8 (812) 678-95-26");
+        dataBase.add("Dasha", "88124386031");
+        var anotherDataBase = new DataBase();
+        assertEquals(2, anotherDataBase.getAll().size());
+    }
+
+    @Test
+    void dataAfterClosingValuesTest() throws SQLException {
+        dataBase.add("Sasha", "8 (812) 678-95-26");
+        dataBase.add("Dasha", "88124386031");
+        var anotherDataBase = new DataBase();
+        assertEquals(1, anotherDataBase.getNumbers("Sasha").size());
+        assertEquals("8 (812) 678-95-26", anotherDataBase.getNumbers("Sasha").get(0));
+        assertEquals(1, anotherDataBase.getNumbers("Dasha").size());
+        assertEquals("88124386031", anotherDataBase.getNumbers("Dasha").get(0));
     }
 
     @Test
