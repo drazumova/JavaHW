@@ -45,7 +45,7 @@ public class DataBase {
 
     /**
      * Creates new tables if they do not exist named phonebook, namesTable and numbersTable.
-     * Creates src/main/resources/phoonebook.db to save data.
+     * Uses src/main/resources/phoonebook.db to save data.
      */
     public DataBase() throws SQLException {
         connection = DriverManager.getConnection("jdbc:sqlite:src/main/resources/phoonebook.db");
@@ -184,6 +184,7 @@ public class DataBase {
 
     /**
      * Changes name in given pair.
+     * If pair does not exist does noting.
      */
     public void updateName(@NotNull String name, @NotNull String newName, @NotNull String number) throws SQLException {
         var numberId = getIdByNumber(number);
@@ -205,6 +206,7 @@ public class DataBase {
 
     /**
      * Changes number in given pair.
+     * If pair does not exist does noting.
      */
     public void updateNumber(String name, String number, String newNumber) throws SQLException {
         var nameId = getIdByName(name);
@@ -269,6 +271,7 @@ public class DataBase {
 
     /**
      * Removes pair from the table.
+     * If pair does not exist does noting.
      * @param name name of the pair
      * @param number number of the pair
      */
@@ -307,6 +310,9 @@ public class DataBase {
         return all;
     }
 
+    /**
+     * Removes all pairs from the table.
+     */
     public void clear() throws SQLException {
         try (Statement statement = connection.createStatement()) {
             statement.execute("delete from " + tableWithNames);

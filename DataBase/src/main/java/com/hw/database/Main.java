@@ -11,17 +11,17 @@ public class Main {
             final String greeting = "Welcome to the incredible console phonebook!\n" +
                     "It contains unique (name, number) pairs.\n" +
                     "All input is separated by line breaks.\n";
-            final String usage = "To exit enter 0\n" +
-                    "To add (name, number) pair to phonebook enter 1 <name> <number>\n" +
+            final String help = "To exit enter 0\n" +
+                    "To add (name, number) pair to the phonebook enter 1 <name> <number>\n" +
                     "To get all numbers by name enter 2 <name>\n" +
                     "To get all names by number enter 3 <number>\n" +
-                    "To delete (name, number) pair from phonebook enter 4 <name> <number>\n" +
+                    "To delete (name, number) pair from the phonebook enter 4 <name> <number>\n" +
                     "To update name in (name, number) pair enter 5 <name> <number> <new name>\n" +
                     "To update number in (name, number) pair enter 6 <name> <number> <new number>\n" +
                     "To get all (name, number) pairs in the phonebook enter 7\n" +
                     "To delete all from the phonebook enter 8\n" +
-                    "To get usage again enter 9\n";
-            System.out.println(greeting + "\n" + usage);
+                    "To get help enter 9\n";
+            System.out.println(greeting + "\n" + help);
             boolean going = true;
             while (going) {
                 int action = Integer.parseInt(scanner.nextLine());
@@ -77,7 +77,7 @@ public class Main {
                         dataBase.clear();
                         break;
                     case 9:
-                        System.out.println(usage);
+                        System.out.println(help);
                         break;
                     default:
                         System.out.println("Wrong command");
