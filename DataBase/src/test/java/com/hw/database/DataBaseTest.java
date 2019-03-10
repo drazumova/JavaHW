@@ -9,11 +9,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class DataBaseTest {
 
-    private DataBase dataBase;
+    private final DataBase dataBase;
 
-    @BeforeEach
-    void init() throws SQLException {
+    DataBaseTest() throws SQLException {
         dataBase = new DataBase();
+        dataBase.clear();
+    }
+
+    @AfterEach
+    void clearPhooneBook() throws SQLException {
+        dataBase.clear();
     }
 
     @Test
