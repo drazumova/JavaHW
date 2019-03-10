@@ -22,7 +22,6 @@ public class Reflector {
         if (!modifiers.isEmpty()) {
             modifiers += " ";
         }
-
         String genericParameters = "";
         if (method.getTypeParameters().length != 0) {
             genericParameters = "<" + List.of(method.getTypeParameters())
@@ -45,7 +44,6 @@ public class Reflector {
         if (!exceptionList.isEmpty()) {
             writer.print(" throws " + exceptionList.stream().map(Type::getTypeName).collect( Collectors.joining( ", " ) ));
         }
-
         writer.println(";");
     }
 
@@ -54,9 +52,7 @@ public class Reflector {
         if (!modifiers.isEmpty()) {
             modifiers += " ";
         }
-
         writer.print(tabs + modifiers + className + "(");
-
         char name = 'a';
         for (var parameter : constructor.getGenericParameterTypes()) {
             writer.print(parameter.getTypeName() + " " + name);
@@ -69,7 +65,6 @@ public class Reflector {
                     .map(Type::getTypeName)
                     .collect( Collectors.joining( ", " ) ));
         }
-
         writer.println(";");
     }
 
@@ -86,7 +81,6 @@ public class Reflector {
         if (list.isEmpty()) {
             return "";
         }
-
         return "<" +list.stream().map(TypeVariable::getName).collect( Collectors.joining(", ")) + ">";
     }
 
@@ -109,7 +103,7 @@ public class Reflector {
 
             writer.print("extends " + superClass.getTypeName());
 
-            List<Type> interfacesList = List.of(clazz.getGenericInterfaces());
+            var interfacesList = List.of(clazz.getGenericInterfaces());
             if (!interfacesList.isEmpty()) {
                 writer.print(" implements " + interfacesList.stream()
                         .map(Type::getTypeName)
@@ -121,31 +115,22 @@ public class Reflector {
     private static void printClass(Class<?> clazz, PrintWriter writer, String tabs, String className) {
         String innerTabs = tabs + "    ";
         printClassHead(clazz, writer, tabs, className);
-
         writer.println(" {");
-
         for (var item : clazz.getDeclaredFields()) {
             printField(item, writer, innerTabs);
         }
-
         writer.println();
-
         for (var item : clazz.getDeclaredConstructors()) {
             printConstructor(item, writer, innerTabs, className);
         }
-
         writer.println();
-
         for (var item : clazz.getDeclaredMethods()) {
             printMethod(item, writer, innerTabs);
         }
-
         writer.println();
-
         for (var item : clazz.getDeclaredClasses()) {
             printClass(item, writer, innerTabs, item.getSimpleName());
         }
-
         writer.println(tabs + "}");
     }
 
@@ -167,9 +152,7 @@ public class Reflector {
         var comparator = Comparator.comparing(Field::getModifiers)
                 .thenComparing(f -> f.getType()
                         .toString());
-
         var fieldsSet = new TreeSet<>(comparator);
-
         var currentClass = clazz;
         while (!currentClass.equals(Object.class)) {
             fieldsSet.addAll(List.of(currentClass.getDeclaredFields()));
@@ -182,13 +165,11 @@ public class Reflector {
         var firstFieldsSet = getFieldsSet(first);
         var secondFieldsSet = getFieldsSet(second);
         secondFieldsSet.addAll(List.of(second.getDeclaredFields()));
-
         for (var field : firstFieldsSet) {
             if (!secondFieldsSet.contains(field)) {
                 writer.println(field);
             }
         }
-
         for (var field : secondFieldsSet) {
             if (!firstFieldsSet.contains(field)) {
                 writer.println(field);
@@ -200,22 +181,18 @@ public class Reflector {
         String resault = "";
         String modifiers = Modifier.toString(method.getModifiers());
         resault += modifiers + " " + method.getReturnType().getName() + " " + method.getName() + "(";
-
         var parameters = method.getParameterTypes();
         Arrays.sort(parameters);
         for (var parameter : parameters) {
             resault += parameter.getName() + " ";
         }
-
         resault += ")";
-
         var exceptionList = method.getExceptionTypes();
         Arrays.sort(exceptionList);
         resault += " throws " + List.of(exceptionList)
                 .stream()
                 .map(Class::getName)
                 .collect( Collectors.joining( ", " ) );
-
         return resault;
     }
 
@@ -232,13 +209,11 @@ public class Reflector {
     private static void methodsEquals(Class<?> first, Class<?> second, PrintWriter writer) {
         var firstMethodsSet = getMethodsSet(first);
         var secondMethodsSet = getMethodsSet(second);
-        
         for (var method : firstMethodsSet) {
             if (!secondMethodsSet.contains(method)) {
                 writer.println(method);
             }
         }
-
         for (var method : secondMethodsSet) {
             if (!firstMethodsSet.contains(method)) {
                 writer.println(method);
