@@ -44,26 +44,30 @@ public class DataBase {
     }
 
     /**
-     * Creates new tables if they do not exist named phonebook, namesTable and numbersTable.
+     * Creates new tables if they do not exist named phonebook, namesTable AND numbersTable.
      * Uses src/main/resources/phoonebook.db to save data.
      */
     public DataBase() throws SQLException {
         connection = DriverManager.getConnection("jdbc:sqlite:src/main/resources/phoonebook.db");
         try (Statement statement = connection.createStatement()) {
-            statement.execute("create table if not exists "
+            statement.execute("CREATE TABLE IF NOT EXISTS "
                     + tableWithNames
-                    + "(id integer primary key, name text)");
-            statement.execute("create table if not exists "
+                    + "(id int PRIMARY KEY , name TEXT NOT NULL UNIQUE )");
+            statement.execute("CREATE TABLE IF NOT EXISTS "
                     + tableWithNumbers
-                    + "(id integer primary key , number text)");
-            statement.execute("create table if not exists "
-                    + tableWithPairs
-                    + "(name integer , number integer)");
+                    + "(id int PRIMARY KEY, number TEXT NOT NULL UNIQUE )");
+            statement.execute("CREATE TABLE IF NOT EXISTS "
+                    + tableWithPairs +
+                    "(name int NOT NULL, number int NOT NULL, " +
+                    "FOREIGN KEY(name) REFERENCES " + tableWithNames + "(id)," +
+                    "FOREIGN KEY(number) REFERENCES " + tableWithNumbers + "(id)," +
+                    "PRIMARY KEY (name, number)" +
+                    ")");
         }
     }
 
     private Integer getIdByName(@NotNull String name) throws SQLException {
-        final String sql = "select id, name from " + tableWithNames + " where name = ?";
+        final String sql = "SELECT id, name FROM " + tableWithNames + " WHERE name = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, name);
@@ -78,7 +82,7 @@ public class DataBase {
     }
 
     private Integer getIdByNumber(@NotNull String number) throws SQLException {
-        final String sql = "select id, number from " + tableWithNumbers + " where number = ?";
+        final String sql = "SELECT id, number FROM " + tableWithNumbers + " WHERE number = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, number);
@@ -93,7 +97,7 @@ public class DataBase {
     }
 
     private String getNameById(int id) throws SQLException {
-        final String sql = "select id, name from " + tableWithNames + " where id = ?";
+        final String sql = "SELECT id, name FROM " + tableWithNames + " WHERE id = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, id);
@@ -108,7 +112,7 @@ public class DataBase {
     }
 
     private String getNumberById(int id) throws SQLException {
-        final String sql = "select id, number from " + tableWithNumbers + " where id = ?";
+        final String sql = "SELECT id, number FROM " + tableWithNumbers + " WHERE id = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, id);
@@ -123,7 +127,7 @@ public class DataBase {
     }
 
     private Integer addName(String name) throws SQLException {
-        final String sql = "insert into " + tableWithNames + "(name) values(?)";
+        final String sql = "INSERT INTO " + tableWithNames + "(name) VALUES(?)";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, name);
             statement.executeUpdate();
@@ -132,7 +136,7 @@ public class DataBase {
     }
 
     private Integer addNumber(String number) throws SQLException {
-        final String sql = "insert into " + tableWithNumbers + "(number) values(?)";
+        final String sql = "INSERT INTO " + tableWithNumbers + "(number) VALUES(?)";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, number);
             statement.executeUpdate();
@@ -142,7 +146,7 @@ public class DataBase {
 
     private void tryRemoveName(String name) throws SQLException {
         if (getNumbers(name).isEmpty()) {
-            final String sql = "delete from " + tableWithNames + " where name = ?";
+            final String sql = "DELETE FROM " + tableWithNames + " WHERE name = ?";
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setString(1, name);
                 statement.executeUpdate();
@@ -152,7 +156,7 @@ public class DataBase {
 
     private void tryRemoveNumber(String number) throws SQLException {
         if (getNames(number).isEmpty()) {
-            final String sql = "delete from " + tableWithNumbers + " where number = ?";
+            final String sql = "DELETE FROM " + tableWithNumbers + " WHERE number = ?";
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setString(1, number);
                 statement.executeUpdate();
@@ -174,7 +178,7 @@ public class DataBase {
             return;
         }
 
-        final String sql = "insert into " + tableWithPairs + "(name, number) values(?, ?)";
+        final String sql = "INSERT INTO " + tableWithPairs + "(name, number) VALUES(?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, nameId);
             statement.setInt(2, numberId);
@@ -195,7 +199,7 @@ public class DataBase {
             return;
         }
 
-        final String sql = "update " +  tableWithPairs + " set name = ? where name = ? and number = ?";
+        final String sql = "UPDATE " +  tableWithPairs + " SET name = ? WHERE name = ? AND number = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, newNameId);
             statement.setInt(2, oldNameId);
@@ -217,7 +221,7 @@ public class DataBase {
             return;
         }
 
-        final String sql = "update " + tableWithPairs + " set number = ? where name = ? and number = ?";
+        final String sql = "UPDATE " + tableWithPairs + " SET number = ? WHERE name = ? AND number = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, newNumberId);
             statement.setInt(2, nameId);
@@ -230,7 +234,7 @@ public class DataBase {
      * Returns the list of numbers contained in the table by given name.
      */
     public List<String> getNumbers(String name) throws SQLException {
-        final String sql = "select name, number from " + tableWithPairs + " where name = ?";
+        final String sql = "SELECT name, number FROM " + tableWithPairs + " WHERE name = ?";
         List<String> numbers = new ArrayList<>();
         var id = getIdByName(name);
         if (id == null) {
@@ -252,7 +256,7 @@ public class DataBase {
      */
     public List<String> getNames(String number) throws SQLException {
         var id = getIdByNumber(number);
-        final String sql = "select name, number from " + tableWithPairs + " where number = ?";
+        final String sql = "SELECT name, number FROM " + tableWithPairs + " WHERE number = ?";
         List<String> names = new ArrayList<>();
         if (id == null) {
             return names;
@@ -270,7 +274,7 @@ public class DataBase {
     }
 
     /**
-     * Removes pair from the table.
+     * Removes pair FROM the table.
      * If pair does not exist does noting.
      * @param name name of the pair
      * @param number number of the pair
@@ -281,7 +285,7 @@ public class DataBase {
         if (numberId == null || nameId == null) {
             return;
         }
-        final String sql = "delete from " + tableWithPairs + " where name = ? and number = ?";
+        final String sql = "DELETE FROM " + tableWithPairs + " WHERE name = ? AND number = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, nameId);
             statement.setInt(2, numberId);
@@ -296,7 +300,7 @@ public class DataBase {
      * Returns list of all name-number pairs in the table.
      */
     public List<PhonebookPair> getAll() throws SQLException {
-        final String sql = "select * from " + tableWithPairs;
+        final String sql = "SELECT * FROM " + tableWithPairs;
         List<PhonebookPair> all = new ArrayList<>();
 
         try (PreparedStatement statement = connection.prepareStatement(sql);
@@ -311,13 +315,13 @@ public class DataBase {
     }
 
     /**
-     * Removes all pairs from the table.
+     * Removes all pairs FROM the table.
      */
     public void clear() throws SQLException {
         try (Statement statement = connection.createStatement()) {
-            statement.execute("delete from " + tableWithNames);
-            statement.execute("delete from " + tableWithNumbers);
-            statement.execute("delete from " + tableWithPairs);
+            statement.execute("DELETE FROM " + tableWithNames);
+            statement.execute("DELETE FROM " + tableWithNumbers);
+            statement.execute("DELETE FROM " + tableWithPairs);
         }
     }
 }
