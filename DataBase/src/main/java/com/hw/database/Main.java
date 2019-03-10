@@ -19,7 +19,8 @@ public class Main {
                     "To update name in (name, number) pair enter 5 <name> <number> <new name>\n" +
                     "To update number in (name, number) pair enter 6 <name> <number> <new number>\n" +
                     "To get all (name, number) pairs in the phonebook enter 7\n" +
-                    "To get usage again enter 8\n";
+                    "To delete all from the phonebook enter 8\n" +
+                    "To get usage again enter 9\n";
             System.out.println(greeting + "\n" + usage);
             boolean going = true;
             while (going) {
@@ -73,14 +74,15 @@ public class Main {
                         }
                         break;
                     case 8:
+                        dataBase.clear();
+                        break;
+                    case 9:
                         System.out.println(usage);
                         break;
                     default:
                         System.out.println("Wrong command");
                 }
             }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

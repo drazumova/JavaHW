@@ -45,9 +45,10 @@ public class DataBase {
 
     /**
      * Creates new tables if they do not exist named phonebook, namesTable and numbersTable.
+     * Creates src/main/resources/phoonebook.db to save data.
      */
     public DataBase() throws SQLException {
-        connection = DriverManager.getConnection("jdbc:sqlite::memory");
+        connection = DriverManager.getConnection("jdbc:sqlite:src/main/resources/phoonebook.db");
         try (Statement statement = connection.createStatement()) {
             statement.execute("create table if not exists "
                     + tableWithNames
