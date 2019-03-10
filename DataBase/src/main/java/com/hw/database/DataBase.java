@@ -44,7 +44,7 @@ public class DataBase {
     }
 
     /**
-     * Creates new tables if they do not exist named phonebook, namesTable AND numbersTable.
+     * Creates new tables if they do not exist named phonebook, namesTable and numbersTable.
      * Uses given file to save data.
      */
     public DataBase(String dataBaseFileName) throws SQLException {
