@@ -44,7 +44,8 @@ public class Reflector {
         if (!exceptionList.isEmpty()) {
             writer.print(" throws " + exceptionList.stream().map(Type::getTypeName).collect( Collectors.joining( ", " ) ));
         }
-        writer.println(";");
+
+        writer.println(" { throw new UnsupportedOperationException(); }");
     }
 
     private static void printConstructor(Constructor<?> constructor, PrintWriter writer, String tabs, String className) {
@@ -65,7 +66,7 @@ public class Reflector {
                     .map(Type::getTypeName)
                     .collect( Collectors.joining( ", " ) ));
         }
-        writer.println(";");
+        writer.println(" { throw new UnsupportedOperationException(); }");
     }
 
     private static void printField(Field field, PrintWriter writer, String tabs) {
@@ -182,7 +183,7 @@ public class Reflector {
         String modifiers = Modifier.toString(method.getModifiers());
         resault += modifiers + " " + method.getReturnType().getName() + " " + method.getName() + "(";
         var parameters = method.getParameterTypes();
-        Arrays.sort(parameters);
+        Arrays.sort(parameters, Comparator.comparing(Type::toString));
         for (var parameter : parameters) {
             resault += parameter.getName() + " ";
         }

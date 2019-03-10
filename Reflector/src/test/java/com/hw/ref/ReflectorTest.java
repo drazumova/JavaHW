@@ -11,14 +11,20 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- * The resault of printStructure can not be builded, so its unable to make a test comparing class and resault.
- */
 class ReflectorTest {
-    @AfterEach
-    private void clearOutputFile() throws IOException {
-        try (var stream = new FileOutputStream(Reflector.fileName)) {
-        }
+
+    @Test
+    void complexGenericClassPrintAndDiffTest() throws IOException, ClassNotFoundException, InterruptedException {
+        Reflector.printStructure(SimpleGenericClass.class);
+        Process process = Runtime.getRuntime().exec("javac src/test/java/com/hw/ref/SomeClass.java");
+        process.waitFor();
+        var classLoad = SimpleGenericClass.class.getClassLoader();
+        classLoad.loadClass("com.hw.ref.SomeClass");
+
+        Reflector.diffClasses(SimpleGenericClass.class, SomeClass.class);
+        var list = Files.readAllLines(Paths.get(Reflector.fileDifference));
+
+        assertEquals(List.of(""), list);
     }
 
     @Test

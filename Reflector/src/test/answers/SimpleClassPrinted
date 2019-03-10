@@ -7,18 +7,18 @@ public class SomeClass extends com.hw.ref.Clazz implements com.hw.ref.MyInterfac
     static int staticIntField;
     private final int finalField;
 
-    SomeClass();
+    SomeClass() { throw new UnsupportedOperationException(); }
 
-    public void print();
-    java.lang.String print(java.lang.String a);
-    private int print(int a);
+    public void print() { throw new UnsupportedOperationException(); }
+    java.lang.String print(java.lang.String a) { throw new UnsupportedOperationException(); }
+    private int print(int a) { throw new UnsupportedOperationException(); }
 
     private static class NestedSimpleClass extends java.lang.Object {
         private final int resault;
 
-        private NestedSimpleClass();
+        private NestedSimpleClass() { throw new UnsupportedOperationException(); }
 
-        public void print(int a) throws java.lang.Exception;
+        public void print(int a) throws java.lang.Exception { throw new UnsupportedOperationException(); }
 
     }
 }

@@ -2,7 +2,7 @@ package com.hw.ref;
 
  class SomeClass extends java.lang.Object {
 
-    SomeClass();
+    SomeClass() { throw new UnsupportedOperationException(); }
 
 
     private abstract static interface InnerInterface  extends com.hw.ref.MyInterface, com.hw.ref.CoolInterface {
