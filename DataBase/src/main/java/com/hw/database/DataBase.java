@@ -45,17 +45,17 @@ public class DataBase {
 
     /**
      * Creates new tables if they do not exist named phonebook, namesTable AND numbersTable.
-     * Uses src/main/resources/phoonebook.db to save data.
+     * Uses given file to save data.
      */
-    public DataBase() throws SQLException {
-        connection = DriverManager.getConnection("jdbc:sqlite:src/main/resources/phoonebook.db");
+    public DataBase(String dataBaseFileName) throws SQLException {
+        connection = DriverManager.getConnection("jdbc:sqlite:" + dataBaseFileName);
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE IF NOT EXISTS "
                     + tableWithNames
-                    + "(id int PRIMARY KEY , name TEXT NOT NULL UNIQUE )");
+                    + "(id integer PRIMARY KEY, name text UNIQUE NOT NULL)");
             statement.execute("CREATE TABLE IF NOT EXISTS "
                     + tableWithNumbers
-                    + "(id int PRIMARY KEY, number TEXT NOT NULL UNIQUE )");
+                    + "(id integer PRIMARY KEY, number text UNIQUE NOT NULL)");
             statement.execute("CREATE TABLE IF NOT EXISTS "
                     + tableWithPairs +
                     "(name int NOT NULL, number int NOT NULL, " +
@@ -127,6 +127,10 @@ public class DataBase {
     }
 
     private Integer addName(String name) throws SQLException {
+        if (getIdByName(name) != null) {
+            return getIdByName(name);
+        }
+
         final String sql = "INSERT INTO " + tableWithNames + "(name) VALUES(?)";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, name);
@@ -136,11 +140,15 @@ public class DataBase {
     }
 
     private Integer addNumber(String number) throws SQLException {
+        if (getIdByNumber(number) != null) {
+            return getIdByNumber(number);
+        }
         final String sql = "INSERT INTO " + tableWithNumbers + "(number) VALUES(?)";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, number);
             statement.executeUpdate();
         }
+
         return getIdByNumber(number);
     }
 

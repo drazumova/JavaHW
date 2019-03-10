@@ -7,7 +7,7 @@ import java.util.*;
 public class Main {
     public static void main(String... args) {
         try (Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8)) {
-            DataBase dataBase = new DataBase();
+            DataBase dataBase = new DataBase("src/main/resources/phoonebook.db");
             final String greeting = "Welcome to the incredible console phonebook!\n" +
                     "It contains unique (name, number) pairs.\n" +
                     "All input is separated by line breaks.\n";

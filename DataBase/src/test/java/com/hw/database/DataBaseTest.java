@@ -2,6 +2,7 @@ package com.hw.database;
 
 import org.junit.jupiter.api.*;
 
+import java.io.*;
 import java.sql.*;
 import java.util.*;
 
@@ -13,15 +14,21 @@ class DataBaseTest {
 
     @BeforeEach
     void init() throws SQLException {
-        dataBase = new DataBase();
+        dataBase = new DataBase("src/main/resources/dataBaseTest.db");
         dataBase.clear();
+    }
+
+    @AfterAll
+    static void clear() {
+        File base = new File("src/main/resources/dataBaseTest.db");
+        base.delete();
     }
 
     @Test
     void dataAfterClosingSizeTest() throws SQLException {
         dataBase.add("Sasha", "8 (812) 678-95-26");
         dataBase.add("Dasha", "88124386031");
-        var anotherDataBase = new DataBase();
+        var anotherDataBase = new DataBase("src/main/resources/dataBaseTest.db");
         assertEquals(2, anotherDataBase.getAll().size());
     }
 
@@ -29,7 +36,7 @@ class DataBaseTest {
     void dataAfterClosingValuesTest() throws SQLException {
         dataBase.add("Sasha", "8 (812) 678-95-26");
         dataBase.add("Dasha", "88124386031");
-        var anotherDataBase = new DataBase();
+        var anotherDataBase = new DataBase("src/main/resources/dataBaseTest.db");
         assertEquals(1, anotherDataBase.getNumbers("Sasha").size());
         assertEquals("8 (812) 678-95-26", anotherDataBase.getNumbers("Sasha").get(0));
         assertEquals(1, anotherDataBase.getNumbers("Dasha").size());
