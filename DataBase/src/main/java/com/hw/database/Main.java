@@ -82,7 +82,7 @@ public class Main {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         } catch (Exception e) {
-            System.out.println("AAAAAAAAAAAAAAA " + e.getMessage());
+            System.out.println(e.getMessage());
         }
 
     }
