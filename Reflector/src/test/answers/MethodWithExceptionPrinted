@@ -1,0 +1,10 @@
+package com.hw.ref;
+
+ class SomeClass extends java.lang.Object {
+    private int field;
+
+    SomeClass();
+
+    private void method() throws java.lang.Exception;
+
+}

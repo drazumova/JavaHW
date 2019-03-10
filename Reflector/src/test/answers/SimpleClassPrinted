@@ -1,0 +1,24 @@
+package com.hw.ref;
+
+public class SomeClass extends com.hw.ref.Clazz implements com.hw.ref.MyInterface {
+    private int intField;
+    public char charField;
+    long longField;
+    static int staticIntField;
+    private final int finalField;
+
+    SomeClass();
+
+    public void print();
+    java.lang.String print(java.lang.String a);
+    private int print(int a);
+
+    private static class NestedSimpleClass extends java.lang.Object {
+        private final int resault;
+
+        private NestedSimpleClass();
+
+        public void print(int a) throws java.lang.Exception;
+
+    }
+}

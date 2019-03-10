@@ -1,0 +1,9 @@
+package com.hw.ref;
+
+ class SomeClass<E> extends java.lang.Object {
+    private E field;
+
+    SomeClass();
+
+
+}

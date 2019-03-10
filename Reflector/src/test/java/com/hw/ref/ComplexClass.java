@@ -29,7 +29,6 @@ class NewClassWithOneMethodWithException {
     private void method() throws Exception {
         throw new Exception("AAAAAAAAAa");
     }
-
 }
 
 class GenericClass<E> {
@@ -46,4 +45,29 @@ class GenericClassExtendsObject<U extends Object> {
 
 class GenericClassExtendsInteger<E extends Integer> {
     private E field;
+}
+
+interface GenericInterface<E> {
+    void print(E o);
+}
+
+class NextGenericClass<E> extends GenericClass<E> implements GenericInterface<E>, MyInterface {
+
+    NextGenericClass(int a){
+        System.out.println(a);
+    }
+
+    @Override
+    public void print(E o){
+
+    }
+
+    @Override
+    public void print() {
+
+    }
+
+    private <U, T> T print(U o, T a) {
+        return a;
+    }
 }

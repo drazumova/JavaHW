@@ -1,0 +1,11 @@
+package com.hw.ref;
+
+ class SomeClass<E> extends com.hw.ref.GenericClass<E> implements com.hw.ref.GenericInterface<E>, com.hw.ref.MyInterface {
+
+    SomeClass(int a);
+
+    private <U, T> T print(U a, T b);
+    public void print();
+    public void print(E a);
+
+}
