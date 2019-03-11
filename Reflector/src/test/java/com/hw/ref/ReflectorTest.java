@@ -6,6 +6,7 @@ import com.hw.ref.SimpleClass;
 import javax.tools.*;
 import java.io.*;
 import java.lang.reflect.*;
+import java.net.*;
 import java.nio.file.*;
 import java.util.*;
 
@@ -15,17 +16,48 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ReflectorTest {
 
     @Test
-    void complexGenericClassPrintAndDiffTest() throws IOException, ClassNotFoundException, InterruptedException {
-        Reflector.printStructure(SimpleGenericClass.class);
+    void emptyClassPrintAndDiffTest() throws IOException, ClassNotFoundException {
+        Reflector.printStructure(ComplexClass.class);
+
         var compiler = ToolProvider.getSystemJavaCompiler();
-        compiler.run(null, null, null, "src/test/java/com/hw/ref/SomeClass.java");
-        var classLoad = SimpleGenericClass.class.getClassLoader();
-        classLoad.loadClass("com.hw.ref.SomeClass");
+        compiler.run(null, null, null,  "src/test/java/com/hw/ref/SomeClass.java");
+        var file1 = new File("src/test/java/com/hw/ref/SomeClass.class");
+        try (var classLoader = new URLClassLoader(new URL[]{new File("./src/test/java/").toURI().toURL()})) {
+            var clazz = classLoader.loadClass("com.hw.ref.SomeClass");
+            Reflector.diffClasses(ComplexClass.class, clazz);
+            var list = Files.readAllLines(Paths.get(Reflector.fileDifference));
+            assertEquals(List.of(""), list);
+        }
+    }
 
-        Reflector.diffClasses(SimpleGenericClass.class, SomeClass.class);
-        var list = Files.readAllLines(Paths.get(Reflector.fileDifference));
+    @Test
+    void genericClassPrintAndDiffTest() throws ClassNotFoundException, IOException {
+        Reflector.printStructure(GenericClass.class);
 
-        assertEquals(List.of(""), list);
+        var compiler = ToolProvider.getSystemJavaCompiler();
+        compiler.run(null, null, null,  "src/test/java/com/hw/ref/SomeClass.java");
+        var file1 = new File("src/test/java/com/hw/ref/SomeClass.class");
+        try (var classLoader = new URLClassLoader(new URL[]{new File("./src/test/java/").toURI().toURL()})) {
+            var clazz = classLoader.loadClass("com.hw.ref.SomeClass");
+            Reflector.diffClasses(GenericClass.class, clazz);
+            var list = Files.readAllLines(Paths.get(Reflector.fileDifference));
+            assertEquals(List.of(""), list);
+        }
+    }
+
+    @Test
+    void classWithNestedClassPrintAndDiffTest() throws ClassNotFoundException, IOException {
+        Reflector.printStructure(ClassWithNestedClass.class);
+
+        var compiler = ToolProvider.getSystemJavaCompiler();
+        compiler.run(null, null, null,  "src/test/java/com/hw/ref/SomeClass.java");
+        var file1 = new File("src/test/java/com/hw/ref/SomeClass.class");
+        try (var classLoader = new URLClassLoader(new URL[]{new File("./src/test/java/").toURI().toURL()})) {
+            var clazz = classLoader.loadClass("com.hw.ref.SomeClass");
+            Reflector.diffClasses(ClassWithNestedClass.class, clazz);
+            var list = Files.readAllLines(Paths.get(Reflector.fileDifference));
+            assertEquals(List.of(""), list);
+        }
     }
 
     @Test

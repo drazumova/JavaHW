@@ -82,3 +82,9 @@ class ClassWithInterface {
         int field = 42;
     }
 }
+
+class ClassWithNestedClass {
+    private static class AnotherClass {
+        int a;
+    }
+}
