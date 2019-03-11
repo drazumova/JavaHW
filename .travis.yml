@@ -8,5 +8,8 @@ os:
 
 env:
 - PROJECT_DIR=DataBase
+- PROJECT_DIR=TreeSet
+- PROJECT_DIR=HashTable
+- PROJECT_DIR=Trie
 
 script: cd $PROJECT_DIR && mvn test
