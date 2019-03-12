@@ -26,7 +26,7 @@ class ReflectorTest {
     @Test
     void emptyClassPrintAndDiffTest() throws IOException, ClassNotFoundException {
         String fileName = Reflector.printStructure(ComplexClass.class);
-        File file = new File(fileName);
+        var file = new File(fileName);
         file.deleteOnExit();
 
         var compiler = ToolProvider.getSystemJavaCompiler();
@@ -42,7 +42,7 @@ class ReflectorTest {
     @Test
     void genericClassPrintAndDiffTest() throws ClassNotFoundException, IOException {
         String fileName = Reflector.printStructure(GenericClass.class);
-        File file = new File(fileName);
+        var file = new File(fileName);
         file.deleteOnExit();
 
         var compiler = ToolProvider.getSystemJavaCompiler();
@@ -58,7 +58,7 @@ class ReflectorTest {
     @Test
     void classWithNestedClassPrintAndDiffTest() throws ClassNotFoundException, IOException {
         String fileName = Reflector.printStructure(ClassWithNestedClass.class);
-        File file = new File(fileName);
+        var file = new File(fileName);
         file.deleteOnExit();
 
         var compiler = ToolProvider.getSystemJavaCompiler();
@@ -74,7 +74,7 @@ class ReflectorTest {
     @Test
     void printEmptyClassTest() throws IOException {
         var fileName = Reflector.printStructure(ComplexClass.class);
-        File file = new File(fileName);
+        var file = new File(fileName);
         file.deleteOnExit();
         var list = Files.readAllLines(Paths.get(fileName));
         var correctAnswer = Files.readAllLines(Paths.get("src/test/answers/ComplexClassPrinted"));
@@ -84,7 +84,7 @@ class ReflectorTest {
     @Test
     void printSimpleClassTest() throws IOException {
         var fileName = Reflector.printStructure(SimpleClass.class);
-        File file = new File(fileName);
+        var file = new File(fileName);
         file.deleteOnExit();
         var list = Files.readAllLines(Paths.get(fileName));
         var correctAnswer = Files.readAllLines(Paths.get("src/test/answers/SimpleClassPrinted"));
@@ -94,7 +94,7 @@ class ReflectorTest {
     @Test
     void printGenericTest() throws IOException {
         var fileName = Reflector.printStructure(GenericClass.class);
-        File file = new File(fileName);
+        var file = new File(fileName);
         file.deleteOnExit();
         var list = Files.readAllLines(Paths.get(fileName));
         var correctAnswer = Files.readAllLines(Paths.get("src/test/answers/GenericClassPrinted"));
@@ -104,7 +104,7 @@ class ReflectorTest {
     @Test
     void printGenericWtihSuperClassAndInterfaceTest() throws IOException {
         var fileName = Reflector.printStructure(NextGenericClass.class);
-        File file = new File(fileName);
+        var file = new File(fileName);
         file.deleteOnExit();
         var list = Files.readAllLines(Paths.get(fileName));
         var correctAnswer = Files.readAllLines(Paths.get("src/test/answers/GenericMethodsClassPrinted"));
@@ -114,7 +114,7 @@ class ReflectorTest {
     @Test
     void printMethodWtihExceptionTest() throws IOException {
         var fileName = Reflector.printStructure(NewClassWithOneMethodWithException.class);
-        File file = new File(fileName);
+        var file = new File(fileName);
         file.deleteOnExit();
         var list = Files.readAllLines(Paths.get(fileName));
         var correctAnswer = Files.readAllLines(Paths.get("src/test/answers/MethodWithExceptionPrinted"));
@@ -124,7 +124,7 @@ class ReflectorTest {
     @Test
     void printInnerInterfaceTest() throws IOException {
         var fileName = Reflector.printStructure(ClassWithInterface.class);
-        File file = new File(fileName);
+        var file = new File(fileName);
         file.deleteOnExit();
         var list = Files.readAllLines(Paths.get(fileName));
         var correctAnswer = Files.readAllLines(Paths.get("src/test/answers/ClassWithInterfacePrinted"));
