@@ -1,10 +1,12 @@
 package com.hw.ref;
 
- class SomeClass extends java.lang.Object {
+import java.lang.*;
+
+class NewClassWithOneMethodWithExceptionPrinted  {
     private int field;
 
-    SomeClass() { throw new UnsupportedOperationException(); }
+    NewClassWithOneMethodWithExceptionPrinted() { throw new UnsupportedOperationException(); }
 
-    private void method() throws java.lang.Exception { throw new UnsupportedOperationException(); }
+    private void method() throws Exception { throw new UnsupportedOperationException(); }
 
 }

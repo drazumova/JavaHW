@@ -1,8 +1,10 @@
 package com.hw.ref;
 
-public class SomeClass extends java.lang.Object {
+import java.lang.*;
 
-    public SomeClass() { throw new UnsupportedOperationException(); }
+public class ComplexClassPrinted  {
+
+    public ComplexClassPrinted() { throw new UnsupportedOperationException(); }
 
 
 }

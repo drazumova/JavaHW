@@ -1,9 +1,11 @@
 package com.hw.ref;
 
- class SomeClass<E> extends java.lang.Object {
+import java.lang.*;
+
+class GenericClassPrinted<E>  {
     private E field;
 
-    SomeClass() { throw new UnsupportedOperationException(); }
+    GenericClassPrinted() { throw new UnsupportedOperationException(); }
 
 
 }

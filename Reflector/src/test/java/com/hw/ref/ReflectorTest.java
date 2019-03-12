@@ -1,11 +1,9 @@
 package com.hw.ref;
 
 import org.junit.jupiter.api.*;
-import com.hw.ref.SimpleClass;
 
 import javax.tools.*;
 import java.io.*;
-import java.lang.reflect.*;
 import java.net.*;
 import java.nio.file.*;
 import java.util.*;
@@ -15,20 +13,26 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ReflectorTest {
 
-    @BeforeAll
-    static void init(){
-        var file = new File("src/test/java/com/hw/ref/SomeClass.java");
-        file.deleteOnExit();
+    @AfterAll
+    static void clearClasses() {
+        File testDirectory = new File("./src/test/java/com/hw/ref");
+        for (var file : testDirectory.listFiles()) {
+            if (file.getName().endsWith(".class")) {
+                file.delete();
+            }
+        }
     }
 
     @Test
     void emptyClassPrintAndDiffTest() throws IOException, ClassNotFoundException {
-        Reflector.printStructure(ComplexClass.class);
+        String fileName = Reflector.printStructure(ComplexClass.class);
+        File file = new File(fileName);
+        file.deleteOnExit();
 
         var compiler = ToolProvider.getSystemJavaCompiler();
-        compiler.run(null, null, null,  "src/test/java/com/hw/ref/SomeClass.java");
+        compiler.run(null, null, null,  fileName);
         try (var classLoader = new URLClassLoader(new URL[]{new File("./src/test/java/").toURI().toURL()})) {
-            var clazz = classLoader.loadClass("com.hw.ref.SomeClass");
+            var clazz = classLoader.loadClass(ComplexClass.class.getName() + "Printed");
             Reflector.diffClasses(ComplexClass.class, clazz);
             var list = Files.readAllLines(Paths.get(Reflector.fileDifference));
             assertEquals(List.of(""), list);
@@ -37,12 +41,14 @@ class ReflectorTest {
 
     @Test
     void genericClassPrintAndDiffTest() throws ClassNotFoundException, IOException {
-        Reflector.printStructure(GenericClass.class);
+        String fileName = Reflector.printStructure(GenericClass.class);
+        File file = new File(fileName);
+        file.deleteOnExit();
 
         var compiler = ToolProvider.getSystemJavaCompiler();
-        compiler.run(null, null, null,  "src/test/java/com/hw/ref/SomeClass.java");
+        compiler.run(null, null, null,  fileName);
         try (var classLoader = new URLClassLoader(new URL[]{new File("./src/test/java/").toURI().toURL()})) {
-            var clazz = classLoader.loadClass("com.hw.ref.SomeClass");
+            var clazz = classLoader.loadClass(GenericClass.class.getName() + "Printed");
             Reflector.diffClasses(GenericClass.class, clazz);
             var list = Files.readAllLines(Paths.get(Reflector.fileDifference));
             assertEquals(List.of(""), list);
@@ -51,12 +57,14 @@ class ReflectorTest {
 
     @Test
     void classWithNestedClassPrintAndDiffTest() throws ClassNotFoundException, IOException {
-        Reflector.printStructure(ClassWithNestedClass.class);
+        String fileName = Reflector.printStructure(ClassWithNestedClass.class);
+        File file = new File(fileName);
+        file.deleteOnExit();
 
         var compiler = ToolProvider.getSystemJavaCompiler();
-        compiler.run(null, null, null,  "src/test/java/com/hw/ref/SomeClass.java");
+        compiler.run(null, null, null,  fileName);
         try (var classLoader = new URLClassLoader(new URL[]{new File("./src/test/java/").toURI().toURL()})) {
-            var clazz = classLoader.loadClass("com.hw.ref.SomeClass");
+            var clazz = classLoader.loadClass(ClassWithNestedClass.class.getName() + "Printed");
             Reflector.diffClasses(ClassWithNestedClass.class, clazz);
             var list = Files.readAllLines(Paths.get(Reflector.fileDifference));
             assertEquals(List.of(""), list);
@@ -65,48 +73,60 @@ class ReflectorTest {
 
     @Test
     void printEmptyClassTest() throws IOException {
-        Reflector.printStructure(ComplexClass.class);
-        var list = Files.readAllLines(Paths.get(Reflector.fileName));
+        var fileName = Reflector.printStructure(ComplexClass.class);
+        File file = new File(fileName);
+        file.deleteOnExit();
+        var list = Files.readAllLines(Paths.get(fileName));
         var correctAnswer = Files.readAllLines(Paths.get("src/test/answers/ComplexClassPrinted"));
         assertEquals(correctAnswer, list);
     }
 
     @Test
     void printSimpleClassTest() throws IOException {
-        Reflector.printStructure(SimpleClass.class);
-        var list = Files.readAllLines(Paths.get(Reflector.fileName));
+        var fileName = Reflector.printStructure(SimpleClass.class);
+        File file = new File(fileName);
+        file.deleteOnExit();
+        var list = Files.readAllLines(Paths.get(fileName));
         var correctAnswer = Files.readAllLines(Paths.get("src/test/answers/SimpleClassPrinted"));
         assertEquals(correctAnswer, list);
     }
 
     @Test
     void printGenericTest() throws IOException {
-        Reflector.printStructure(GenericClass.class);
-        var list = Files.readAllLines(Paths.get(Reflector.fileName));
+        var fileName = Reflector.printStructure(GenericClass.class);
+        File file = new File(fileName);
+        file.deleteOnExit();
+        var list = Files.readAllLines(Paths.get(fileName));
         var correctAnswer = Files.readAllLines(Paths.get("src/test/answers/GenericClassPrinted"));
         assertEquals(correctAnswer, list);
     }
 
     @Test
     void printGenericWtihSuperClassAndInterfaceTest() throws IOException {
-        Reflector.printStructure(NextGenericClass.class);
-        var list = Files.readAllLines(Paths.get(Reflector.fileName));
+        var fileName = Reflector.printStructure(NextGenericClass.class);
+        File file = new File(fileName);
+        file.deleteOnExit();
+        var list = Files.readAllLines(Paths.get(fileName));
         var correctAnswer = Files.readAllLines(Paths.get("src/test/answers/GenericMethodsClassPrinted"));
         assertEquals(correctAnswer, list);
     }
 
     @Test
     void printMethodWtihExceptionTest() throws IOException {
-        Reflector.printStructure(NewClassWithOneMethodWithException.class);
-        var list = Files.readAllLines(Paths.get(Reflector.fileName));
+        var fileName = Reflector.printStructure(NewClassWithOneMethodWithException.class);
+        File file = new File(fileName);
+        file.deleteOnExit();
+        var list = Files.readAllLines(Paths.get(fileName));
         var correctAnswer = Files.readAllLines(Paths.get("src/test/answers/MethodWithExceptionPrinted"));
         assertEquals(correctAnswer, list);
     }
 
     @Test
     void printInnerInterfaceTest() throws IOException {
-        Reflector.printStructure(ClassWithInterface.class);
-        var list = Files.readAllLines(Paths.get(Reflector.fileName));
+        var fileName = Reflector.printStructure(ClassWithInterface.class);
+        File file = new File(fileName);
+        file.deleteOnExit();
+        var list = Files.readAllLines(Paths.get(fileName));
         var correctAnswer = Files.readAllLines(Paths.get("src/test/answers/ClassWithInterfacePrinted"));
         assertEquals(correctAnswer, list);
     }

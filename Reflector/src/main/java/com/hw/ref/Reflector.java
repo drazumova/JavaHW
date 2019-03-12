@@ -8,14 +8,23 @@ import java.lang.reflect.*;
 import java.lang.reflect.Modifier;
 import java.nio.charset.*;
 import java.util.*;
+import java.util.regex.*;
 import java.util.stream.*;
 
 /**
  * Class allows compare and print structure of classes.
  */
 public class Reflector {
-    public static final String fileName = "src/test/java/com/hw/ref/SomeClass.java";
     public static final String fileDifference = "diffClassesResault";
+
+    private static String typeWithoutPackage(Type type) {
+        var typeName = type.getTypeName();
+        var parts = typeName.split(Pattern.quote("."));
+        if (parts.length == 0) {
+            return typeName;
+        }
+        return parts[parts.length - 1];
+    }
 
     private static void printMethod(Method method, PrintWriter writer, String tabs) {
         String modifiers = Modifier.toString(method.getModifiers());
@@ -30,19 +39,24 @@ public class Reflector {
                     .collect(Collectors.joining(", ")) + "> ";
         }
 
-        writer.print(tabs + modifiers + genericParameters + method.getGenericReturnType().getTypeName() + " " + method.getName() + "(");
-        char name = 'a';
-        var parametersList = new ArrayList<String>();
-        for (var parameter : method.getGenericParameterTypes()) {
-            parametersList.add(parameter.getTypeName() + " " + name);
-            name++;
-        }
+        writer.print(tabs + modifiers + genericParameters +
+                typeWithoutPackage(method.getGenericReturnType()) + " "
+                + method.getName() + "(");
 
-        writer.print(parametersList.stream().collect( Collectors.joining( ", " ) ));
+        var parameterList = new ArrayList<String>();
+
+        var name = "arg";
+        int counter = 0;
+        for (var parameter : method.getGenericParameterTypes()) {
+            parameterList.add(typeWithoutPackage(parameter) + " " + name + counter);
+            counter++;
+        }
+        writer.print(String.join(", ", parameterList));
+
         writer.print(")");
-        var exceptionList = List.of(method.getGenericExceptionTypes());
+        var exceptionList = List.of(method.getExceptionTypes());
         if (!exceptionList.isEmpty()) {
-            writer.print(" throws " + exceptionList.stream().map(Type::getTypeName).collect( Collectors.joining( ", " ) ));
+            writer.print(" throws " + exceptionList.stream().map(Class::getSimpleName).collect(Collectors.joining(", " )));
         }
 
         writer.println(" { throw new UnsupportedOperationException(); }");
@@ -54,17 +68,24 @@ public class Reflector {
             modifiers += " ";
         }
         writer.print(tabs + modifiers + className + "(");
-        char name = 'a';
+
+        var parameterList = new ArrayList<String>();
+
+        var name = "arg";
+        int counter = 0;
         for (var parameter : constructor.getGenericParameterTypes()) {
-            writer.print(parameter.getTypeName() + " " + name);
-            name++;
+            parameterList.add(typeWithoutPackage(parameter) + " " + name + counter);
+            counter++;
         }
+        writer.print(String.join(", ", parameterList));
+
+
         writer.print(")");
-        var exceptionList = List.of(constructor.getGenericExceptionTypes());
+        var exceptionList = List.of(constructor.getExceptionTypes());
         if (!exceptionList.isEmpty()) {
             writer.print(" throws " + exceptionList.stream()
-                    .map(Type::getTypeName)
-                    .collect( Collectors.joining( ", " ) ));
+                    .map(Class::getSimpleName)
+                    .collect(Collectors.joining(", ")));
         }
         writer.println(" { throw new UnsupportedOperationException(); }");
     }
@@ -74,7 +95,7 @@ public class Reflector {
         if (!modifiers.isEmpty()) {
             modifiers += " ";
         }
-        writer.println(tabs + modifiers + field.getGenericType() + " " + field.getName() + ";");
+        writer.println(tabs + modifiers + typeWithoutPackage(field.getGenericType()) + " " + field.getName() + ";");
     }
 
     private static String printGenericType(Class<?> clazz) {
@@ -82,33 +103,37 @@ public class Reflector {
         if (list.isEmpty()) {
             return "";
         }
-        return "<" +list.stream().map(TypeVariable::getName).collect( Collectors.joining(", ")) + ">";
+        return "<" + list.stream().map(TypeVariable::getName).collect(Collectors.joining(", ")) + ">";
     }
 
-    private static void printClassHead(Class<?> clazz, PrintWriter writer, String tabs, String className){
-        if (clazz.isInterface()) {
-            var mod = clazz.getModifiers();
-            var superClass = clazz.getGenericSuperclass();
-            writer.print(tabs + Modifier.toString(mod) + " " + className + printGenericType(clazz) + " ");
+    private static void printClassHead(Class<?> clazz, PrintWriter writer, String tabs, String className) {
+        var mod = Modifier.toString(clazz.getModifiers());
+        if (!"".equals(mod)) {
+            mod += " ";
+        }
+        var superClass = clazz.getSuperclass();
 
-            List<Type> interfacesList = List.of(clazz.getGenericInterfaces());
+        if (clazz.isInterface()) {
+            writer.print(tabs + mod + "interface " + className + printGenericType(clazz) + " ");
+
+            var interfacesList = List.of(clazz.getInterfaces());
             if (!interfacesList.isEmpty()) {
                 writer.print(" extends " + interfacesList.stream()
-                        .map(Type::getTypeName)
-                        .collect( Collectors.joining( ", " ) ));
+                        .map(i -> i.getSimpleName() + printGenericType(i))
+                        .collect(Collectors.joining(", " )));
             }
         } else {
-            var mod = clazz.getModifiers();
-            var superClass = clazz.getGenericSuperclass();
-            writer.print(tabs + Modifier.toString(mod) + " class " + className + printGenericType(clazz) + " ");
+            writer.print(tabs + mod + "class " + className + printGenericType(clazz) + " ");
 
-            writer.print("extends " + superClass.getTypeName());
+            if (!Object.class.getName().equals(superClass.getName())) {
+                writer.print("extends " + superClass.getSimpleName() + printGenericType(superClass));
+            }
 
-            var interfacesList = List.of(clazz.getGenericInterfaces());
+            var interfacesList = List.of(clazz.getInterfaces());
             if (!interfacesList.isEmpty()) {
                 writer.print(" implements " + interfacesList.stream()
-                        .map(Type::getTypeName)
-                        .collect( Collectors.joining( ", " ) ));
+                        .map(i -> i.getSimpleName() + printGenericType(i))
+                        .collect(Collectors.joining(", ")));
             }
         }
     }
@@ -135,18 +160,70 @@ public class Reflector {
         writer.println(tabs + "}");
     }
 
+    private static Set<String> getPackages(Class<?> clazz) {
+        Set<String> packages = new TreeSet<>();
+        packages.add(clazz.getPackageName());
+        packages.add(clazz.getSuperclass().getPackageName());
+
+        for (var field : clazz.getDeclaredFields()) {
+            packages.add(field.getType().getPackageName());
+        }
+
+        for (var method : clazz.getDeclaredMethods()) {
+            packages.add(method.getReturnType().getClass().getPackageName());
+            for (var type : method.getParameterTypes()) {
+                packages.add(type.getClass().getPackageName());
+            }
+
+            for (var exception : method.getExceptionTypes()) {
+                packages.add(exception.getPackageName());
+            }
+        }
+
+        for (var constructor : clazz.getDeclaredConstructors()) {
+            for (var type : constructor.getParameterTypes()) {
+                packages.add(type.getClass().getPackageName());
+            }
+
+            for (var exception : constructor.getExceptionTypes()) {
+                packages.add(exception.getPackageName());
+            }
+        }
+
+        for (var item : clazz.getInterfaces()) {
+            packages.add(item.getPackageName());
+        }
+
+        for (var item : clazz.getClasses()) {
+            var result = getPackages(item);
+            packages.addAll(result);
+        }
+
+        return packages;
+    }
+
+    private static void printAllFromPackages(Set<String> packages, PrintWriter writer) {
+        for (var item : packages) {
+            writer.println("import " + item + ".*;");
+        }
+    }
+
     /**
      * Prints given class structure. Methods and constructors printed without implementation.
      * Saves all modifiers from fields, methods and classes.
-     * Due to absense of implementation in methods and contrustors recieved file can not be builded,
-     * because all classes have at least one constructor.
      * @param someClass class to print
      */
-    public static void printStructure(Class<?> someClass) throws IOException {
+    public static String printStructure(Class<?> someClass) throws IOException {
+        String fileName = "src/test/java/com/hw/ref/" + someClass.getSimpleName() + "Printed.java";
         try (var writer = new PrintWriter(new FileWriter(fileName, StandardCharsets.UTF_8))) {
             writer.println("package " + someClass.getPackageName() + ";\n");
-            printClass(someClass, writer, "", "SomeClass");
+            var packages = getPackages(someClass);
+            packages.remove(someClass.getPackageName());
+            printAllFromPackages(packages, writer);
+            writer.println();
+            printClass(someClass, writer, "", someClass.getSimpleName() + "Printed");
         }
+        return fileName;
     }
 
     private static Set<Field> getFieldsSet(Class<?> clazz) {
@@ -179,22 +256,22 @@ public class Reflector {
     }
 
     private static String methodToString(Method method) {
-        String resault = "";
+        String result = "";
         String modifiers = Modifier.toString(method.getModifiers());
-        resault += modifiers + " " + method.getReturnType().getName() + " " + method.getName() + "(";
+        result += modifiers + " " + method.getReturnType().getName() + " " + method.getName() + "(";
         var parameters = method.getParameterTypes();
         Arrays.sort(parameters, Comparator.comparing(Type::toString));
         for (var parameter : parameters) {
-            resault += parameter.getName() + " ";
+            result += parameter.getName() + " ";
         }
-        resault += ")";
+        result += ")";
         var exceptionList = method.getExceptionTypes();
         Arrays.sort(exceptionList);
-        resault += " throws " + List.of(exceptionList)
+        result += " throws " + List.of(exceptionList)
                 .stream()
                 .map(Class::getName)
-                .collect( Collectors.joining( ", " ) );
-        return resault;
+                .collect(Collectors.joining(", "));
+        return result;
     }
 
     private static Set<Method> getMethodsSet(Class<?> clazz) {

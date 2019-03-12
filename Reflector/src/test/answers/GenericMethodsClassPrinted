@@ -1,11 +1,13 @@
 package com.hw.ref;
 
- class SomeClass<E> extends com.hw.ref.GenericClass<E> implements com.hw.ref.GenericInterface<E>, com.hw.ref.MyInterface {
+import java.lang.*;
 
-    SomeClass(int a) { throw new UnsupportedOperationException(); }
+class NextGenericClassPrinted<E> extends GenericClass<E> implements GenericInterface<E>, MyInterface {
 
-    private <U, T> T print(U a, T b) { throw new UnsupportedOperationException(); }
+    NextGenericClassPrinted(int arg0) { throw new UnsupportedOperationException(); }
+
+    private <U, T> T print(U arg0, T arg1) { throw new UnsupportedOperationException(); }
     public void print() { throw new UnsupportedOperationException(); }
-    public void print(E a) { throw new UnsupportedOperationException(); }
+    public void print(E arg0) { throw new UnsupportedOperationException(); }
 
 }
