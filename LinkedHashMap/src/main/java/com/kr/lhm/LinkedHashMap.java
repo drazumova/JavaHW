@@ -4,6 +4,11 @@ import java.util.*;
 
 import static java.lang.Math.abs;
 
+/**
+ * Structure contains values by unique keys. Values sorted in bucket due to key code.
+ * @param <K> type of the key
+ * @param <V> type of the value
+ */
 public class LinkedHashMap<K, V> extends AbstractMap<K, V> {
 
     private SimpleList<List<K, List.Node<K,V>>> table;
@@ -44,10 +49,14 @@ public class LinkedHashMap<K, V> extends AbstractMap<K, V> {
         }
     }
 
-    private void resize() {
+    /**
+     * Doublts table's size.
+     */
+    @SuppressWarnings("unchecked")
+    public void resize() {
         int newSize = 2 * table.size();
-        var oldTable = table;
         size = 0;
+        var oldOrder = order;
         table = new SimpleList<>();
         order = new List<>();
 
@@ -55,19 +64,17 @@ public class LinkedHashMap<K, V> extends AbstractMap<K, V> {
             table.add(new List<>());
         }
 
-        for (int i = 0; i < newSize / 2; i++) {
-            K currentKey;
-            var currentList = oldTable.get(i);
-
-            while ((currentKey = (K) currentList.getHeadKey()) != null) {
-                var currentValue = (V) currentList.getHeadValue();
-                put(currentKey, currentValue);
-                currentList.deleteByKey(currentKey);
-            }
+        var node = oldOrder.getHead();
+        while (node != null) {
+            put(node.getValue().getKey(), node.getValue().getValue());
+            node = node.getNext();
         }
     }
 
-
+    /**
+     * Creates new Linked Hask Map
+     * @param capacity inital number of buckets
+     */
     public LinkedHashMap(int capacity) {
         size = 0;
         table = new SimpleList<>();
@@ -79,31 +86,49 @@ public class LinkedHashMap<K, V> extends AbstractMap<K, V> {
 
     /**
      * Return current size of the table
-     * @return
      */
     @Override
     public int size() {
         return size;
     }
 
+    /**
+     * Tells is size of the table equals to 0
+     */
     @Override
     public boolean isEmpty() {
         return size == 0;
     }
 
+    /**
+     * Tells if the table contains given key
+     */
+    @SuppressWarnings("unchecked")
     @Override
     public boolean containsKey(Object key) {
         return table.get(bucketNumber(key)).containsKey((K) key);
     }
 
+    /**
+     * Tells if the table contains given value
+     */
+    @SuppressWarnings("unchecked")
     @Override
     public boolean containsValue(Object value) {
         return order.containsValue((V) value);
     }
 
+    /**
+     * Returns value by given key
+     * If where no such key in the table, returns null
+     */
+    @SuppressWarnings("unchecked")
     @Override
     public V get(Object key) {
         var node = table.get(bucketNumber(key)).findValueByKey((K) key);
+        if (node == null) {
+            return null;
+        }
         return node.getValue().getValue().getValue();
     }
 
@@ -111,6 +136,12 @@ public class LinkedHashMap<K, V> extends AbstractMap<K, V> {
         return abs(key.hashCode()) % table.size();
     }
 
+    /**
+     * Puts new pair (key, value) to the table
+     * Returns old value by this key in the table
+     * Or null if it was't in the table
+     * If size will became bigger than half of capacity table will be resized
+     */
     @Override
     public V put(K key, V value) {
         int number = bucketNumber(key);
@@ -126,10 +157,17 @@ public class LinkedHashMap<K, V> extends AbstractMap<K, V> {
         if (result == null) {
             size++;
         }
-
+        if (2 * size >= table.size()) {
+            resize();
+        }
         return result;
     }
 
+    /**
+     * Removes given key from the table
+     * @return value by given key
+     */
+    @SuppressWarnings("unchecked")
     @Override
     public V remove(Object key) {
         int number = bucketNumber(key);
@@ -144,6 +182,9 @@ public class LinkedHashMap<K, V> extends AbstractMap<K, V> {
         return result;
     }
 
+    /**
+     * Removes all key from the table
+     */
     @Override
     public void clear() {
         size = 0;
@@ -153,6 +194,9 @@ public class LinkedHashMap<K, V> extends AbstractMap<K, V> {
         }
     }
 
+    /**
+     * Returns set of all (key, value) pairs in the table
+     */
     @Override
     public Set<Entry<K, V>> entrySet() {
         return new MyEntySet();

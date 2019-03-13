@@ -25,10 +25,74 @@ class LinkedHashMapTest {
     }
 
     @Test
+    void addManyTest() {
+        for (int i = 1; i < 10; i++) {
+            map.put(i, "aaa");
+        }
+
+        for (int i = 1; i < 10; i++) {
+            assertTrue(map.containsKey(i));
+        }
+    }
+
+    @Test
     void addAndRemoveSizeTest() {
         map.put(1, "aaa");
         map.remove(1);
         assertEquals(0, map.size());
+    }
+
+    @Test
+    void addAndRemoveNonexistingSizeTest() {
+        map.put(1, "aaa");
+        map.remove(2);
+        assertEquals(1, map.size());
+    }
+
+    @Test
+    void simpleContainsTest() {
+        assertFalse(map.containsKey(1));
+    }
+
+    @Test
+    void addContainsTest() {
+        map.put(1, "aaa");
+        assertTrue(map.containsKey(1));
+    }
+
+    @Test
+    void addTwiceContainsTest() {
+        map.put(1, "aaa");
+        map.put(1, "baa");
+        assertTrue(map.containsKey(1));
+    }
+
+    @Test
+    void addTwiceContainsValueTest() {
+        map.put(1, "aaa");
+        map.put(1, "baa");
+        assertTrue(map.containsValue("baa"));
+    }
+
+    @Test
+    void addTwiceAnotherContainsValueTest() {
+        map.put(1, "aaa");
+        map.put(1, "baa");
+        assertTrue(map.containsValue("aaa"));
+    }
+
+    @Test
+    void removeContainsValueTest() {
+        map.put(1, "aaa");
+        map.remove(1);
+        assertFalse(map.containsKey(1));
+    }
+
+    @Test
+    void removeAnotherContainsValueTest() {
+        map.put(1, "aaa");
+        map.remove(2);
+        assertTrue(map.containsKey(1));
     }
 
     @Test
@@ -51,4 +115,16 @@ class LinkedHashMapTest {
         assertEquals(new MyEntry<>(1, "a"), iterator.next());
         assertEquals(new MyEntry<>(2, "b"), iterator.next());
     }
+
+    @Test
+    void forManyEachTest() {
+        map.put(1, "a");
+        map.put(2, "b");
+        var iterator = map.entrySet().iterator();
+        assertTrue(iterator.hasNext());
+        assertEquals(new MyEntry<>(1, "a"), iterator.next());
+        assertEquals(new MyEntry<>(2, "b"), iterator.next());
+    }
+
+
 }
