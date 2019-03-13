@@ -117,6 +117,20 @@ class LinkedHashMapTest {
     }
 
     @Test
+    void addEqualsTest() {
+        assertNull(map.put(1, "a"));
+        assertEquals("a", map.put(1, "a"));
+        assertEquals(1, map.size());
+    }
+
+    @Test
+    void setEntySizeTest() {
+        map.put(1, "a");
+        map.put(2, "b");
+        assertEquals(2, map.entrySet().size());
+    }
+
+    @Test
     void forManyEachTest() {
         map.put(1, "a");
         map.put(2, "b");
