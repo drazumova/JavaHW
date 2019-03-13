@@ -152,6 +152,10 @@ public class List<K, V> {
         current.delete();
     }
 
+    /**
+     * Deletes pair with given key from the list
+     * @return old value
+     */
     public V deleteByKey(@NotNull K key) {
         if (head == null) {
             return null;
@@ -175,11 +179,18 @@ public class List<K, V> {
         return current.value.getValue();
     }
 
+    /**
+     * Tells if list contains given key
+     */
     public boolean containsKey(K key) {
         var current = findByKey(key);
         return current != null;
     }
 
+
+    /**
+     * Tells if list contains given value
+     */
     public boolean containsValue(V value) {
         Node<K, V> current = head;
         while (current != null && !current.value.getValue().equals(value)) {

@@ -10,6 +10,7 @@ public class MyEntry<K, V> implements Map.Entry<K, V>{
     private @NotNull V value;
 
     @Override
+    @SuppressWarnings("unchecked")
     public boolean equals(Object o) {
         var other = (MyEntry<K, V>) o;
         return other.getValue().equals(value) && other.getKey().equals(key);
@@ -36,7 +37,7 @@ public class MyEntry<K, V> implements Map.Entry<K, V>{
 
     @Override
     public V setValue(V value) {
-        V oldValue = value;
+        V oldValue = this.value;
         this.value = value;
         return oldValue;
     }
