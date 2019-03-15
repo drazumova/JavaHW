@@ -52,14 +52,14 @@ public class QSorter {
             }
             if (second > begin) {
                 executorService.submit(new QSortRunner(array, begin, second));
-            } else if (second == begin){
+            } else if (second == begin) {
                 countDownLatch.countDown();
             }
 
             if (first < end) {
                 begin = first;
                 run();
-            } else if (first == end){
+            } else if (first == end) {
                 countDownLatch.countDown();
             }
 
