@@ -7,6 +7,6 @@ os:
 - linux
 
 env:
-- PROJECT_DIR=QSort
+- PROJECT_DIR=Qsort
 
 script: cd $PROJECT_DIR && mvn test
