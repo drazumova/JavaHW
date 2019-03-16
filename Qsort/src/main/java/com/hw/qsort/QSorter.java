@@ -11,18 +11,18 @@ public class QSorter {
     private CountDownLatch countDownLatch;
     private final ExecutorService executorService;
 
-    private class QSortRunner implements Runnable {
-        private final int[] array;
+    private class QSortRunner<T extends Comparable<? super T>> implements Runnable {
+        private final T[] array;
         private int begin;
         private final int end;
 
         private void swap(int i, int j) {
-            int tmp = array[i];
+            T tmp = array[i];
             array[i] = array[j];
             array[j] = tmp;
         }
 
-        private QSortRunner(int[] array, int begin, int end) {
+        private QSortRunner(T[] array, int begin, int end) {
             this.begin = begin;
             this.end = end;
             this.array = array;
@@ -33,14 +33,14 @@ public class QSorter {
         public void run() {
             int first = begin;
             int second = end;
-            int middle = array[(end + begin) / 2];
+            T middle = array[(end + begin) / 2];
 
             synchronized (array) {
                 while (first <= second) {
-                    while (array[first] < middle) {
+                    while (array[first].compareTo(middle) < 0) {
                         first++;
                     }
-                    while (array[second] > middle) {
+                    while (array[second].compareTo(middle) > 0) {
                         second--;
                     }
                     if (first <= second) {
@@ -51,7 +51,7 @@ public class QSorter {
                 }
             }
             if (second > begin) {
-                executorService.submit(new QSortRunner(array, begin, second));
+                executorService.submit(new QSortRunner<>(array, begin, second));
             } else if (second == begin) {
                 countDownLatch.countDown();
             }
@@ -81,19 +81,19 @@ public class QSorter {
         }
     }
 
-    private void SimpleQSort(int[] array, int begin, int end) {
+    private <T extends Comparable<? super T>> void SimpleQSort(T[] array, int begin, int end) {
         int first = begin;
         int second = end;
-        int middle = array[(end + begin) / 2];
+        T middle = array[(end + begin) / 2];
         while (first <= second) {
-            while (array[first] < middle) {
+            while (array[first].compareTo(middle) < 0) {
                 first++;
             }
-            while (array[second] > middle) {
+            while (array[second].compareTo(middle) > 0) {
                 second--;
             }
             if (first <= second) {
-                int temp = array[first];
+                T temp = array[first];
                 array[first] = array[second];
                 array[second] = temp;
                 first++;
@@ -111,16 +111,16 @@ public class QSorter {
     /**
      * Sorts array using qsort in one thread
      */
-    public void SimpleQSort(int[] array) {
+    public <T extends Comparable<? super T>> void SimpleQSort(T[] array) {
         SimpleQSort(array, 0, array.length - 1);
     }
 
     /**
      * Sorts array using mutlithread qsort
      */
-    public void SmartQSort(int[] array) throws InterruptedException {
+    public <T extends Comparable<? super T>> void SmartQSort(T[] array) throws InterruptedException {
         countDownLatch = new CountDownLatch(array.length);
-        executorService.submit(new QSortRunner(array, 0,array.length - 1));
+        executorService.submit(new QSortRunner<>(array, 0,array.length - 1));
         try {
             countDownLatch.await();
         } finally {
