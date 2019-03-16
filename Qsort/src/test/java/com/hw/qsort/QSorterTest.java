@@ -18,7 +18,7 @@ class QSorterTest {
             list[i] = 100 - i;
         }
 
-        sorter.SimpleQSort(list);
+        sorter.simpleQSort(list);
         for (int i = 0; i < 100; i++) {
             assertEquals(Integer.valueOf(i + 1), list[i]);
         }
@@ -35,7 +35,7 @@ class QSorterTest {
         }
 
         sort(correctlist);
-        sorter.SimpleQSort(list);
+        sorter.simpleQSort(list);
 
         assertTrue(Arrays.equals(correctlist, list));
     }
@@ -47,7 +47,7 @@ class QSorterTest {
             list[i] = 100 - i;
         }
 
-        sorter.SmartQSort(list);
+        sorter.smartQSort(list);
         for (int i = 0; i < 100; i++) {
             assertEquals(Integer.valueOf(i + 1), list[i]);
         }
@@ -64,7 +64,7 @@ class QSorterTest {
         }
 
         sort(correctlist);
-        sorter.SmartQSort(list);
+        sorter.smartQSort(list);
         assertTrue(Arrays.equals(correctlist, list));
     }
 }

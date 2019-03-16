@@ -16,40 +16,18 @@ public class QSorter {
         private int begin;
         private final int end;
 
-        private void swap(int i, int j) {
-            T tmp = array[i];
-            array[i] = array[j];
-            array[j] = tmp;
-        }
-
         private QSortRunner(T[] array, int begin, int end) {
             this.begin = begin;
             this.end = end;
             this.array = array;
-
         }
 
         @Override
         public void run() {
-            int first = begin;
-            int second = end;
-            T middle = array[(end + begin) / 2];
+            var partitionResult = partirion(array, begin, end);
+            int first = partitionResult.first;
+            int second = partitionResult.second;
 
-            synchronized (array) {
-                while (first <= second) {
-                    while (array[first].compareTo(middle) < 0) {
-                        first++;
-                    }
-                    while (array[second].compareTo(middle) > 0) {
-                        second--;
-                    }
-                    if (first <= second) {
-                        swap(first, second);
-                        first++;
-                        second--;
-                    }
-                }
-            }
             if (second > begin) {
                 executorService.submit(new QSortRunner<>(array, begin, second));
             } else if (second == begin) {
@@ -69,6 +47,16 @@ public class QSorter {
         }
     }
 
+    private static class PartitionResult {
+        private final int first;
+        private final int second;
+
+        private PartitionResult(int first, int second) {
+            this.first = first;
+            this.second = second;
+        }
+    }
+
     /**
      * Creates new QSorter
      * @param poolSize size of thread pool, if it is null CachedThreadPool will be created
@@ -81,10 +69,17 @@ public class QSorter {
         }
     }
 
-    private <T extends Comparable<? super T>> void SimpleQSort(T[] array, int begin, int end) {
+    private static <T> void swap(T[] array, int i, int j) {
+        T tmp = array[i];
+        array[i] = array[j];
+        array[j] = tmp;
+    }
+
+    private static <T extends Comparable<? super T>> PartitionResult partirion(T[] array, int begin, int end) {
         int first = begin;
         int second = end;
         T middle = array[(end + begin) / 2];
+
         while (first <= second) {
             while (array[first].compareTo(middle) < 0) {
                 first++;
@@ -93,34 +88,41 @@ public class QSorter {
                 second--;
             }
             if (first <= second) {
-                T temp = array[first];
-                array[first] = array[second];
-                array[second] = temp;
+                swap(array, first, second);
                 first++;
                 second--;
             }
         }
+
+        return new PartitionResult(first, second);
+    }
+
+    private <T extends Comparable<? super T>> void simpleQSort(T[] array, int begin, int end) {
+        var partitionResult = partirion(array, begin, end);
+        int first = partitionResult.first;
+        int second = partitionResult.second;
+
         if (begin < second) {
-            SimpleQSort(array, begin, second);
+            simpleQSort(array, begin, second);
         }
         if (first < end) {
-            SimpleQSort(array, first, end);
+            simpleQSort(array, first, end);
         }
     }
 
     /**
      * Sorts array using qsort in one thread
      */
-    public <T extends Comparable<? super T>> void SimpleQSort(T[] array) {
-        SimpleQSort(array, 0, array.length - 1);
+    public <T extends Comparable<? super T>> void simpleQSort(T[] array) {
+        simpleQSort(array, 0, array.length - 1);
     }
 
     /**
      * Sorts array using mutlithread qsort
      */
-    public <T extends Comparable<? super T>> void SmartQSort(T[] array) throws InterruptedException {
+    public <T extends Comparable<? super T>> void smartQSort(T[] array) throws InterruptedException {
         countDownLatch = new CountDownLatch(array.length);
-        executorService.submit(new QSortRunner<>(array, 0,array.length - 1));
+        executorService.submit(new QSortRunner<>(array, 0, array.length - 1));
         try {
             countDownLatch.await();
         } finally {

@@ -3,7 +3,6 @@ package com.hw.qsort;
 import java.io.*;
 import java.nio.charset.*;
 import java.util.*;
-import java.util.stream.*;
 
 public class Main {
     
@@ -14,17 +13,17 @@ public class Main {
         var sorterCachedPool = new QSorter(null);
 
         var timeBefore = System.nanoTime();
-        sorterCachedPool.SimpleQSort(arrayForSimple);
+        sorterCachedPool.simpleQSort(arrayForSimple);
         Map<Long, String> times = new TreeMap<>();
         times.put(System.nanoTime() - timeBefore, "Simple");
 
         try {
             timeBefore = System.nanoTime();
-            sorterCachedPool.SmartQSort(arrayForSmartCached);
+            sorterCachedPool.smartQSort(arrayForSmartCached);
             times.put(System.nanoTime() - timeBefore, "Cached thread pool");
 
             timeBefore = System.nanoTime();
-            sorterFixedPool.SmartQSort(arrayForSmartFixed);
+            sorterFixedPool.smartQSort(arrayForSmartFixed);
             times.put(System.nanoTime() - timeBefore, "Fixed thread pool");
         } catch (InterruptedException e) {
             System.out.println(e.getMessage());
@@ -40,8 +39,8 @@ public class Main {
     
     public static void main(String... args) {
         try (var writer = new PrintWriter(new FileOutputStream("mainResult"),
-                false, StandardCharsets.UTF_8)) {
-            for (int count = 1; count < 1000000; count *= 10) {
+                true, StandardCharsets.UTF_8)) {
+            for (int count = 1; count < 10000000; count *= 10) {
                 var arrayForSimple = new Integer[count];
                 var arrayForSmartCached = new Integer[count];
                 var arrayForSmartFixed = new Integer[count];
