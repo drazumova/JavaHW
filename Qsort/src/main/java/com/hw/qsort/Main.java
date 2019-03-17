@@ -13,7 +13,7 @@ public class Main {
         var sorterCachedPool = new QSorter(null);
 
         var timeBefore = System.nanoTime();
-        sorterCachedPool.simpleQSort(arrayForSimple);
+        sorterFixedPool.simpleQSort(arrayForSimple);
         Map<Long, String> times = new TreeMap<>();
         times.put(System.nanoTime() - timeBefore, "Simple");
 

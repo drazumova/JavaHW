@@ -29,15 +29,15 @@ class QSorterTest {
         Random random = new Random(10);
         int n = 10000;
         var list = new Integer[n];
-        var correctlist = new Integer[n];
+        var correctList = new Integer[n];
         for (int i = 0; i < n; i++) {
-            list[i] = correctlist[i] = random.nextInt(10);
+            list[i] = correctList[i] = random.nextInt(10);
         }
 
-        sort(correctlist);
+        sort(correctList);
         sorter.simpleQSort(list);
 
-        assertTrue(Arrays.equals(correctlist, list));
+        assertTrue(Arrays.equals(correctList, list));
     }
 
     @Test
@@ -58,13 +58,13 @@ class QSorterTest {
         Random random = new Random(10);
         int n = 10000;
         var list = new Integer[n];
-        var correctlist = new Integer[n];
+        var correctList = new Integer[n];
         for (int i = 0; i < n; i++) {
-            list[i] = correctlist[i] = random.nextInt();
+            list[i] = correctList[i] = random.nextInt();
         }
 
-        sort(correctlist);
+        sort(correctList);
         sorter.smartQSort(list);
-        assertTrue(Arrays.equals(correctlist, list));
+        assertTrue(Arrays.equals(correctList, list));
     }
 }

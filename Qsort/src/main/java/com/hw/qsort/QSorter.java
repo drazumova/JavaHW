@@ -3,6 +3,7 @@ package com.hw.qsort;
 import org.jetbrains.annotations.*;
 
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
 
 /**
  * Class with mutlithread and singlethread qsort methods.
@@ -24,7 +25,7 @@ public class QSorter {
 
         @Override
         public void run() {
-            var partitionResult = partirion(array, begin, end);
+            var partitionResult = partition(array, begin, end);
             int first = partitionResult.first;
             int second = partitionResult.second;
 
@@ -44,6 +45,7 @@ public class QSorter {
             if (first - second == 2) {
                 countDownLatch.countDown();
             }
+
         }
     }
 
@@ -75,7 +77,7 @@ public class QSorter {
         array[j] = tmp;
     }
 
-    private static <T extends Comparable<? super T>> PartitionResult partirion(T[] array, int begin, int end) {
+    private static <T extends Comparable<? super T>> PartitionResult partition(T[] array, int begin, int end) {
         int first = begin;
         int second = end;
         T middle = array[(end + begin) / 2];
@@ -98,7 +100,7 @@ public class QSorter {
     }
 
     private <T extends Comparable<? super T>> void simpleQSort(T[] array, int begin, int end) {
-        var partitionResult = partirion(array, begin, end);
+        var partitionResult = partition(array, begin, end);
         int first = partitionResult.first;
         int second = partitionResult.second;
 
