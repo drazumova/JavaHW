@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.*;
 public class QSorter {
     private CountDownLatch countDownLatch;
     private final ExecutorService executorService;
+    private static final int minimalSize = 100;
 
     private class QSortRunner<T extends Comparable<? super T>> implements Runnable {
         private final T[] array;
@@ -30,7 +31,15 @@ public class QSorter {
             int second = partitionResult.second;
 
             if (second > begin) {
-                executorService.submit(new QSortRunner<>(array, begin, second));
+                if (second - begin < minimalSize) {
+                    simpleQSort(array, begin, second);
+//                    Sorry for this
+                    for (int i = begin; i <= second; i++) {
+                        countDownLatch.countDown();
+                    }
+                } else {
+                    executorService.submit(new QSortRunner<>(array, begin, second));
+                }
             } else if (second == begin) {
                 countDownLatch.countDown();
             }

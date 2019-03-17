@@ -40,7 +40,7 @@ public class Main {
     public static void main(String... args) {
         try (var writer = new PrintWriter(new FileOutputStream("mainResult"),
                 true, StandardCharsets.UTF_8)) {
-            for (int count = 1; count < 10000000; count *= 10) {
+            for (int count = 1; count <= 1 << 20; count <<= 1) {
                 var arrayForSimple = new Integer[count];
                 var arrayForSmartCached = new Integer[count];
                 var arrayForSmartFixed = new Integer[count];
