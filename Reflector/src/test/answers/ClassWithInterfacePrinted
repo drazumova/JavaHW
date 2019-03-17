@@ -7,7 +7,7 @@ class ClassWithInterfacePrinted  {
     ClassWithInterfacePrinted() { throw new UnsupportedOperationException(); }
 
 
-    private abstract static interface interface InnerInterface  extends MyInterface, CoolInterface {
+    private static interface InnerInterface  extends MyInterface, CoolInterface {
         public static final int field;
 
 

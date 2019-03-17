@@ -79,7 +79,6 @@ public class Reflector {
         }
         writer.print(String.join(", ", parameterList));
 
-
         writer.print(")");
         var exceptionList = List.of(constructor.getExceptionTypes());
         if (!exceptionList.isEmpty()) {
@@ -106,11 +105,24 @@ public class Reflector {
         return "<" + list.stream().map(TypeVariable::getName).collect(Collectors.joining(", ")) + ">";
     }
 
-    private static void printClassHead(Class<?> clazz, PrintWriter writer, String tabs, String className) {
-        var mod = Modifier.toString(clazz.getModifiers());
-        if (!"".equals(mod)) {
-            mod += " ";
+    private static String printModifiers(int mod) {
+        var result = "";
+        if (Modifier.isPrivate(mod)) {
+            result += "private ";
+        } else if (Modifier.isProtected(mod)) {
+            result += "protected ";
+        } else if (Modifier.isPublic(mod)) {
+            result += "public ";
         }
+        if (Modifier.isStatic(mod)) {
+            result += "static ";
+        }
+        return result;
+    }
+
+    private static void printClassHead(Class<?> clazz, PrintWriter writer, String tabs, String className) {
+        var mod = printModifiers(clazz.getModifiers());
+
         var superClass = clazz.getSuperclass();
 
         if (clazz.isInterface()) {
