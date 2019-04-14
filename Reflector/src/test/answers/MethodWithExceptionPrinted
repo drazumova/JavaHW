@@ -1,0 +1,12 @@
+package com.hw.ref;
+
+import java.lang.*;
+
+class NewClassWithOneMethodWithExceptionPrinted  {
+    private int field;
+
+    NewClassWithOneMethodWithExceptionPrinted() { throw new UnsupportedOperationException(); }
+
+    private void method() throws Exception { throw new UnsupportedOperationException(); }
+
+}

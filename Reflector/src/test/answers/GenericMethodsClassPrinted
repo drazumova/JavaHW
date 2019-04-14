@@ -1,0 +1,13 @@
+package com.hw.ref;
+
+import java.lang.*;
+
+class NextGenericClassPrinted<E> extends GenericClass<E> implements GenericInterface<E>, MyInterface {
+
+    NextGenericClassPrinted(int arg0) { throw new UnsupportedOperationException(); }
+
+    private <U, T> T print(U arg0, T arg1) { throw new UnsupportedOperationException(); }
+    public void print() { throw new UnsupportedOperationException(); }
+    public void print(E arg0) { throw new UnsupportedOperationException(); }
+
+}

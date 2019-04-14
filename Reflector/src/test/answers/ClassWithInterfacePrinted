@@ -1,0 +1,16 @@
+package com.hw.ref;
+
+import java.lang.*;
+
+class ClassWithInterfacePrinted  {
+
+    ClassWithInterfacePrinted() { throw new UnsupportedOperationException(); }
+
+
+    private static interface InnerInterface  extends MyInterface, CoolInterface {
+        public static final int field;
+
+
+
+    }
+}

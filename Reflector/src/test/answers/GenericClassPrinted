@@ -1,0 +1,11 @@
+package com.hw.ref;
+
+import java.lang.*;
+
+class GenericClassPrinted<E>  {
+    private E field;
+
+    GenericClassPrinted() { throw new UnsupportedOperationException(); }
+
+
+}

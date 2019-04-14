@@ -1,0 +1,26 @@
+package com.hw.ref;
+
+import java.lang.*;
+
+public class SimpleClassPrinted extends Clazz implements MyInterface {
+    private int intField;
+    public char charField;
+    long longField;
+    static int staticIntField;
+    private final int finalField;
+
+    SimpleClassPrinted() { throw new UnsupportedOperationException(); }
+
+    public void print() { throw new UnsupportedOperationException(); }
+    String print(String arg0) { throw new UnsupportedOperationException(); }
+    private int print(int arg0) { throw new UnsupportedOperationException(); }
+
+    private static class NestedSimpleClass  {
+        private final int resault;
+
+        private NestedSimpleClass() { throw new UnsupportedOperationException(); }
+
+        public void print(int arg0) throws Exception { throw new UnsupportedOperationException(); }
+
+    }
+}

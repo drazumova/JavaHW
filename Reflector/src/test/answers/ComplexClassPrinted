@@ -1,0 +1,10 @@
+package com.hw.ref;
+
+import java.lang.*;
+
+public class ComplexClassPrinted  {
+
+    public ComplexClassPrinted() { throw new UnsupportedOperationException(); }
+
+
+}
