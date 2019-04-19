@@ -3,6 +3,7 @@ package com.hwkek.threadpool;
 import org.junit.jupiter.api.*;
 
 import java.util.*;
+import java.util.function.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -134,6 +135,36 @@ class ThreadPoolImplTest {
         }
         int result = task.get();
         assertEquals(42, result);
+        threadPool.shutsown();
+    }
+
+    @Test
+    void simpleThenApplyTest() throws TaskRejectedException, LightExecutionException, InterruptedException {
+        int m = 5;
+        var threadPool = new ThreadPoolImpl<Integer>(m);
+        var task = ThreadPoolImpl.createTask(() -> 42);
+        var nextTask = task.thenApply(integer -> 10*integer);
+        threadPool.add(task);
+        threadPool.add(nextTask);
+        int result = task.get();
+        int nextResult = nextTask.get();
+        assertEquals(42, result);
+        assertEquals(420, nextResult);
+        threadPool.shutsown();
+    }
+
+    @Test
+    void thenApplyThowableTest() throws TaskRejectedException, LightExecutionException, InterruptedException {
+        int m = 5;
+        var threadPool = new ThreadPoolImpl<String>(m);
+        var task = ThreadPoolImpl.createTask(() -> {
+            Integer a = null;
+            return a.toString();
+        });
+        var nextTask = task.thenApply(string -> string + string);
+        threadPool.add(task);
+        threadPool.add(nextTask);
+        assertThrows(LightExecutionException.class, nextTask::get);
         threadPool.shutsown();
     }
 }
