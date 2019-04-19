@@ -34,8 +34,10 @@ public class ThreadPoolImpl<T> {
         private @Nullable Supplier<T> supplier;
         private @Nullable T result;
         private @NotNull Throwable throwable;
+        private final @NotNull Object lockSimulator;
 
         private Task(@NotNull Supplier<T> supplier) {
+            lockSimulator = "Another kekos";
             this.supplier = supplier;
         }
 
@@ -45,9 +47,11 @@ public class ThreadPoolImpl<T> {
         }
 
         @Override
-        public T get() throws LightExecutionException {
-            while (supplier != null) {
-                Thread.yield();
+        public T get() throws LightExecutionException, InterruptedException {
+            synchronized (lockSimulator) {
+                while (supplier != null) {
+                    lockSimulator.wait();
+                }
             }
 
             if (throwable != null) {
@@ -68,7 +72,10 @@ public class ThreadPoolImpl<T> {
             } catch (Throwable e) {
                 throwable = e;
             }
-            supplier = null;
+            synchronized (lockSimulator){
+                supplier = null;
+                lockSimulator.notifyAll();
+            }
         }
 
         @Override

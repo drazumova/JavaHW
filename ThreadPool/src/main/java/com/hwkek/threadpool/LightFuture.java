@@ -16,7 +16,7 @@ public interface LightFuture<T> {
      * Returns result of executing
      * If result isnt counted yet, waits
      */
-    T get() throws LightExecutionException;
+    T get() throws LightExecutionException, InterruptedException;
 
     /**
      * Returns new Task that perform current Task and apply function to result
