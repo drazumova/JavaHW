@@ -72,7 +72,7 @@ public class ThreadPoolImpl<T> {
             } catch (Throwable e) {
                 throwable = e;
             }
-            synchronized (lockSimulator){
+            synchronized (lockSimulator) {
                 supplier = null;
                 lockSimulator.notifyAll();
             }
