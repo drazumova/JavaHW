@@ -1,35 +1,42 @@
 package com.hwkek.threadpool;
 
+import org.jetbrains.annotations.*;
+
 import java.util.*;
-import java.util.concurrent.locks.*;
 import java.util.function.*;
 
+/**
+ * Structure that executes all given tasks in several threads.
+ * @param <T> return type of tasks.
+ */
 public class ThreadPoolImpl<T> {
 
-    private ReentrantLock lock;
-    private Condition notEmpty;
-    private Queue<Task> queue;
-    private int size;
-    private final Thread[] threads;
-
-    public ThreadPoolImpl(int size) {
-        this.size = size;
-        lock = new ReentrantLock();
-        notEmpty = lock.newCondition();
-        threads = new Thread[size];
-        for (int i = 0; i < size; i++) {
-            threads[i] = new MyThread();
-            threads[i].start();
+    private class MyThread extends Thread {
+        @Override
+        public void run() {
+            LightFuture<T> task = null;
+            while (!Thread.interrupted()) {
+                synchronized (lockSimulator) {
+                    if (!queue.isEmpty()) {
+                        task = queue.poll();
+                    }
+                }
+                if (task != null) {
+                    task.execute();
+                    task = null;
+                }
+            }
         }
     }
 
-    private class Task implements LightFuture<T> {
-        private Supplier<T> supplier;
-        private T result;
+    private static class Task<T> implements LightFuture<T> {
 
-        Task(Supplier<T> supplier) {
+        private @Nullable Supplier<T> supplier;
+        private @Nullable T result;
+        private @NotNull Throwable throwable;
+
+        private Task(@NotNull Supplier<T> supplier) {
             this.supplier = supplier;
-
         }
 
         @Override
@@ -39,43 +46,94 @@ public class ThreadPoolImpl<T> {
 
         @Override
         public T get() throws LightExecutionException {
-            if (supplier != null) {
-                try {
-                    result = supplier.get();
-                } catch (Exception e) {
-                    throw new LightExecutionException("Supplier ended with an axception", e);
-                }
-                supplier = null;
+            while (supplier != null) {
+                Thread.yield();
             }
-            return result;
+
+            if (throwable != null) {
+                throw new LightExecutionException("Supplier ended with an axception " + throwable, throwable);
+            } else {
+                return result;
+            }
         }
 
         @Override
-        public <E> LightFuture<E> thenApply(Function<T, E> function) {
-            return null;
-        }
+        public void execute() {
+            if (supplier == null) {
+                return;
+            }
 
-    }
-
-    public class MyThread extends Thread {
-        private Task task;
-
-        @Override
-        public void run() {
-            lock.lock();
             try {
-                if (task.isReady()) {
-                    while (queue.isEmpty()) {
-                        notEmpty.await();
-                    }
-                    task = queue.poll();
+                result = supplier.get();
+            } catch (Throwable e) {
+                throwable = e;
+            }
+            supplier = null;
+        }
+
+        @Override
+        public LightFuture<T> thenApply(@NotNull Function<T, T> function) {
+            return new Task<>(() -> {
+                if (supplier != null) {
+                    result = supplier.get();
+                    supplier = null;
                 }
-            } catch (InterruptedException e) {
-               //kek
-            } finally {
-                lock.unlock();
+                return function.apply(result);
+            });
+        }
+    }
+
+    private final @NotNull Object lockSimulator;
+    private final Queue<LightFuture<T>> queue;
+    private final int size;
+    private final Thread[] threads;
+    private boolean isClosed;
+
+    /**
+     * Creates new thread pool with fixed number of threads
+     * @param size number of threads
+     */
+    public ThreadPoolImpl(int size) {
+        this.size = size;
+        isClosed = false;
+        lockSimulator = "KEKOS";
+        threads = new Thread[size];
+        queue = new ArrayDeque<>();
+        for (int i = 0; i < size; i++) {
+            threads[i] = new MyThread();
+            threads[i].start();
+        }
+    }
+
+    /**
+     * Interrupts all threads
+     */
+    public void shutsown() {
+        synchronized (lockSimulator) {
+            isClosed = true;
+            for (int i = 0; i < size; i++) {
+                threads[i].interrupt();
             }
         }
     }
 
+    /**
+     * Adds task to queue for executing
+     * If pool is closed, throws exception.
+     */
+    public void add(@NotNull LightFuture<T> task) throws TaskRejectedException {
+        synchronized (lockSimulator) {
+            if (isClosed) {
+                throw new TaskRejectedException("Pool is closed");
+            }
+            queue.add(task);
+        }
+    }
+
+    /**
+     * Creates default implementation instance of thread pool task.
+     */
+     public static <T> LightFuture<T> createTask(@NotNull Supplier<T> supplier) {
+        return new Task<>(supplier);
+    }
 }
