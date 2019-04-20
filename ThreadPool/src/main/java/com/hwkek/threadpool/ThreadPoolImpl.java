@@ -85,6 +85,9 @@ public class ThreadPoolImpl<T> {
                     result = supplier.get();
                     supplier = null;
                 }
+                if (throwable != null) {
+                    throw new NullPointerException();
+                }
                 return function.apply(result);
             });
         }

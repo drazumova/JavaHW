@@ -153,16 +153,20 @@ class ThreadPoolImplTest {
     }
 
     @Test
-    void thenApplyThowableTest() throws TaskRejectedException {
+    void thenApplyThowableTest() throws TaskRejectedException, LightExecutionException, InterruptedException {
         int m = 5;
         var threadPool = new ThreadPoolImpl<String>(m);
         var task = ThreadPoolImpl.createTask(() -> {
-            Integer a = null;
-            return a.toString();
+            if (false) {
+                return "AAAA";
+            } else {
+                throw new NullPointerException("kek");
+            }
         });
         var nextTask = task.thenApply(string -> string + string);
         threadPool.add(task);
         threadPool.add(nextTask);
+
         assertThrows(LightExecutionException.class, nextTask::get);
         threadPool.shutsown();
     }
