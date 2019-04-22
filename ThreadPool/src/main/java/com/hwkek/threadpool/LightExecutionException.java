@@ -9,7 +9,7 @@ public class LightExecutionException extends Exception {
     /**
      * Creates exception by message
      */
-    public LightExecutionException(String message){
+    public LightExecutionException(String message) {
         super(message);
     }
 

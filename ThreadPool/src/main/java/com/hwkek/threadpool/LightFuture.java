@@ -21,7 +21,7 @@ public interface LightFuture<T> {
     /**
      * Returns new Task that perform current Task and apply function to result
      */
-    LightFuture<T> thenApply(Function<T, T> function);
+    <U> LightFuture<U> thenApply(Function<? super T , U> function);
 
     /**
      * Executes the task

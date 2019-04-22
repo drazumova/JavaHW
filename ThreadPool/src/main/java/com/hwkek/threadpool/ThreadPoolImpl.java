@@ -7,23 +7,26 @@ import java.util.function.*;
 
 /**
  * Structure that executes all given tasks in several threads.
- * @param <T> return type of tasks.
  */
-public class ThreadPoolImpl<T> {
+public class ThreadPoolImpl {
 
     private class MyThread extends Thread {
         @Override
         public void run() {
-            LightFuture<T> task = null;
+            LightFuture<Object> task = null;
             while (!Thread.interrupted()) {
                 synchronized (lockSimulator) {
-                    if (!queue.isEmpty()) {
-                        task = queue.poll();
+                    while (queue.isEmpty()) {
+                        try {
+                            lockSimulator.wait();
+                        } catch (InterruptedException e) {
+                            System.out.println(e.getMessage());
+                        }
                     }
+                    task = queue.poll();
                 }
                 if (task != null) {
                     task.execute();
-                    task = null;
                 }
             }
         }
@@ -43,7 +46,9 @@ public class ThreadPoolImpl<T> {
 
         @Override
         public boolean isReady() {
-            return supplier == null;
+            synchronized (lockSimulator) {
+                return supplier == null;
+            }
         }
 
         @Override
@@ -52,43 +57,40 @@ public class ThreadPoolImpl<T> {
                 while (supplier != null) {
                     lockSimulator.wait();
                 }
-            }
 
-            if (throwable != null) {
-                throw new LightExecutionException("Supplier ended with an axception " + throwable, throwable);
-            } else {
-                return result;
+                if (throwable != null) {
+                    throw new LightExecutionException("Supplier ended with an exception " + throwable, throwable);
+                } else {
+                    return result;
+                }
             }
         }
 
         @Override
         public void execute() {
-            if (supplier == null) {
-                return;
-            }
-
-            try {
-                result = supplier.get();
-            } catch (Throwable e) {
-                throwable = e;
-            }
             synchronized (lockSimulator) {
+                if (supplier == null) {
+                    return;
+                }
+
+                try {
+                    result = supplier.get();
+                } catch (Throwable e) {
+                    throwable = e;
+                }
                 supplier = null;
                 lockSimulator.notifyAll();
             }
         }
 
         @Override
-        public LightFuture<T> thenApply(@NotNull Function<T, T> function) {
+        public <U> LightFuture<U> thenApply(@NotNull Function<? super T, U> function) {
             return new Task<>(() -> {
-                if (supplier != null) {
-                    result = supplier.get();
-                    supplier = null;
-                }
-                if (throwable != null) {
+                try {
+                    return function.apply(get());
+                } catch (Exception e) {
                     throw new NullPointerException();
                 }
-                return function.apply(result);
             });
         }
     }
@@ -117,8 +119,9 @@ public class ThreadPoolImpl<T> {
 
     /**
      * Interrupts all threads
+     * Does not wait until all tasks are completed.
      */
-    public void shutsown() {
+    public void shutdown() {
         synchronized (lockSimulator) {
             isClosed = true;
             for (int i = 0; i < size; i++) {
@@ -131,12 +134,13 @@ public class ThreadPoolImpl<T> {
      * Adds task to queue for executing
      * If pool is closed, throws exception.
      */
-    public void add(@NotNull LightFuture<T> task) throws TaskRejectedException {
+    public <T> void add(@NotNull Supplier<T> task) throws TaskRejectedException {
         synchronized (lockSimulator) {
             if (isClosed) {
                 throw new TaskRejectedException("Pool is closed");
             }
-            queue.add(task);
+            queue.add(new Task<T>(task));
+            lockSimulator.notify();
         }
     }
 
