@@ -13,7 +13,6 @@ public class ThreadPoolImpl {
     private class MyThread extends Thread {
         @Override
         public void run() {
-            LightFuture<Object> task = null;
             while (!Thread.interrupted()) {
                 synchronized (lockSimulator) {
                     while (queue.isEmpty()) {
@@ -23,11 +22,12 @@ public class ThreadPoolImpl {
                             System.out.println(e.getMessage());
                         }
                     }
-                    task = queue.poll();
+                    var task = queue.poll();
+                    if (task != null) {
+                        task.execute();
+                    }
                 }
-                if (task != null) {
-                    task.execute();
-                }
+
             }
         }
     }
@@ -72,7 +72,6 @@ public class ThreadPoolImpl {
                 if (supplier == null) {
                     return;
                 }
-
                 try {
                     result = supplier.get();
                 } catch (Throwable e) {
@@ -96,7 +95,7 @@ public class ThreadPoolImpl {
     }
 
     private final @NotNull Object lockSimulator;
-    private final Queue<LightFuture<T>> queue;
+    private final Queue<LightFuture<?>> queue;
     private final int size;
     private final Thread[] threads;
     private boolean isClosed;
@@ -134,20 +133,15 @@ public class ThreadPoolImpl {
      * Adds task to queue for executing
      * If pool is closed, throws exception.
      */
-    public <T> void add(@NotNull Supplier<T> task) throws TaskRejectedException {
+    public <T> LightFuture<T> add(@NotNull Supplier<T> task) throws TaskRejectedException {
         synchronized (lockSimulator) {
             if (isClosed) {
                 throw new TaskRejectedException("Pool is closed");
             }
-            queue.add(new Task<T>(task));
+            var taskForPool = new Task<T>(task);
+            queue.add(taskForPool);
             lockSimulator.notify();
+            return taskForPool;
         }
-    }
-
-    /**
-     * Creates default implementation instance of thread pool task.
-     */
-     public static <T> LightFuture<T> createTask(@NotNull Supplier<T> supplier) {
-        return new Task<>(supplier);
     }
 }

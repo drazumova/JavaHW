@@ -9,99 +9,74 @@ import static org.junit.jupiter.api.Assertions.*;
 class ThreadPoolImplTest {
 
     private volatile String reason;
+    private ThreadPoolImpl threadPool;
 
     @Test
     void taskSimpleTest() throws LightExecutionException, TaskRejectedException, InterruptedException {
         int n = 10;
         final int value = 42;
-        var threadPool = new ThreadPoolImpl<Integer>(n);
-        var task = ThreadPoolImpl.createTask(() -> value);
-        threadPool.add(task);
+        threadPool = new ThreadPoolImpl(n);
+        var task = threadPool.add(() -> value);
         int result = task.get();
         assertEquals(value, result);
-        threadPool.shutdown();
+        
     }
 
     @Test
-    void simpleInterraptTest() {
+    void simpleInterruptTest() {
         int kek = 1;
         int m = 2;
-        var threadPool = new ThreadPoolImpl<Integer>(m);
-        threadPool.shutdown();
-        assertThrows(TaskRejectedException.class, () -> {threadPool.add(ThreadPoolImpl.createTask(() -> 42));});
+        threadPool = new ThreadPoolImpl(m);
+        assertThrows(TaskRejectedException.class, () -> {threadPool.add(() -> 42);});
+    }
+
+    @Test
+    void differentTypesTest() throws TaskRejectedException, LightExecutionException, InterruptedException {
+        int m = 2;
+        threadPool = new ThreadPoolImpl(m);
+        var task1 = threadPool.add(() -> "kek");
+        var task2 = threadPool.add(() -> 42);
+        //Cant use var because results will be optional
+        String result1 = task1.get();
+        int result2 = task2.get();
+        assertEquals("kek", result1);
+        assertEquals(42, result2);
     }
 
     @Test
     void addSimpleTest() throws TaskRejectedException, LightExecutionException, InterruptedException {
         int n = 100;
         int m = 1;
-        var threadPool = new ThreadPoolImpl<String>(m);
+        threadPool = new ThreadPoolImpl(m);
         var tasks = new ArrayList<LightFuture<String>>();
         for (int i = 0; i < n; i++) {
             final int value = i;
-            tasks.add(ThreadPoolImpl.createTask(() -> "Result " + value));
-            threadPool.add(tasks.get(i));
+            tasks.add(threadPool.add(() -> "Result " + value));
         }
         for (int i = 0; i < n; i++) {
             var result = tasks.get(i).get();
             assertEquals("Result " + i, result);
         }
-        threadPool.shutdown();
     }
 
     @Test
     void threadCountTest() {
         int n = 10;
-        var threadPool = new ThreadPoolImpl<Boolean>(n);
+        threadPool = new ThreadPoolImpl(n);
+        
         assertTrue(Thread.activeCount() >= n);
-    }
-
-    @Test
-    void severalThreadSubmit() throws LightExecutionException, InterruptedException {
-        int n = 10;
-        int m = 5;
-        var threadPool = new ThreadPoolImpl<String>(m);
-        var threads = new Thread[n];
-        var tasks = new ArrayList<LightFuture<String>>();
-        for (int i = 0; i < n; i++) {
-            final int value = i;
-            tasks.add(ThreadPoolImpl.createTask(() -> {return "Result " + value; }));
-            threads[i] = new Thread(() ->
-            {
-                try {
-                    threadPool.add(tasks.get(value));
-                } catch (TaskRejectedException e) {
-                    reason = e.getMessage();
-                }
-            });
-            threads[i].start();
-        }
-        for (int i = 0; i < n; i++) {
-            threads[i].join();
-        }
-
-        assertNull(reason);
-
-        for (int i = 0; i < n; i++) {
-            var result = tasks.get(i).get();
-            assertEquals("Result " + i, result);
-        }
-        threadPool.shutdown();
     }
 
     @Test
     void severalThreadGet() throws InterruptedException, TaskRejectedException {
         int n = 10;
         int m = 5;
-        var threadPool = new ThreadPoolImpl<Integer>(m);
+        threadPool = new ThreadPoolImpl(m);
         var threads = new Thread[n];
         var tasks = new ArrayList<LightFuture<Integer>>();
         for (int i = 0; i < n; i++) {
             final Integer value = i;
-            tasks.add(ThreadPoolImpl.createTask(() -> {
-                return value;
-            }));
-            threadPool.add(tasks.get(i));
+            tasks.add(threadPool.add(() -> value));
             threads[i] = new Thread(() ->
             {
                 try {
@@ -117,57 +92,43 @@ class ThreadPoolImplTest {
         }
 
         for (int i = 0; i < n; i++) {
+            System.out.println(i);
             threads[i].join();
         }
 
+        
         assertNull(reason);
-        threadPool.shutdown();
-    }
-
-    @Test
-    void severalThreadsWithOneTask() throws TaskRejectedException, LightExecutionException, InterruptedException {
-        int m = 5;
-        var threadPool = new ThreadPoolImpl<Integer>(m);
-        var task = ThreadPoolImpl.createTask(() -> 42);
-        for (int i = 0; i < m; i++) {
-            threadPool.add(task);
-        }
-        int result = task.get();
-        assertEquals(42, result);
-        threadPool.shutdown();
     }
 
     @Test
     void simpleThenApplyTest() throws TaskRejectedException, LightExecutionException, InterruptedException {
         int m = 5;
-        var threadPool = new ThreadPoolImpl<Integer>(m);
-        var task = ThreadPoolImpl.createTask(() -> 42);
+        threadPool = new ThreadPoolImpl(m);
+        var task = threadPool.add(() -> 42);
         var nextTask = task.thenApply(integer -> 10 * integer);
-        threadPool.add(task);
-        threadPool.add(nextTask);
         int result = task.get();
         int nextResult = nextTask.get();
+        
         assertEquals(42, result);
         assertEquals(420, nextResult);
-        threadPool.shutdown();
     }
 
     @Test
     void thenApplyThowableTest() throws TaskRejectedException, LightExecutionException, InterruptedException {
         int m = 5;
-        var threadPool = new ThreadPoolImpl<String>(m);
-        var task = ThreadPoolImpl.createTask(() -> {
+        threadPool = new ThreadPoolImpl(m);
+        var task = threadPool.add(() -> {
             if (false) {
                 return "AAAA";
             } else {
                 throw new NullPointerException("kek");
             }
         });
-        var nextTask = task.thenApply(string -> string + string);
-        threadPool.add(task);
-        threadPool.add(nextTask);
+        var nextTask = task.thenApply(string -> {
+            return string + string;
+        });
 
+        
         assertThrows(LightExecutionException.class, nextTask::get);
-        threadPool.shutdown();
     }
 }
