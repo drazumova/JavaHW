@@ -84,11 +84,11 @@ public class ThreadPoolImpl {
 
         @Override
         public <U> LightFuture<U> thenApply(@NotNull Function<? super T, U> function) {
-            return new Task<>(() -> {
+            return new Task<U>(() -> {
                 try {
                     return function.apply(get());
-                } catch (Exception e) {
-                    throw new NullPointerException();
+                } catch (InterruptedException e) {
+                    throw new LightExecutionException("Inner task ended with exception", e);
                 }
             });
         }
@@ -138,7 +138,7 @@ public class ThreadPoolImpl {
             if (isClosed) {
                 throw new TaskRejectedException("Pool is closed");
             }
-            var taskForPool = new Task<T>(task);
+            var taskForPool = new Task<>(task);
             queue.add(taskForPool);
             lockSimulator.notify();
             return taskForPool;

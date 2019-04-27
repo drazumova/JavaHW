@@ -3,7 +3,7 @@ package com.hwkek.threadpool;
 /**
  * Exception that throws in case of exception while supplier in threadpool task executing.
  */
-public class LightExecutionException extends Exception {
+public class LightExecutionException extends RuntimeException {
     private static final long serialVersionUID = 3995433511599130168L;
 
     /**

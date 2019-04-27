@@ -37,8 +37,8 @@ class ThreadPoolImplTest {
         var task1 = threadPool.add(() -> "kek");
         var task2 = threadPool.add(() -> 42);
         //Cant use var because results will be optional
-        String result1 = task1.get();
         int result2 = task2.get();
+        var result1 = task1.get();
         assertEquals("kek", result1);
         assertEquals(42, result2);
     }
@@ -114,14 +114,14 @@ class ThreadPoolImplTest {
     }
 
     @Test
-    void thenApplyThowableTest() throws TaskRejectedException, LightExecutionException, InterruptedException {
+    void thenApplyThowableTest() throws TaskRejectedException {
         int m = 5;
         threadPool = new ThreadPoolImpl(m);
         var task = threadPool.add(() -> {
             if (false) {
                 return "AAAA";
             } else {
-                throw new NullPointerException("kek");
+                throw new NullPointerException();
             }
         });
         var nextTask = task.thenApply(string -> {
