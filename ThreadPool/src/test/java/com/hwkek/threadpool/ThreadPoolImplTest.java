@@ -19,7 +19,6 @@ class ThreadPoolImplTest {
         var task = threadPool.add(() -> value);
         int result = task.get();
         assertEquals(value, result);
-        
     }
 
     @Test
@@ -27,6 +26,7 @@ class ThreadPoolImplTest {
         int kek = 1;
         int m = 2;
         threadPool = new ThreadPoolImpl(m);
+        threadPool.shutdown();
         assertThrows(TaskRejectedException.class, () -> {threadPool.add(() -> 42);});
     }
 
@@ -63,7 +63,6 @@ class ThreadPoolImplTest {
     void threadCountTest() {
         int n = 10;
         threadPool = new ThreadPoolImpl(n);
-        
         assertTrue(Thread.activeCount() >= n);
     }
 
@@ -71,16 +70,17 @@ class ThreadPoolImplTest {
     void severalThreadGet() throws InterruptedException, TaskRejectedException {
         int n = 10;
         int m = 5;
-        threadPool = new ThreadPoolImpl(m);
+        var threadPool = new ThreadPoolImpl(m);
         var threads = new Thread[n];
         var tasks = new ArrayList<LightFuture<Integer>>();
         for (int i = 0; i < n; i++) {
             final Integer value = i;
             tasks.add(threadPool.add(() -> value));
+            final var task = tasks.get(i);
             threads[i] = new Thread(() ->
             {
                 try {
-                    var kek = tasks.get(value).get();
+                    var kek = task.get();
                     if (!kek.equals(value)) {
                         reason = "Expected " + value + " but " + kek + " found";
                     }
@@ -92,11 +92,8 @@ class ThreadPoolImplTest {
         }
 
         for (int i = 0; i < n; i++) {
-            System.out.println(i);
             threads[i].join();
         }
-
-        
         assertNull(reason);
     }
 
@@ -106,9 +103,10 @@ class ThreadPoolImplTest {
         threadPool = new ThreadPoolImpl(m);
         var task = threadPool.add(() -> 42);
         var nextTask = task.thenApply(integer -> 10 * integer);
+        threadPool.addTask(nextTask);
         int result = task.get();
         int nextResult = nextTask.get();
-        
+
         assertEquals(42, result);
         assertEquals(420, nextResult);
     }
@@ -127,8 +125,7 @@ class ThreadPoolImplTest {
         var nextTask = task.thenApply(string -> {
             return string + string;
         });
-
-        
+        threadPool.addTask(nextTask);
         assertThrows(LightExecutionException.class, nextTask::get);
     }
 }

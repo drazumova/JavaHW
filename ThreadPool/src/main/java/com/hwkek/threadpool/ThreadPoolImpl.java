@@ -15,6 +15,7 @@ public class ThreadPoolImpl {
         public void run() {
             while (!Thread.interrupted()) {
                 synchronized (lockSimulator) {
+
                     while (queue.isEmpty()) {
                         try {
                             lockSimulator.wait();
@@ -22,11 +23,11 @@ public class ThreadPoolImpl {
                             System.out.println(e.getMessage());
                         }
                     }
+                }
                     var task = queue.poll();
                     if (task != null) {
                         task.execute();
                     }
-                }
 
             }
         }
@@ -42,6 +43,11 @@ public class ThreadPoolImpl {
         private Task(@NotNull Supplier<T> supplier) {
             lockSimulator = "Another kekos";
             this.supplier = supplier;
+        }
+
+        @Override
+        public String toString() {
+            return String.valueOf(supplier);
         }
 
         @Override
@@ -88,7 +94,7 @@ public class ThreadPoolImpl {
                 try {
                     return function.apply(get());
                 } catch (InterruptedException e) {
-                    throw new LightExecutionException("Inner task ended with exception", e);
+                    throw new LightExecutionException("Inner task ended with exception " + e, e);
                 }
             });
         }
@@ -130,18 +136,27 @@ public class ThreadPoolImpl {
     }
 
     /**
-     * Adds task to queue for executing
-     * If pool is closed, throws exception.
+     * Adds task of form of LightFuture interface to queue for executing.
+     * @return LightFuture in which it is wrapped
      */
-    public <T> LightFuture<T> add(@NotNull Supplier<T> task) throws TaskRejectedException {
+    public <T> LightFuture<T> addTask(LightFuture<T> task) throws TaskRejectedException {
         synchronized (lockSimulator) {
             if (isClosed) {
                 throw new TaskRejectedException("Pool is closed");
             }
-            var taskForPool = new Task<>(task);
-            queue.add(taskForPool);
-            lockSimulator.notify();
-            return taskForPool;
+            queue.add(task);
+            lockSimulator.notifyAll();
+            return task;
         }
+    }
+
+    /**
+     * Adds task in form of supplier to queue for executing.
+     * If pool is closed, throws exception.
+     * @return LightFuture in which it is wrapped
+     */
+    public <T> LightFuture<T> add(@NotNull Supplier<T> task) throws TaskRejectedException {
+        var taskForPool = new Task<>(task);
+        return addTask(taskForPool);
     }
 }
