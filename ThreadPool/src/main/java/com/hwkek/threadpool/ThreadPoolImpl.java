@@ -24,11 +24,10 @@ public class ThreadPoolImpl {
                         }
                     }
                 }
-                    var task = queue.poll();
-                    if (task != null) {
-                        task.execute();
-                    }
-
+                var task = queue.poll();
+                if (task != null) {
+                    task.execute();
+                }
             }
         }
     }
