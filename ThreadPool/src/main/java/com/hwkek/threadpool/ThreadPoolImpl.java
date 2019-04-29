@@ -2,7 +2,6 @@ package com.hwkek.threadpool;
 
 import org.jetbrains.annotations.*;
 
-import java.util.*;
 import java.util.function.*;
 
 /**
@@ -10,23 +9,70 @@ import java.util.function.*;
  */
 public class ThreadPoolImpl {
 
+    private static class MyQueue<T> {
+
+        private @NotNull Object[] queue;
+        private volatile int size;
+
+        private MyQueue(int size) {
+            queue = new Object[size];
+            this.size = 0;
+        }
+
+        private int size() {
+            return size;
+        }
+
+        private void resize() {
+            int sizeArray = queue.length;
+            var oldQueue = new Object[sizeArray];
+            System.arraycopy(queue, 0, oldQueue, 0, sizeArray);
+            queue = new Object[2*sizeArray];
+            System.arraycopy(oldQueue, 0, queue, 0, sizeArray);
+        }
+
+        private synchronized void add(@NotNull T t) {
+            if (size + 1 > queue.length) {
+                resize();
+            }
+            queue[size] = t;
+            size++;
+        }
+
+        @SuppressWarnings("unchecked")
+        private synchronized T get() {
+            if (size == 0) {
+                return null;
+            }
+            --size;
+            return (T) queue[size];
+        }
+    }
+
     private class MyThread extends Thread {
+
         @Override
         public void run() {
-            while (!Thread.interrupted()) {
-                synchronized (lockSimulator) {
-
-                    while (queue.isEmpty()) {
+            boolean closed = false;
+            while (true) {
+                LightFuture<?> task;
+                synchronized (queue) {
+                    while(queue.size() == 0) {
                         try {
-                            lockSimulator.wait();
+                            queue.wait();
                         } catch (InterruptedException e) {
-                            System.out.println(e.getMessage());
+                            break;
                         }
                     }
+                    task = queue.get();
                 }
-                var task = queue.poll();
                 if (task != null) {
                     task.execute();
+                }
+                synchronized (queue) {
+                    if (queue.size == 0 && isClosed) {
+                        return;
+                    }
                 }
             }
         }
@@ -35,45 +81,40 @@ public class ThreadPoolImpl {
     private static class Task<T> implements LightFuture<T> {
 
         private @Nullable Supplier<T> supplier;
-        private @Nullable T result;
-        private @NotNull Throwable throwable;
-        private final @NotNull Object lockSimulator;
+        private volatile @Nullable T result;
+        private volatile @NotNull Throwable throwable;
+        private final @NotNull Object lock;
 
         private Task(@NotNull Supplier<T> supplier) {
-            lockSimulator = "Another kekos";
+            lock = "Another kekos";
             this.supplier = supplier;
         }
 
         @Override
-        public String toString() {
-            return String.valueOf(supplier);
-        }
-
-        @Override
         public boolean isReady() {
-            synchronized (lockSimulator) {
+            synchronized (lock) {
                 return supplier == null;
             }
         }
 
         @Override
         public T get() throws LightExecutionException, InterruptedException {
-            synchronized (lockSimulator) {
-                while (supplier != null) {
-                    lockSimulator.wait();
+                synchronized (lock) {
+                    while (supplier != null) {
+                        lock.wait();
+                    }
                 }
-
                 if (throwable != null) {
                     throw new LightExecutionException("Supplier ended with an exception " + throwable, throwable);
                 } else {
                     return result;
                 }
-            }
+            
         }
 
         @Override
         public void execute() {
-            synchronized (lockSimulator) {
+            synchronized (lock) {
                 if (supplier == null) {
                     return;
                 }
@@ -83,13 +124,13 @@ public class ThreadPoolImpl {
                     throwable = e;
                 }
                 supplier = null;
-                lockSimulator.notifyAll();
+                lock.notifyAll();
             }
         }
 
         @Override
         public <U> LightFuture<U> thenApply(@NotNull Function<? super T, U> function) {
-            return new Task<U>(() -> {
+            return new Task<>(() -> {
                 try {
                     return function.apply(get());
                 } catch (InterruptedException e) {
@@ -99,11 +140,11 @@ public class ThreadPoolImpl {
         }
     }
 
-    private final @NotNull Object lockSimulator;
-    private final Queue<LightFuture<?>> queue;
+    private final MyQueue<LightFuture<?>> queue;
     private final int size;
     private final Thread[] threads;
     private boolean isClosed;
+    private static final int TASK_COUNT = 100;
 
     /**
      * Creates new thread pool with fixed number of threads
@@ -112,9 +153,8 @@ public class ThreadPoolImpl {
     public ThreadPoolImpl(int size) {
         this.size = size;
         isClosed = false;
-        lockSimulator = "KEKOS";
         threads = new Thread[size];
-        queue = new ArrayDeque<>();
+        queue = new MyQueue<>(size * TASK_COUNT);
         for (int i = 0; i < size; i++) {
             threads[i] = new MyThread();
             threads[i].start();
@@ -123,28 +163,26 @@ public class ThreadPoolImpl {
 
     /**
      * Interrupts all threads
-     * Does not wait until all tasks are completed.
+     * Waits until all tasks are completed.
      */
-    public void shutdown() {
-        synchronized (lockSimulator) {
-            isClosed = true;
-            for (int i = 0; i < size; i++) {
-                threads[i].interrupt();
-            }
+    public void shutdown() throws InterruptedException {
+        if (isClosed) {
+            return;
+        }
+        isClosed = true;
+        for (int i = 0; i < size; i++) {
+            threads[i].interrupt();
+            threads[i].join();
         }
     }
 
-    /**
-     * Adds task of form of LightFuture interface to queue for executing.
-     * @return LightFuture in which it is wrapped
-     */
-    public <T> LightFuture<T> addTask(LightFuture<T> task) throws TaskRejectedException {
-        synchronized (lockSimulator) {
+    private <T> LightFuture<T> addTask(LightFuture<T> task) throws TaskRejectedException {
+        synchronized (queue) {
             if (isClosed) {
                 throw new TaskRejectedException("Pool is closed");
             }
             queue.add(task);
-            lockSimulator.notifyAll();
+            queue.notify();
             return task;
         }
     }

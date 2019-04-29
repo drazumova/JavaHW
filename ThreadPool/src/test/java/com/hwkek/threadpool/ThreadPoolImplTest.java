@@ -22,7 +22,7 @@ class ThreadPoolImplTest {
     }
 
     @Test
-    void simpleInterruptTest() {
+    void simpleInterruptTest() throws InterruptedException {
         int kek = 1;
         int m = 2;
         threadPool = new ThreadPoolImpl(m);
@@ -70,15 +70,14 @@ class ThreadPoolImplTest {
     void severalThreadGet() throws InterruptedException, TaskRejectedException {
         int n = 10;
         int m = 5;
-        var threadPool = new ThreadPoolImpl(m);
+        threadPool = new ThreadPoolImpl(m);
         var threads = new Thread[n];
         var tasks = new ArrayList<LightFuture<Integer>>();
         for (int i = 0; i < n; i++) {
             final Integer value = i;
             tasks.add(threadPool.add(() -> value));
             final var task = tasks.get(i);
-            threads[i] = new Thread(() ->
-            {
+            threads[i] = new Thread(() -> {
                 try {
                     var kek = task.get();
                     if (!kek.equals(value)) {
@@ -103,7 +102,7 @@ class ThreadPoolImplTest {
         threadPool = new ThreadPoolImpl(m);
         var task = threadPool.add(() -> 42);
         var nextTask = task.thenApply(integer -> 10 * integer);
-        threadPool.addTask(nextTask);
+        nextTask.execute();
         int result = task.get();
         int nextResult = nextTask.get();
 
@@ -125,7 +124,49 @@ class ThreadPoolImplTest {
         var nextTask = task.thenApply(string -> {
             return string + string;
         });
-        threadPool.addTask(nextTask);
+        nextTask.execute();
         assertThrows(LightExecutionException.class, nextTask::get);
+    }
+
+    @Test
+    void simpleIsReadyTest() throws TaskRejectedException {
+        int m = 10;
+        threadPool = new ThreadPoolImpl(m);
+        var task = threadPool.add(() -> 42);
+        var taskNext = task.thenApply(a -> 32);
+        assertFalse(taskNext.isReady());
+        taskNext.execute();
+        assertTrue(taskNext.isReady());
+    }
+
+    @Test
+    void manyTasksTest() throws TaskRejectedException, InterruptedException {
+        int m = 15;
+        int count = 1000000;
+        threadPool = new ThreadPoolImpl(m);
+        var all = new ArrayList<LightFuture<?>>();
+        for (int i = 0; i < count; i++) {
+            int finalI = i;
+            all.add(threadPool.add(() -> finalI));
+        }
+        for (int i = 0; i < count; i++) {
+            assertEquals(i, all.get(i).get());
+        }
+    }
+
+    @Test
+    void shutdownSimpleTest() throws TaskRejectedException, InterruptedException {
+        int m = 1;
+        int count = 10;
+        threadPool = new ThreadPoolImpl(m);
+        var all = new ArrayList<LightFuture<?>>();
+        for (int i = 0; i < count; i++) {
+            int finalI = i;
+            all.add(threadPool.add(() -> finalI));
+        }
+        threadPool.shutdown();
+        for (int i = 0; i < count; i++) {
+            assertTrue(all.get(i).isReady());
+        }
     }
 }
