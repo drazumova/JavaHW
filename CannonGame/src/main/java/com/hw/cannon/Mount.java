@@ -9,21 +9,28 @@ import java.util.*;
 public class Mount {
     private Double[] listX;
     private Double[] listY;
-    private final int size = 3;
+    private int size = 3;
     private final Pane root;
 
     public Mount(double maxSize, Pane pane) {
+        var random = new Random();
+        size = random.nextInt(10) + 2;
         listX = new Double[size];
-        listX[0] = 0.0;
-        listX[size - 1] = maxSize;
         listY = new Double[size];
-        listX[1] = maxSize/2;
-        listY[0] = listY[size - 1] = maxSize/2;
-        listY[1] = maxSize/4;
+
         for (int i = 0; i < size; i++) {
-            System.out.println(listX[i] + " " + listY[i]);
+            listX[i] = maxSize / (size - 1) * i ;
         }
+
+        listY[0] = random.nextDouble() * maxSize / 2 + maxSize / 2;
+        listY[size - 1] = listY[0];
+
+        for (int i = 1; i + 1 < size; i++) {
+            listY[i] = random.nextDouble() * listY[0];
+        }
+
         var list = new ArrayList<Double>();
+
         for (int i = 0; i < size; i++) {
             list.add(listX[i]);
             list.add(listY[i]);
@@ -32,7 +39,7 @@ public class Mount {
         root = pane;
         var polygon = new Polygon();
         polygon.getPoints().addAll(list);
-        polygon.setFill(Color.BROWN);
+        polygon.setFill(Color.SADDLEBROWN);
 
         root.getChildren().add(polygon);
     }

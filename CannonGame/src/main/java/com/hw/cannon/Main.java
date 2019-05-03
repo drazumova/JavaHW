@@ -1,15 +1,11 @@
 package com.hw.cannon;
 
 import javafx.application.*;
-import javafx.event.EventHandler;
 import javafx.scene.*;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.paint.*;
-import javafx.scene.shape.*;
 import javafx.stage.*;
 
-import java.lang.annotation.*;
 import java.util.*;
 
 
@@ -25,7 +21,7 @@ public class Main extends Application {
         var random = new Random();
         double randX = random.nextDouble() * 1000;
         var cannon = new Cannon(0.0, mount.getYCor(0.0), root, mount);
-        var target = new Bomb(randX, mount.getYCor(randX), 3, root);
+        var target = new Bomb(randX, mount.getYCor(randX), 0, root);
 
         primaryStage.setScene(new Scene(root, 1000, 1000));
         primaryStage.setTitle("kek game");
@@ -46,10 +42,33 @@ public class Main extends Application {
                     break;
                 case ENTER:
                     System.out.println("SHOT! SHOT! SHOT!");
-                    cannon.shot();
+                    var bomb = cannon.shot();
+                    if (bomb.isClose(target)) {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+
+                        alert.setTitle("congratulations");
+                        alert.setHeaderText("END GAME");
+                        alert.setContentText("You won!");
+
+                        alert.showAndWait();
+                    }
+                    break;
+                case Q:
+                    cannon.nextType();
                     break;
                 default:
-                    System.out.println("Wrong button");
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+
+                    alert.setTitle("congratulations");
+                    alert.setHeaderText("HELP");
+                    alert.setContentText("You pushed wrong button\n" +
+                            "Press RIGHT to move right\n" +
+                            "Press LEFT to move left\n" +
+                            "Press Q to change bomb type\n" +
+                            "Press ENTER to shot\n" +
+                            "Press UP to move muzzle right\n" +
+                            "Press DOWN to move muzzle left\n");
+                    alert.showAndWait();
             }
         });
 

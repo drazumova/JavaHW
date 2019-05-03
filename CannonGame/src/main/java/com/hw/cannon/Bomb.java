@@ -6,44 +6,55 @@ import javafx.scene.paint.*;
 import javafx.scene.shape.*;
 import javafx.util.*;
 
+import java.util.*;
+
 public class Bomb {
     private double x;
     private double y;
-    private Circle view;
     private double r;
+    private double range;
     private final Pane root;
-    private boolean isKilled;
-    private double speed;
+    private Circle view;
+
+    public static class Parameters {
+        private final double radius;
+        private final Color color;
+        private final double range;
+        private final double viewRadius;
+
+        public Parameters(double radius, double range, Color color, double modelRadius) {
+            this.radius = radius;
+            this.color = color;
+            this.range = range;
+            viewRadius = modelRadius;
+        }
+        void apply(Bomb bomb) {
+            bomb.r = radius;
+            bomb.range = range;
+            bomb.view.setFill(color);
+            bomb.view.setRadius(viewRadius);
+        }
+
+    }
+
+    public static ArrayList<Parameters> types;
+
+    static {
+        types = new ArrayList<>();
+        types.add(new Parameters(100, 0, Color.RED, 11));
+        types.add(new Parameters(50, 100, Color.MIDNIGHTBLUE, 5));
+        types.add(new Parameters(70, 80, Color.INDIGO, 8));
+        types.add(new Parameters(40, 50, Color.DARKMAGENTA, 10));
+    }
 
     public Bomb(double x, double y, int type, Pane pane) {
-        System.out.println("AAAA " + x + " " + y + " " + type);
         root = pane;
         this.x = x;
         this.y = y;
         view = new Circle(x, y, 1);
-        switch (type) {
-            case 1:
-                r = 5;
-                speed = 1;
-                view.setFill(Color.RED);
-                break;
-            case 2:
-                r = 3;
-                speed = 3;
-                view.setFill(Color.BLUE);
-                break;
-            case 3:
-                r = 10;
-                speed = 0;
-                view.setFill(Color.GREEN);
-                break;
-            default:
-                r = 2;
-                speed = 2;
-                view.setFill(Color.BLACK);
-        }
 
-        view.setRadius(r/2);
+        types.get(type).apply(this);
+
         root.getChildren().add(view);
     }
 
@@ -52,16 +63,36 @@ public class Bomb {
     }
 
     public boolean isClose(Bomb other) {
-        return distance(other) < Math.min(r, other.r);
+        return distance(other) < Math.min(r * r, other.r * other.r);
     }
 
-    public boolean isKilled() {
-        return isKilled;
-    }
+    public void fly(double phi, Mount mount) {
+        var path = new Path();
+        var pathTransition = new PathTransition();
 
-    public void destroy() {
-        root.getChildren().remove(view);
-        isKilled = true;
+        double targetX;
+        if (phi >= 3 * Math.PI/2) {
+            targetX = x + range;
+        } else {
+            targetX = x - range;
+        }
+        var targetY = mount.getYCor(targetX);
+
+        int n = 1000;
+
+        path.getElements().add(new MoveTo(x, y));
+        path.getElements().add(new QuadCurveTo(x + range / 2 * StrictMath.cos(phi),
+                y + range / 2 * StrictMath.sin(phi), targetX, targetY));
+
+        pathTransition.setDuration(Duration.millis(1000));
+        pathTransition.setNode(view);
+        pathTransition.setPath(path);
+        pathTransition.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
+        pathTransition.setAutoReverse(true);
+
+        pathTransition.play();
+        x = targetX;
+        y = targetY;
     }
 
 }
