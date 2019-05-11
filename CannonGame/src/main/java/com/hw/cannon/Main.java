@@ -6,19 +6,20 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
 
+import java.security.*;
 import java.util.*;
 
 
 public class Main extends Application {
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
+    public void start(Stage primaryStage) {
 
         var root = new Pane();
         root.setMaxSize(1000, 1000);
 
         var mount = new Mount(1000, root);
-        var random = new Random();
+        var random = new SecureRandom();
         double randX = random.nextDouble() * 1000;
         var cannon = new Cannon(0.0, mount.getYCor(0.0), root, mount);
         var target = new Bomb(randX, mount.getYCor(randX), 0, root);
@@ -41,7 +42,6 @@ public class Main extends Application {
                     cannon.moveRight();
                     break;
                 case ENTER:
-                    System.out.println("SHOT! SHOT! SHOT!");
                     var bomb = cannon.shot();
                     if (bomb.isClose(target)) {
                         Alert alert = new Alert(Alert.AlertType.INFORMATION);

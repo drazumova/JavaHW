@@ -3,6 +3,9 @@ package com.hw.cannon;
 import javafx.scene.layout.*;
 import javafx.scene.shape.*;
 
+/**
+ * Class for interaction this cannon
+ */
 public class Cannon {
 
     private double x;
@@ -15,10 +18,13 @@ public class Cannon {
     private Mount mount;
     private int type;
 
-    private static final double lenghtLine = 20;
-    private final double deltaPhi = Math.PI /10;
-    private static final double deltaX = 10;
+    private static final double LENGHT_LINE = 20;
+    private static final double DELTA_PHI = Math.PI / 20;
+    private static final double DELTA_X = 5;
 
+    /**
+     * Creates new cannon
+     */
     public Cannon(double x, double y, Pane pane, Mount mount){
         root = pane;
         type = 1;
@@ -28,13 +34,16 @@ public class Cannon {
         phi = 3 * Math.PI / 2;
         view = new Circle(x, y, 10);
         lineView = new Line(x, y,
-                x + lenghtLine * StrictMath.cos(phi), y + lenghtLine * StrictMath.sin(phi));
+                x + LENGHT_LINE * StrictMath.cos(phi), y + LENGHT_LINE * StrictMath.sin(phi));
         root.getChildren().addAll(view, lineView);
     }
 
+    /**
+     * Drops a bomb by angle of the muzzle
+     */
     public Bomb shot(){
         var bomb = new Bomb(x, y, type, root);
-        bomb.fly(phi, mount);
+        bomb.fly(2*Math.PI - phi, mount);
         return bomb;
     }
 
@@ -48,12 +57,15 @@ public class Cannon {
     }
 
     private void updateViewLine() {
-        lineView.setEndX(x + lenghtLine * StrictMath.cos(phi));
-        lineView.setEndY(y + lenghtLine * StrictMath.sin(phi));
+        lineView.setEndX(x + LENGHT_LINE * StrictMath.cos(phi));
+        lineView.setEndY(y + LENGHT_LINE * StrictMath.sin(phi));
     }
 
+    /**
+     * Moves cannon left by DELTA_X
+     */
     public void moveLeft() {
-        x -= deltaX;
+        x -= DELTA_X;
         if (x <= 0) {
             x = 0;
         }
@@ -61,8 +73,11 @@ public class Cannon {
         updateViewCannon();
     }
 
+    /**
+     * Moves cannon right by DELTA_X
+     */
     public void moveRight() {
-        x += deltaX;
+        x += DELTA_X;
 
         if (x > 1000) {
             x = 1000;
@@ -71,8 +86,11 @@ public class Cannon {
         updateViewCannon();
     }
 
+    /**
+     * Moves muzzle right by DELTA_PHI
+     */
     public void moveUp() {
-        phi += deltaPhi;
+        phi += DELTA_PHI;
 
         if (phi >= 2 * Math.PI) {
             phi = 2 * Math.PI;
@@ -81,8 +99,11 @@ public class Cannon {
         updateViewLine();
     }
 
+    /**
+     * Moves muzzle left by DELTA_PHI
+     */
     public void moveDown() {
-        phi -= deltaPhi;
+        phi -= DELTA_PHI;
 
         if (phi <= Math.PI) {
             phi = Math.PI;
@@ -91,9 +112,12 @@ public class Cannon {
         updateViewLine();
     }
 
+    /**
+     * Switchs type of cannons bomb to next in cyclic order
+     */
     public void nextType() {
         type++;
-        if (type >= Bomb.types.size()) {
+        if (type >= Bomb.getTypes().size()) {
             type = 1;
         }
     }

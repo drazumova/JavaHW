@@ -6,12 +6,18 @@ import javafx.scene.shape.*;
 
 import java.util.*;
 
+/**
+ * Class that represents mount in the game
+ */
 public class Mount {
-    private Double[] listX;
-    private Double[] listY;
+    private final Double[] listX;
+    private final Double[] listY;
     private int size = 3;
     private final Pane root;
 
+    /**
+     * Generates new mount
+     */
     public Mount(double maxSize, Pane pane) {
         var random = new Random();
         size = random.nextInt(10) + 2;
@@ -26,7 +32,8 @@ public class Mount {
         listY[size - 1] = listY[0];
 
         for (int i = 1; i + 1 < size; i++) {
-            listY[i] = random.nextDouble() * listY[0];
+//            listY[i] = random.nextDouble() * listY[0];
+            listY[i] = listY[0] - 10;
         }
 
         var list = new ArrayList<Double>();
@@ -44,11 +51,17 @@ public class Mount {
         root.getChildren().add(polygon);
     }
 
+    /**
+     * Tells if given point under the mount
+     */
     public boolean isUnder(double x, double y) {
         var mountY = getYCor(x);
         return y < mountY;
     }
 
+    /**
+     * Returns y coordinate of point on the mountain top border related to given x coordinate
+     */
     public Double getYCor(Double x) {
         int last = 1;
         while (last < size && listX[last] < x) {
@@ -62,6 +75,4 @@ public class Mount {
 
         return (y2 - y1) / (x2 - x1) * (x - x1) + y1;
     }
-
-
 }

@@ -8,45 +8,61 @@ import javafx.util.*;
 
 import java.util.*;
 
+/**
+ * Sturcture for 'bullets' of the cannon.
+ * I didnt completly understand how weight of a bomb will affect its flight
+ * so instead of weight they have different speed.
+ */
 public class Bomb {
     private double x;
     private double y;
     private double r;
+    private double speed;
     private double range;
     private final Pane root;
-    private Circle view;
+    private final Circle view;
 
+    /**
+     * Class that represent paramenters of a bomb
+     */
     public static class Parameters {
         private final double radius;
         private final Color color;
         private final double range;
         private final double viewRadius;
+        private final double speed;
 
-        public Parameters(double radius, double range, Color color, double modelRadius) {
+        public Parameters(double radius, double range, Color color, double modelRadius, double speed) {
             this.radius = radius;
             this.color = color;
             this.range = range;
             viewRadius = modelRadius;
+            this.speed = speed;
         }
+
         void apply(Bomb bomb) {
             bomb.r = radius;
             bomb.range = range;
             bomb.view.setFill(color);
             bomb.view.setRadius(viewRadius);
+            bomb.speed = speed;
         }
 
     }
 
-    public static ArrayList<Parameters> types;
+    private static final List<Parameters> types;
 
     static {
         types = new ArrayList<>();
-        types.add(new Parameters(100, 0, Color.RED, 11));
-        types.add(new Parameters(50, 100, Color.MIDNIGHTBLUE, 5));
-        types.add(new Parameters(70, 80, Color.INDIGO, 8));
-        types.add(new Parameters(40, 50, Color.DARKMAGENTA, 10));
+        types.add(new Parameters(100, 0, Color.RED, 11, 10));
+        types.add(new Parameters(50, 100, Color.MIDNIGHTBLUE, 5, 20));
+        types.add(new Parameters(70, 80, Color.INDIGO, 8, 30));
+        types.add(new Parameters(40, 50, Color.DARKMAGENTA, 10, 40));
     }
 
+    /**
+     * Creates a new bomb with default parameters from types element number type
+     */
     public Bomb(double x, double y, int type, Pane pane) {
         root = pane;
         this.x = x;
@@ -58,31 +74,56 @@ public class Bomb {
         root.getChildren().add(view);
     }
 
+    /**
+     * Done so that other people can add their types
+     * @return default bomb types
+     */
+    public static List<Parameters> getTypes() {
+        return types;
+    }
+
+    /**
+     * Returns distance between this bomb and other
+     */
     public double distance(Bomb other) {
         return (x - other.x) * (x - other.x) + (y - other.y)*(y - other.y);
     }
 
+    /**
+     * Tells if this bomb and other are within each other's blast radius
+     */
     public boolean isClose(Bomb other) {
         return distance(other) < Math.min(r * r, other.r * other.r);
     }
 
+    private double yConvert(double y) {
+        return root.getBoundsInLocal().getHeight() - y;
+    }
+
+    /**
+     * Simulate and draws flight of the bomb with given angle and relatively given mount
+     */
     public void fly(double phi, Mount mount) {
         var path = new Path();
         var pathTransition = new PathTransition();
 
-        double targetX;
-        if (phi >= 3 * Math.PI/2) {
-            targetX = x + range;
-        } else {
-            targetX = x - range;
-        }
-        var targetY = mount.getYCor(targetX);
+        var targetX = x;
+        var targetY = yConvert(y);
+        var t = 0.01;
+        var deltaT = 0.001;
 
-        int n = 1000;
+        do {
+            targetX = x + t * StrictMath.cos(phi) * speed;
+            targetY = y + t * StrictMath.sin(phi) * speed - 0.5 * 10 * t * t; // - gt^2/2
+            t += deltaT;
+        } while (mount.isUnder(targetX, yConvert(targetY)));
+
+        var flyTime = 2 * speed * StrictMath.cos(phi) / 10;
+        var focusX = x + speed * flyTime / 2;
+        var focusY = y - Math.abs(focusX - x) / StrictMath.tan(phi);
 
         path.getElements().add(new MoveTo(x, y));
-        path.getElements().add(new QuadCurveTo(x + range / 2 * StrictMath.cos(phi),
-                y + range / 2 * StrictMath.sin(phi), targetX, targetY));
+        path.getElements().add(new QuadCurveTo(focusX, yConvert(y), targetX, yConvert(targetY)));
 
         pathTransition.setDuration(Duration.millis(1000));
         pathTransition.setNode(view);
@@ -92,7 +133,7 @@ public class Bomb {
 
         pathTransition.play();
         x = targetX;
-        y = targetY;
+        y = yConvert(targetY);
     }
 
 }
