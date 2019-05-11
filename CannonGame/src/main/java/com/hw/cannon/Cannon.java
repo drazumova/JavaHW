@@ -12,10 +12,8 @@ public class Cannon {
     private double y;
     private double phi;
 
-    private Pane root;
     private Circle view;
     private Line lineView;
-    private Mount mount;
     private int type;
 
     private static final double LENGHT_LINE = 20;
@@ -25,30 +23,28 @@ public class Cannon {
     /**
      * Creates new cannon
      */
-    public Cannon(double x, double y, Pane pane, Mount mount){
-        root = pane;
+    public Cannon(double x, double y){
         type = 1;
-        this.mount = mount;
         this.x = x;
         this.y = y;
         phi = 3 * Math.PI / 2;
         view = new Circle(x, y, 10);
         lineView = new Line(x, y,
                 x + LENGHT_LINE * StrictMath.cos(phi), y + LENGHT_LINE * StrictMath.sin(phi));
-        root.getChildren().addAll(view, lineView);
+        Main.GameElements.getPane().getChildren().addAll(view, lineView);
     }
 
     /**
      * Drops a bomb by angle of the muzzle
      */
     public Bomb shot(){
-        var bomb = new Bomb(x, y, type, root);
-        bomb.fly(2*Math.PI - phi, mount);
+        var bomb = new Bomb(x, y, type);
+        bomb.fly(2*Math.PI - phi);
         return bomb;
     }
 
     private void updateViewCannon() {
-        y = mount.getYCor(x);
+        y = Main.GameElements.getMount().getYCor(x);
         view.setCenterX(x);
         view.setCenterY(y);
         lineView.setStartX(x);

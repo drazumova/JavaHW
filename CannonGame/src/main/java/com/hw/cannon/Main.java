@@ -12,19 +12,40 @@ import java.util.*;
 
 public class Main extends Application {
 
+    /**
+     * Class to store unique game elements on which depends moving and drawing of other objects
+     */
+    public static class GameElements {
+        private static final Pane pane;
+        private static final Mount mount;
+
+        private static final int MAX_PANE_SIZE = 1000;
+        private static final int MAX_MOUNT_SIZE = 1000;
+        
+        static {
+            pane = new Pane();
+            pane.setMaxSize(MAX_PANE_SIZE, MAX_PANE_SIZE);
+            mount = new Mount(MAX_PANE_SIZE, pane);
+        }
+        
+        public static Pane getPane() {
+            return pane;
+        }
+
+        public static Mount getMount() {
+            return mount;
+        }
+    }
+
     @Override
     public void start(Stage primaryStage) {
-
-        var root = new Pane();
-        root.setMaxSize(1000, 1000);
-
-        var mount = new Mount(1000, root);
         var random = new SecureRandom();
         double randX = random.nextDouble() * 1000;
-        var cannon = new Cannon(0.0, mount.getYCor(0.0), root, mount);
-        var target = new Bomb(randX, mount.getYCor(randX), 0, root);
+        var cannon = new Cannon(0.0, GameElements.getMount().getYCor(0.0));
+        var target = new Bomb(randX, GameElements.getMount().getYCor(randX), 0);
 
-        primaryStage.setScene(new Scene(root, 1000, 1000));
+        primaryStage.setScene(new Scene(GameElements.getPane(),
+                GameElements.MAX_PANE_SIZE, GameElements.MAX_PANE_SIZE));
         primaryStage.setTitle("kek game");
         primaryStage.getScene().setOnKeyPressed(event -> {
 
@@ -75,7 +96,7 @@ public class Main extends Application {
         primaryStage.show();
     }
 
-    public static void main(String[] args) {
+    public static void main(String... args) {
         launch(args);
     }
 }

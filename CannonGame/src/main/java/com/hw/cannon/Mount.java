@@ -4,6 +4,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
 
+import java.security.*;
 import java.util.*;
 
 /**
@@ -13,13 +14,12 @@ public class Mount {
     private final Double[] listX;
     private final Double[] listY;
     private int size = 3;
-    private final Pane root;
 
     /**
      * Generates new mount
      */
     public Mount(double maxSize, Pane pane) {
-        var random = new Random();
+        var random = new SecureRandom();
         size = random.nextInt(10) + 2;
         listX = new Double[size];
         listY = new Double[size];
@@ -33,7 +33,7 @@ public class Mount {
 
         for (int i = 1; i + 1 < size; i++) {
 //            listY[i] = random.nextDouble() * listY[0];
-            listY[i] = listY[0] - 10;
+            listY[i] = listY[0] - 30;
         }
 
         var list = new ArrayList<Double>();
@@ -43,12 +43,11 @@ public class Mount {
             list.add(listY[i]);
         }
 
-        root = pane;
         var polygon = new Polygon();
         polygon.getPoints().addAll(list);
         polygon.setFill(Color.SADDLEBROWN);
 
-        root.getChildren().add(polygon);
+        pane.getChildren().add(polygon);
     }
 
     /**

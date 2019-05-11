@@ -19,7 +19,6 @@ public class Bomb {
     private double r;
     private double speed;
     private double range;
-    private final Pane root;
     private final Circle view;
 
     /**
@@ -47,7 +46,6 @@ public class Bomb {
             bomb.view.setRadius(viewRadius);
             bomb.speed = speed;
         }
-
     }
 
     private static final List<Parameters> types;
@@ -63,15 +61,14 @@ public class Bomb {
     /**
      * Creates a new bomb with default parameters from types element number type
      */
-    public Bomb(double x, double y, int type, Pane pane) {
-        root = pane;
+    public Bomb(double x, double y, int type) {
         this.x = x;
         this.y = y;
         view = new Circle(x, y, 1);
 
         types.get(type).apply(this);
 
-        root.getChildren().add(view);
+        Main.GameElements.getPane().getChildren().add(view);
     }
 
     /**
@@ -97,13 +94,14 @@ public class Bomb {
     }
 
     private double yConvert(double y) {
-        return root.getBoundsInLocal().getHeight() - y;
+        return Main.GameElements.getPane().getBoundsInLocal().getHeight() - y;
     }
 
     /**
      * Simulate and draws flight of the bomb with given angle and relatively given mount
      */
-    public void fly(double phi, Mount mount) {
+    public void fly(double phi) {
+
         var path = new Path();
         var pathTransition = new PathTransition();
 
@@ -114,9 +112,9 @@ public class Bomb {
 
         do {
             targetX = x + t * StrictMath.cos(phi) * speed;
-            targetY = y + t * StrictMath.sin(phi) * speed - 0.5 * 10 * t * t; // - gt^2/2
+            targetY = y + t * StrictMath.sin(phi) * speed - 0.5 * 10 * t * t;
             t += deltaT;
-        } while (mount.isUnder(targetX, yConvert(targetY)));
+        } while (Main.GameElements.getMount().isUnder(targetX, yConvert(targetY)));
 
         var flyTime = 2 * speed * StrictMath.cos(phi) / 10;
         var focusX = x + speed * flyTime / 2;
@@ -135,5 +133,4 @@ public class Bomb {
         x = targetX;
         y = yConvert(targetY);
     }
-
 }
