@@ -72,14 +72,6 @@ public class Bomb {
     }
 
     /**
-     * Done so that other people can add their types
-     * @return default bomb types
-     */
-    public static List<Parameters> getTypes() {
-        return types;
-    }
-
-    /**
      * Returns distance between this bomb and other
      */
     public double distance(Bomb other) {
