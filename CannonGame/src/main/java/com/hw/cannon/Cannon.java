@@ -75,8 +75,8 @@ public class Cannon {
     public void moveRight() {
         x += DELTA_X;
 
-        if (x > 1000) {
-            x = 1000;
+        if (x > Main.GameElements.getPane().getBoundsInLocal().getWidth()) {
+            x = Main.GameElements.getPane().getBoundsInLocal().getWidth();
         }
 
         updateViewCannon();
@@ -113,9 +113,6 @@ public class Cannon {
      */
     public void nextType() {
         type++;
-        if (type >= Bomb.getTypes().size()) {
-            type = 1;
-        }
     }
 }
 

@@ -62,11 +62,12 @@ public class Bomb {
      * Creates a new bomb with default parameters from types element number type
      */
     public Bomb(double x, double y, int type) {
+        var bombType = type % (types.size() - 1) + 1;
         this.x = x;
         this.y = y;
         view = new Circle(x, y, 1);
 
-        types.get(type).apply(this);
+        types.get(bombType).apply(this);
 
         Main.GameElements.getPane().getChildren().add(view);
     }
