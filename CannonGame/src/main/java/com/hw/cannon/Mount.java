@@ -13,19 +13,21 @@ import java.util.*;
 public class Mount {
     private final Double[] listX;
     private final Double[] listY;
-    private int size = 3;
+    private final int size;
+
+    private static final int POINTS_DEFAULT_COUNT = 10;
 
     /**
      * Generates new mount
      */
     public Mount(double maxSize, Pane pane) {
         var random = new SecureRandom();
-        size = random.nextInt(10) + 2;
+        size = random.nextInt(POINTS_DEFAULT_COUNT) + 2;
         listX = new Double[size];
         listY = new Double[size];
 
         for (int i = 0; i < size; i++) {
-            listX[i] = maxSize / (size - 1) * i ;
+            listX[i] = maxSize / (size - 1) * i;
         }
 
         listY[0] = random.nextDouble() * maxSize / 2 + maxSize / 2;
@@ -67,10 +69,10 @@ public class Mount {
             last++;
         }
 
-        double x1 = listX[last - 1];
-        double x2 = listX[last];
-        double y1 = listY[last - 1];
-        double y2 = listY[last];
+        var x1 = listX[last - 1];
+        var x2 = listX[last];
+        var y1 = listY[last - 1];
+        var y2 = listY[last];
 
         return (y2 - y1) / (x2 - x1) * (x - x1) + y1;
     }

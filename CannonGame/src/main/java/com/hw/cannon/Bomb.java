@@ -18,7 +18,6 @@ public class Bomb {
     private double y;
     private double r;
     private double speed;
-    private double range;
     private final Circle view;
 
     /**
@@ -27,21 +26,18 @@ public class Bomb {
     public static class Parameters {
         private final double radius;
         private final Color color;
-        private final double range;
         private final double viewRadius;
         private final double speed;
 
-        public Parameters(double radius, double range, Color color, double modelRadius, double speed) {
+        public Parameters(double radius, Color color, double modelRadius, double speed) {
             this.radius = radius;
             this.color = color;
-            this.range = range;
             viewRadius = modelRadius;
             this.speed = speed;
         }
 
         void apply(Bomb bomb) {
             bomb.r = radius;
-            bomb.range = range;
             bomb.view.setFill(color);
             bomb.view.setRadius(viewRadius);
             bomb.speed = speed;
@@ -52,10 +48,10 @@ public class Bomb {
 
     static {
         types = new ArrayList<>();
-        types.add(new Parameters(100, 0, Color.RED, 11, 10));
-        types.add(new Parameters(50, 100, Color.MIDNIGHTBLUE, 5, 20));
-        types.add(new Parameters(70, 80, Color.INDIGO, 8, 30));
-        types.add(new Parameters(40, 50, Color.DARKMAGENTA, 10, 40));
+        types.add(new Parameters(30, Color.RED, 11, 10));
+        types.add(new Parameters(100, Color.MIDNIGHTBLUE, 5, 20));
+        types.add(new Parameters(70, Color.INDIGO, 8, 30));
+        types.add(new Parameters(50, Color.DARKMAGENTA, 10, 40));
     }
 
     /**
@@ -63,6 +59,9 @@ public class Bomb {
      */
     public Bomb(double x, double y, int type) {
         var bombType = type % (types.size() - 1) + 1;
+        if (type == 0) {
+            bombType = 0;
+        }
         this.x = x;
         this.y = y;
         view = new Circle(x, y, 1);
