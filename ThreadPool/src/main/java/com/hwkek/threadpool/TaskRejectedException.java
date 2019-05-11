@@ -3,7 +3,7 @@ package com.hwkek.threadpool;
 /**
  *Exception in case of trying to add task to closed thread pool
  */
-public class TaskRejectedException extends Exception {
+public class TaskRejectedException extends RuntimeException {
 
     private static final long serialVersionUID = -2898187844062072527L;
 

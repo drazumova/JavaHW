@@ -102,7 +102,6 @@ class ThreadPoolImplTest {
         threadPool = new ThreadPoolImpl(m);
         var task = threadPool.add(() -> 42);
         var nextTask = task.thenApply(integer -> 10 * integer);
-        nextTask.execute();
         int result = task.get();
         int nextResult = nextTask.get();
 
@@ -124,7 +123,6 @@ class ThreadPoolImplTest {
         var nextTask = task.thenApply(string -> {
             return string + string;
         });
-        nextTask.execute();
         assertThrows(LightExecutionException.class, nextTask::get);
     }
 
@@ -135,8 +133,7 @@ class ThreadPoolImplTest {
         var task = threadPool.add(() -> 42);
         var taskNext = task.thenApply(a -> 32);
         assertFalse(taskNext.isReady());
-        taskNext.execute();
-        assertTrue(taskNext.isReady());
+        assertFalse(taskNext.isReady());
     }
 
     @Test
