@@ -20,27 +20,17 @@ public class Bomb {
     private double speed;
     private final Circle view;
 
-    /**
-     * Class that represent paramenters of a bomb
-     */
-    public static class Parameters {
+    private static class Parameters {
         private final double radius;
         private final Color color;
         private final double viewRadius;
         private final double speed;
 
-        public Parameters(double radius, Color color, double modelRadius, double speed) {
+        private Parameters(double radius, Color color, double modelRadius, double speed) {
             this.radius = radius;
             this.color = color;
             viewRadius = modelRadius;
             this.speed = speed;
-        }
-
-        void apply(Bomb bomb) {
-            bomb.r = radius;
-            bomb.view.setFill(color);
-            bomb.view.setRadius(viewRadius);
-            bomb.speed = speed;
         }
     }
 
