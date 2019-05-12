@@ -55,20 +55,32 @@ public class Bomb {
     }
 
     /**
-     * Creates a new bomb with default parameters from types element number type
+     * Returns count of default bomb types
      */
-    public Bomb(double x, double y, int type) {
-        var bombType = type % (types.size() - 1) + 1;
-        if (type == 0) {
-            bombType = 0;
-        }
+    public static int getTypesCount() {
+        return types.size();
+    }
+
+    /**
+     * Creates a new bomb with given parameters
+     */
+    public Bomb(double x, double y, double radius, Color color, double viewRadius, double speed) {
         this.x = x;
         this.y = y;
         view = new Circle(x, y, 1);
-
-        types.get(bombType).apply(this);
+        view.setRadius(viewRadius);
+        view.setFill(color);
+        this.speed = speed;
+        r = radius;
 
         Main.GameElements.getPane().getChildren().add(view);
+    }
+
+    /**
+     * Creates a new bomb with default parameters from types element number type
+     */
+    public Bomb(double x, double y, int type) {
+        this(x, y, types.get(type).radius, types.get(type).color, types.get(type).viewRadius, types.get(type).speed);
     }
 
     /**

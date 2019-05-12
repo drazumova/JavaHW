@@ -113,6 +113,9 @@ public class Cannon {
      */
     public void nextType() {
         type++;
+        if (type >= Bomb.getTypesCount()) {
+            type = 1;
+        }
     }
 }
 

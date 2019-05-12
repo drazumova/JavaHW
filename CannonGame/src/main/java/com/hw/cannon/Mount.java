@@ -18,6 +18,15 @@ public class Mount {
     private static final int POINTS_DEFAULT_COUNT = 10;
 
     /**
+     * Creates a new mount by given points
+     */
+    public Mount(Double[] listX, Double[] listY) {
+        this.listX = listX.clone();
+        this.listY = listY.clone();
+        size = listX.length;
+    }
+
+    /**
      * Generates new mount
      */
     public Mount(double maxSize, Pane pane) {
