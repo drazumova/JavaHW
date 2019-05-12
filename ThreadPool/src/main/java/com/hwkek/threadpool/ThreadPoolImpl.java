@@ -77,8 +77,8 @@ public class ThreadPoolImpl {
     private class Task<T> implements LightFuture<T> {
 
         private volatile @Nullable Supplier<T> supplier;
-        private volatile @Nullable T result;
-        private volatile @NotNull Throwable throwable;
+        private @Nullable T result;
+        private @NotNull Throwable throwable;
         private final @NotNull Object lock;
         private final @NotNull MyQueue<Task<?>> waitingQueue;
 
@@ -153,7 +153,7 @@ public class ThreadPoolImpl {
             }
 
             var task = new Task<U>(() -> null);
-
+//            To prevent problems in case publishing reference first
             synchronized (task.lock) {
                 task.supplier = null;
                 if (throwable != null) {
