@@ -10,7 +10,7 @@ env:
  - PROJECT_DIR=CannonGame
 
 script: 
-	cd $PROJECT_DIR
+  cd $PROJECT_DIR
   if [[ -f gradlew ]] 
   then 
     ./gradlew check
