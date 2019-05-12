@@ -127,13 +127,12 @@ class ThreadPoolImplTest {
     }
 
     @Test
-    void simpleIsReadyTest() throws TaskRejectedException {
+    void simpleIsReadyTest() throws TaskRejectedException, InterruptedException {
         int m = 10;
         threadPool = new ThreadPoolImpl(m);
         var task = threadPool.add(() -> 42);
-        var taskNext = task.thenApply(a -> 32);
-        assertFalse(taskNext.isReady());
-        assertFalse(taskNext.isReady());
+        task.get();
+        assertTrue(task.isReady());
     }
 
     @Test

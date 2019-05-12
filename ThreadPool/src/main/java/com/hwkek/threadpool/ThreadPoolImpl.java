@@ -96,7 +96,6 @@ public class ThreadPoolImpl {
         @Override
         public T get() throws LightExecutionException, InterruptedException {
             synchronized (lock) {
-
                 while (supplier != null) {
                     lock.wait();
                 }
@@ -126,9 +125,11 @@ public class ThreadPoolImpl {
                     try {
                         addTask(task);
                     } catch (TaskRejectedException e) {
-                        task = new Task<>(() -> {
-                            throw new TaskRejectedException("Can not apply when pool is closed", e);
-                        });
+                        synchronized (task.lock) {
+                            task.supplier = null;
+                            task.throwable = new LightExecutionException("Can not apply when pool is closed", e);
+                            task.lock.notifyAll();
+                        }
                     }
                 }
             }
@@ -136,17 +137,33 @@ public class ThreadPoolImpl {
 
         @Override
         public <U> LightFuture<U> thenApply(@NotNull Function<? super T, U> function) {
-            var task =  new Task<>(() -> {
-                try {
-                    return function.apply(get());
-                } catch (InterruptedException e) {
-                    throw new LightExecutionException("Inner task ended with exception " + e, e);
-                }
-            });
-
             synchronized (lock) {
                 if (supplier != null) {
+                    var task =  new Task<>(() -> {
+                        try {
+                            return function.apply(get());
+                        } catch (Exception e) {
+                            throw new LightExecutionException("Inner task ended with exception " + e, e);
+                        }
+                    });
+
                     waitingQueue.add(task);
+                    return task;
+                }
+            }
+
+            var task = new Task<U>(() -> null);
+
+            synchronized (task.lock) {
+                task.supplier = null;
+                if (throwable != null) {
+                    task.throwable = new LightExecutionException("Inner task ended with exception", throwable);
+                } else {
+                    try {
+                        task.result = function.apply(result);
+                    } catch (Exception e) {
+                        task.throwable = new LightExecutionException("Inner task ended with exception", e);
+                    }
                 }
             }
 
