@@ -1,0 +1,19 @@
+language: java
+
+jdk:
+ - openjdk11
+
+os:
+ - linux
+
+env:
+ - PROJECT_DIR=CannonGame
+
+script: 
+	cd $PROJECT_DIR
+  if [[ -f gradlew ]] 
+  then 
+    ./gradlew check
+  else
+    mvn test
+  fi
