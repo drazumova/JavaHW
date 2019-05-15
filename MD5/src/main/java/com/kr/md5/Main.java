@@ -5,7 +5,7 @@ import java.security.*;
 
 
 public final class Main {
-    public static final double COEF = 1.0E-6;
+    private static final double COEF = 1.0E-6;
 
     public static void main(String... args) {
         if (args.length < 1) {

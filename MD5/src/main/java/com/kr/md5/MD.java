@@ -11,7 +11,7 @@ import java.util.concurrent.*;
  */
 public class MD {
 
-    public static final int BUFFER_SIZE = 4096; //as in example
+    private static final int BUFFER_SIZE = 4096; //as in example
     private final ForkJoinPool pool;
 
     /**
