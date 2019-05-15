@@ -1,7 +1,7 @@
 package com.hw.cannon;
 
 import javafx.animation.*;
-import javafx.scene.layout.*;
+import javafx.event.*;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
 import javafx.util.*;
@@ -14,10 +14,12 @@ import java.util.*;
  * so instead of weight they have different speed.
  */
 public class Bomb {
+    private static final double G = 9.81;
+    private static final double DELTA_T = 0.001;
     private double x;
     private double y;
-    private double r;
-    private double speed;
+    private final double r;
+    private final double speed;
     private final Circle view;
 
     private static class Parameters {
@@ -87,7 +89,7 @@ public class Bomb {
         return distance(other) < Math.min(r * r, other.r * other.r);
     }
 
-    private double yConvert(double y) {
+    private static double yConvert(double y) {
         return Main.GameElements.getPane().getBoundsInLocal().getHeight() - y;
     }
 
@@ -101,16 +103,15 @@ public class Bomb {
 
         var targetX = x;
         var targetY = yConvert(y);
-        var t = 0.01;
-        var deltaT = 0.001;
+        var t = DELTA_T;
 
         do {
             targetX = x + t * StrictMath.cos(phi) * speed;
-            targetY = y + t * StrictMath.sin(phi) * speed - 0.5 * 10 * t * t;
-            t += deltaT;
+            targetY = y + t * StrictMath.sin(phi) * speed - G * t * t / 2;
+            t += DELTA_T;
         } while (Main.GameElements.getMount().isUnder(targetX, yConvert(targetY)));
 
-        var flyTime = 2 * speed * StrictMath.cos(phi) / 10;
+        var flyTime = 2 * speed * StrictMath.cos(phi) / G;
         var focusX = x + speed * flyTime / 2;
         var focusY = y - Math.abs(focusX - x) / StrictMath.tan(phi);
 
@@ -123,8 +124,20 @@ public class Bomb {
         pathTransition.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
         pathTransition.setAutoReverse(true);
 
-        pathTransition.play();
         x = targetX;
         y = yConvert(targetY);
+
+        pathTransition.setOnFinished(event -> {
+            if (Main.GameElements.getTarget().isClose(this)) {
+                Main.GameElements.getTarget().destroy();
+            }
+            destroy();
+        });
+
+        pathTransition.play();
+    }
+
+    public void destroy() {
+        Main.GameElements.getPane().getChildren().remove(view);
     }
 }

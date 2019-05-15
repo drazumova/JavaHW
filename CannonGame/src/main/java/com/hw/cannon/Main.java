@@ -18,6 +18,7 @@ public class Main extends Application {
     public static class GameElements {
         private static final Pane pane;
         private static final Mount mount;
+        private static final Bomb target;
 
         private static final int MAX_PANE_SIZE = 1000;
         private static final int MAX_MOUNT_SIZE = 1000;
@@ -26,6 +27,9 @@ public class Main extends Application {
             pane = new Pane();
             pane.setMaxSize(MAX_PANE_SIZE, MAX_PANE_SIZE);
             mount = new Mount(MAX_PANE_SIZE, pane);
+            var random = new SecureRandom();
+            double randX = random.nextDouble() * 1000;
+            target = new Bomb(randX, mount.getYCor(randX), 0);
         }
         
         public static Pane getPane() {
@@ -35,18 +39,18 @@ public class Main extends Application {
         public static Mount getMount() {
             return mount;
         }
+
+        public static Bomb getTarget() {return target; }
     }
 
     @Override
     public void start(Stage primaryStage) {
-        var random = new SecureRandom();
-        double randX = random.nextDouble() * 1000;
         var cannon = new Cannon(0.0, GameElements.getMount().getYCor(0.0));
-        var target = new Bomb(randX, GameElements.getMount().getYCor(randX), 0);
+        var target = GameElements.getTarget();
 
         primaryStage.setScene(new Scene(GameElements.getPane(),
                 GameElements.MAX_PANE_SIZE, GameElements.MAX_PANE_SIZE));
-        primaryStage.setTitle("kek game");
+        primaryStage.setTitle("PUSHKA");
         primaryStage.getScene().setOnKeyPressed(event -> {
 
             switch (event.getCode()) {
