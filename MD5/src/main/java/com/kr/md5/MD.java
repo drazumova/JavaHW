@@ -73,7 +73,7 @@ public class MD {
     }
 
     /**
-     * Counts sum using ForkJoinPool
+     * Counts sum using fork/join method
      */
     public byte[] forkJoinCount(File file) throws NoSuchAlgorithmException, IOException {
         return commonCount(file, true);
