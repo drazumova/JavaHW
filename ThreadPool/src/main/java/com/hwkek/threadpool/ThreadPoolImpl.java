@@ -20,6 +20,10 @@ public class ThreadPoolImpl {
             this.size = 0;
         }
 
+        private int size() {
+            return size;
+        }
+
         private void resize() {
             int sizeArray = queue.length;
             var oldQueue = new Object[sizeArray];
@@ -53,7 +57,7 @@ public class ThreadPoolImpl {
             while (true) {
                 LightFuture<?> task;
                 synchronized (queue) {
-                    while (queue.size== 0) {
+                    while (queue.size() == 0) {
                         try {
                             queue.wait();
                         } catch (InterruptedException e) {
@@ -66,7 +70,7 @@ public class ThreadPoolImpl {
                     task.execute();
                 }
                 synchronized (queue) {
-                    if (queue.size == 0 && isClosed) {
+                    if (queue.size() == 0 && isClosed) {
                         return;
                     }
                 }
@@ -137,6 +141,8 @@ public class ThreadPoolImpl {
 
         @Override
         public <U> LightFuture<U> thenApply(@NotNull Function<? super T, U> function) {
+
+
             synchronized (lock) {
                 if (supplier != null) {
                     var task =  new Task<>(() -> {
@@ -146,26 +152,21 @@ public class ThreadPoolImpl {
                             throw new LightExecutionException("Inner task ended with exception " + e, e);
                         }
                     });
-
                     waitingQueue.add(task);
                     return task;
                 }
             }
-
-            var task = new Task<U>(() -> null);
-//            To prevent problems in case publishing reference first
-            synchronized (task.lock) {
-                task.supplier = null;
-                if (throwable != null) {
-                    task.throwable = new LightExecutionException("Inner task ended with exception", throwable);
-                } else {
-                    try {
-                        task.result = function.apply(result);
-                    } catch (Exception e) {
-                        task.throwable = new LightExecutionException("Inner task ended with exception", e);
+            var task = new Task<>(() -> {
+                try {
+                    if (throwable != null){
+                        throw throwable;
                     }
+                    return function.apply(result);
+                } catch (Throwable e) {
+                    throw new LightExecutionException("Inner task ended with exception " + e, e);
                 }
-            }
+            });
+            addTask(task);
 
             return task;
         }
