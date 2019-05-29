@@ -21,8 +21,8 @@ public class Main extends Application {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
 
         alert.setTitle("congratulations");
-        alert.setHeaderText("You gave incorrect parameter, it should be even");
-        alert.setContentText("Parameter will be set to 2");
+        alert.setHeaderText("You gave incorrect command line parameter");
+        alert.setContentText("It should be even positive number\nParameter will be set to 2");
 
         int param;
         try {

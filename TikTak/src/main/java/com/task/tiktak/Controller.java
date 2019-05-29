@@ -79,7 +79,7 @@ public class Controller {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
 
             alert.setTitle("congratulations");
-            alert.setContentText("YOU WIN");
+            alert.setContentText("YOU WON");
             alert.showAndWait();
         }
         clearOpened();
