@@ -26,7 +26,7 @@ public class Main extends Application {
 
         int param;
         try {
-            if (args.size() != 1 || Integer.parseInt(args.get(0)) % 2 != 0) {
+            if (args.size() != 1 || Integer.parseInt(args.get(0)) % 2 != 0 || Integer.parseInt(args.get(0)) < 2) {
                 alert.showAndWait();
                 param = 2;
             } else {
