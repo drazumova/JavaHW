@@ -85,7 +85,7 @@ public class TestRunner {
                 .replace("/", ".").replace(".class", "");
     }
 
-    private static String getDirectory(File fie) {
+    private static String getDirectory(@NotNull File fie) {
         return fie.getParent();
     }
 
@@ -105,11 +105,10 @@ public class TestRunner {
                 return List.of();
             }
         }
-
         return List.of();
     }
 
-    private void runIfAnnotated(@NotNull Class<?> clazz, @NotNull Class<? extends Annotation> annotation, Object instance)
+    private void runIfAnnotated(@NotNull Class<?> clazz, @NotNull Class<? extends Annotation> annotation, @NotNull Object instance)
             throws IllegalAccessException, InvocationTargetException {
 
         for (var method : clazz.getDeclaredMethods()) {
@@ -120,7 +119,7 @@ public class TestRunner {
         }
     }
 
-    private void runTest(Class<?> clzz, Method method, Object instance) {
+    private void runTest(@NotNull Class<?> clzz, @NotNull Method method, @NotNull Object instance) {
         try {
             runIfAnnotated(clzz, Before.class, instance);
             var annotation = method.getAnnotation(Test.class);
@@ -137,14 +136,13 @@ public class TestRunner {
                     printer.addFailed(method, "throws " + e + " because of " + e.getCause());
                 }
             }
-
             runIfAnnotated(clzz, After.class, instance);
         } catch (Exception e) {
             printer.add("Failed to test " + method);
         }
     }
 
-    private void runTests(Class<?> clzz) {
+    private void runTests(@NotNull Class<?> clzz) {
         try {
 
             var instance = clzz.getConstructor().newInstance();
@@ -159,16 +157,12 @@ public class TestRunner {
                     } else {
                         printer.addIgnore(method, annotation.ignore());
                     }
-
                 }
             }
-
             runIfAnnotated(clzz, AfterClass.class, instance);
-
         } catch (Exception e) {
             printer.add("Testing class " + clzz + " failed because of" + e);
         }
-
     }
 
     private class Printer {
@@ -221,5 +215,4 @@ public class TestRunner {
             return buffer.toString();
         }
     }
-
 }

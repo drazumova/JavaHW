@@ -60,7 +60,6 @@ class TestRunnerTest {
     void simpleFailedTest() throws IOException {
         var message = testOneFile("TestFailed");
         assertTrue(message.contains("0/1"));
-
     }
 
     @Test
@@ -128,15 +127,12 @@ class TestRunnerTest {
     @Test
     void OneJarTest() throws IOException {
         var compiler = ToolProvider.getSystemJavaCompiler();
-
-
         var failed = TEST_PATH + "TestFailed";
         var passed = TEST_PATH + "TestOneClass";
         var fileFailed = new File(failed + ".java");
         var filePassed = new File(passed + ".java");
         compiler.run(null, null, null, fileFailed.getPath());
         compiler.run(null, null, null, filePassed.getPath());
-
 
         try (var fout = new FileOutputStream(TEST_PATH  + "foo.jar");
                 var out = new JarOutputStream(fout)) {
@@ -161,9 +157,7 @@ class TestRunnerTest {
             var message = stream.toString();
             assertTrue(message.contains("1/2"));
         }
-
     }
-
 
     String testOneFile(String name) throws IOException {
         var file = new File(TEST_PATH + name + ".java");
@@ -172,7 +166,6 @@ class TestRunnerTest {
 
         try (var stream = new ByteArrayOutputStream();
              var ps = new PrintStream(stream)) {
-
             var old = System.out;
             System.setOut(ps);
             testRunner.test("", TEST_PATH + name + ".class");
