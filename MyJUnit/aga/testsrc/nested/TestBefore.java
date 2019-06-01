@@ -3,10 +3,10 @@ package aga.testsrc.nested;
 import com.hw.junit.annotaion.*;
 
 public class TestBefore {
-    private int a = 1;
+    public int a = 1;
 
     @BeforeClass
-    void lel() {
+    private void lel() {
         System.out.println("KEK");
         a = 2;
     }

@@ -1,20 +1,16 @@
 package com.hw.junit;
 
-import com.google.common.io.Files;
+import com.google.common.io.*;
 import com.hw.junit.annotaion.*;
 import org.jetbrains.annotations.*;
-import org.testng.annotations.BeforeClass;
 
 import java.io.*;
 import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.net.*;
-import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.jar.*;
-
-import static java.security.AccessController.getContext;
 
 public class TestRunner {
 
@@ -120,10 +116,6 @@ public class TestRunner {
 
         for (var method : clazz.getDeclaredMethods()) {
             method.setAccessible(true);
-            for (var a : method.getAnnotations()) {
-                System.out.println(a.getClass());
-            }
-            System.out.println(method + " " + annotation + " " + clazz + " " + method.isAnnotationPresent(annotation));
             if (method.isAnnotationPresent(annotation)) {
                 method.invoke(instance);
             }

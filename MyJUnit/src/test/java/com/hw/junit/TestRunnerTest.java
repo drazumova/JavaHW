@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TestRunnerTest {
 
-
     private TestRunner testRunner;
     private static final String TEST_PATH = "aga/testsrc/";
     @BeforeEach
@@ -71,6 +70,12 @@ class TestRunnerTest {
     }
 
     @Test
+    void OneClassWithBeforeAndAfterClassTest() throws IOException {
+        var message = testOneFile("TestBeforeAfterClass");
+        assertTrue(message.contains("1/1"));
+    }
+
+    @Test
     void OneClassWithBeforeEachTest() throws IOException {
         var message = testOneFile("nested/TestBeforeEach");
         assertTrue(message.contains("7/7"));
@@ -116,7 +121,8 @@ class TestRunnerTest {
             System.out.flush();
             System.setOut(old);
             var message = stream.toString();
-            assertTrue(message.contains("3/4"));
+            System.out.println(message);
+            assertTrue(message.contains("4/5"));
             assertTrue(message.contains("no reason"));
         }
     }
