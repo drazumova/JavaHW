@@ -9,9 +9,12 @@ import java.io.*;
 import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.net.*;
+import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.jar.*;
+
+import static java.security.AccessController.getContext;
 
 public class TestRunner {
 
@@ -19,20 +22,28 @@ public class TestRunner {
     private final Printer printer;
     private volatile int counter;
     private volatile int totalCounter;
+    private String path;
 
     public TestRunner() {
         forkJoinPool = new ForkJoinPool();
         printer = new Printer();
     }
 
-    public void test(@NotNull String path) {
-        var file = new File(path);
+
+    public void test(@NotNull String rootPath, @NotNull String filePath) {
+        path = rootPath;
+        var file = new File(filePath);
         var classList = getClasses(file);
+        List<ForkJoinTask<?>> list = new ArrayList<>();
         for (var clzz : classList) {
-            runTests(clzz);
+            list.add(forkJoinPool.submit(() -> {runTests(clzz);}));
         }
 
-        System.out.println("Statistics is " + counter + "/" + totalCounter);
+        for (var i : list) {
+            i.join();
+        }
+
+        printer.add("Statistics is " + counter + "/" + totalCounter);
         System.out.println(printer.get());
     }
 
@@ -46,16 +57,14 @@ public class TestRunner {
             var list = new ArrayList<Class<?>>();
             try (var jarFile = new JarFile(file.getPath());
                  var classLoader = URLClassLoader.newInstance(new URL[]{new URL("jar:file:" + file.getPath() + "!/")})) {
-                Enumeration<JarEntry> e = jarFile.entries();
+                var e = jarFile.entries();
                 while (e.hasMoreElements()) {
-                    JarEntry je = e.nextElement();
+                    var je = e.nextElement();
                     if(je.isDirectory() || !je.getName().endsWith(".class")) {
                         continue;
                     }
 
-//                    String className = je.getName().substring(0, je.getName().length() - 6);
-                    String className = className(file).replace('/', '.');
-                    list.add(classLoader.loadClass(className));
+                    list.add(classLoader.loadClass(getClassName(new File(je.getName()))));
                 }
             } catch (IOException e) {
                 return List.of();
@@ -67,12 +76,9 @@ public class TestRunner {
             try {
 
                 var url = new File(getDirectory(file)).toURI().toURL();
-                var classLoader = URLClassLoader.newInstance(new URL[]{url});
+                var classLoader = URLClassLoader.newInstance(new URL[]{new File(path).toURI().toURL()});
 
-                String className = file.getName().substring(0, file.getName().length() - 6);
-                String className1 = className(file).substring(0, className(file).length() - 6).replace('/', '.');
-
-                return List.of(classLoader.loadClass("com.hw.junit.testsrc.TestOneClass"));
+                return List.of(classLoader.loadClass(getClassName(file)));
             } catch (IOException e) {
                 return List.of();
             }
@@ -80,8 +86,13 @@ public class TestRunner {
         return List.of();
     }
 
+    private String getClassName(File file) {
+        return new File(path).toPath().relativize(file.toPath()).toString()
+                .replace("/", ".").replace(".class", "");
+    }
+
     private static String getDirectory(File fie) {
-        return fie.getParent() + "/";
+        return fie.getParent();
     }
 
     private List<Class<?>> getClasses(@NotNull File file) {
@@ -94,11 +105,9 @@ public class TestRunner {
         }
 
         if (file.isFile()) {
-//            System.out.println(file);
             try {
                 return makeClass(file);
             } catch (ClassNotFoundException e) {
-                System.out.println(e);
                 return List.of();
             }
         }
@@ -106,40 +115,43 @@ public class TestRunner {
         return List.of();
     }
 
-    private void runIfAnnotated(@NotNull Class<?> clazz, @NotNull Class<? extends Annotation> annotation)
-            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    private void runIfAnnotated(@NotNull Class<?> clazz, @NotNull Class<? extends Annotation> annotation, Object instance)
+            throws IllegalAccessException, InvocationTargetException {
 
-        var instance = clazz.getConstructor().newInstance();
         for (var method : clazz.getDeclaredMethods()) {
+            method.setAccessible(true);
+            for (var a : method.getAnnotations()) {
+                System.out.println(a.getClass());
+            }
+            System.out.println(method + " " + annotation + " " + clazz + " " + method.isAnnotationPresent(annotation));
             if (method.isAnnotationPresent(annotation)) {
-                method.setAccessible(true);
                 method.invoke(instance);
             }
         }
     }
 
-    private void runTest(Class<?> clzz, Method method) {
+    private void runTest(Class<?> clzz, Method method, Object instance) {
         try {
-            var instance = clzz.getConstructor().newInstance();
-            runIfAnnotated(clzz, BeforeClass.class);
+            runIfAnnotated(clzz, Before.class, instance);
             ++totalCounter;
             var annotation = method.getAnnotation(Test.class);
             var exception = annotation.expected();
 
             try {
+                method.setAccessible(true);
                 method.invoke(instance);
                 ++counter;
                 printer.addPassed(method);
             } catch (Exception e) {
-                if (exception.isAssignableFrom(e.getClass())) {
+                if (exception.isAssignableFrom(e.getCause().getClass())) {
                     printer.addPassed(method);
                     ++counter;
                 } else {
-                    printer.addFailed(method, "throwed " + e );
+                    printer.addFailed(method, "throwed " + e + " because of " + e.getCause());
                 }
             }
 
-            runIfAnnotated(clzz, AfterClass.class);
+            runIfAnnotated(clzz, After.class, instance);
         } catch (Exception e) {
             printer.add("Failed to test " + method + " " + e);
         }
@@ -148,25 +160,23 @@ public class TestRunner {
     private void runTests(Class<?> clzz) {
         try {
 
-            runIfAnnotated(clzz, Before.class);
-            var l = clzz.getConstructor().newInstance();
-            List<ForkJoinTask<?>> methods = new ArrayList<>();
-            for (var method : l.getClass().getDeclaredMethods()) {
+            var instance = clzz.getConstructor().newInstance();
+            runIfAnnotated(clzz, BeforeClass.class, instance);
+
+            for (var method : clzz.getDeclaredMethods()) {
+                method.setAccessible(true);
                 if (method.isAnnotationPresent(Test.class)) {
                     var annotation = method.getAnnotation(Test.class);
                     if (annotation.ignore().equals(Test.EMPTY_VALUE)) {
-                        methods.add(forkJoinPool.submit(() -> runTest(clzz, method)));
+                        runTest(clzz, method, instance);
                     } else {
                         printer.addIgnore(method, annotation.ignore());
                     }
 
                 }
             }
-            for (var task : methods) {
-                task.join();
-            }
 
-            runIfAnnotated(clzz, After.class);
+            runIfAnnotated(clzz, AfterClass.class, instance);
 
         } catch (Exception e) {
             printer.add("Testing class " + clzz + " failed because of" + e);

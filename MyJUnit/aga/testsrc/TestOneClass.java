@@ -1,4 +1,4 @@
-package com.hw.junit.testsrc;
+package aga.testsrc;
 
 
 import com.hw.junit.annotaion.*;
@@ -6,7 +6,7 @@ import com.hw.junit.annotaion.*;
 public class TestOneClass {
 
     @Test
-    public void test() {
+    private void test() {
         System.out.println("Kek");
     }
 }

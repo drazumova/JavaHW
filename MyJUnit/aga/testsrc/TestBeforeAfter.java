@@ -1,4 +1,4 @@
-package com.hw.junit.testsrc;
+package aga.testsrc;
 
 import com.hw.junit.annotaion.*;
 
@@ -7,19 +7,19 @@ public class TestBeforeAfter {
     private int cnt = 0;
 
     @Before
-    void add() {
+    public void add() {
         if (cnt != 0) {
             throw new NullPointerException();
         }
     }
 
     @Test
-    void firstTest() {
+    private void firstTest() {
         cnt++;
     }
 
     @After
-    void check() {
+    public void check() {
         if (cnt != 1) {
             throw new NullPointerException();
         }

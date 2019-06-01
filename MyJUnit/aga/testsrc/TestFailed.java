@@ -1,4 +1,4 @@
-package com.hw.junit.testsrc;
+package aga.testsrc;
 
 
 import com.hw.junit.annotaion.*;

@@ -1,11 +1,11 @@
-package com.hw.junit.testsrc;
+package aga.testsrc;
 
 import com.hw.junit.annotaion.*;
 
 public class TestIgnore {
 
     @Test(ignore = "no reason")
-    void init() {
+    protected void init() {
 
     }
 }
