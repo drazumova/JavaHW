@@ -12,18 +12,29 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.jar.*;
 
+/**
+ * Class for runnig test using annotation from current package.
+ */
 public class TestRunner {
 
-    private final ForkJoinPool forkJoinPool;
-    private final Printer printer;
-    private String path;
+    @NotNull private final ForkJoinPool forkJoinPool;
+    @NotNull private final Printer printer;
+    @NotNull private String path;
 
+    /**
+     * Creates new test runner
+     */
     public TestRunner() {
         forkJoinPool = new ForkJoinPool();
         printer = new Printer();
     }
 
 
+    /**
+     * For all .class and .jar files in directory runs all methods accordiong to annotations
+     * @param rootPath root on package tree
+     * @param filePath directory to look for test
+     */
     public void test(@NotNull String rootPath, @NotNull String filePath) {
         path = rootPath;
         var file = new File(filePath);
@@ -108,7 +119,7 @@ public class TestRunner {
         return List.of();
     }
 
-    private void runIfAnnotated(@NotNull Class<?> clazz, @NotNull Class<? extends Annotation> annotation, @NotNull Object instance)
+    private static void runIfAnnotated(@NotNull Class<?> clazz, @NotNull Class<? extends Annotation> annotation, @NotNull Object instance)
             throws IllegalAccessException, InvocationTargetException {
 
         for (var method : clazz.getDeclaredMethods()) {
@@ -165,7 +176,7 @@ public class TestRunner {
         }
     }
 
-    private class Printer {
+    private static class Printer {
         private int counter;
         private int totalCounter;
         @NotNull private final Object object1 = "a";
