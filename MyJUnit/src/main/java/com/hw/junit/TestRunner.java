@@ -16,8 +16,6 @@ public class TestRunner {
 
     private final ForkJoinPool forkJoinPool;
     private final Printer printer;
-    private volatile int counter;
-    private volatile int totalCounter;
     private String path;
 
     public TestRunner() {
@@ -31,15 +29,16 @@ public class TestRunner {
         var file = new File(filePath);
         var classList = getClasses(file);
         List<ForkJoinTask<?>> list = new ArrayList<>();
+        
         for (var clzz : classList) {
             list.add(forkJoinPool.submit(() -> {runTests(clzz);}));
         }
 
-        for (var i : list) {
-            i.join();
+        for (var task : list) {
+            task.join();
         }
-
-        printer.add("Statistic is " + counter + "/" + totalCounter);
+        
+        printer.addStatistic();
         System.out.println(printer.get());
     }
 
@@ -71,7 +70,6 @@ public class TestRunner {
         if ("class".equals(ext)) {
             try {
 
-                var url = new File(getDirectory(file)).toURI().toURL();
                 var classLoader = URLClassLoader.newInstance(new URL[]{new File(path).toURI().toURL()});
 
                 return List.of(classLoader.loadClass(getClassName(file)));
@@ -125,19 +123,16 @@ public class TestRunner {
     private void runTest(Class<?> clzz, Method method, Object instance) {
         try {
             runIfAnnotated(clzz, Before.class, instance);
-            ++totalCounter;
             var annotation = method.getAnnotation(Test.class);
             var exception = annotation.expected();
 
             try {
                 method.setAccessible(true);
                 method.invoke(instance);
-                ++counter;
                 printer.addPassed(method);
             } catch (Exception e) {
                 if (exception.isAssignableFrom(e.getCause().getClass())) {
                     printer.addPassed(method);
-                    ++counter;
                 } else {
                     printer.addFailed(method, "throws " + e + " because of " + e.getCause());
                 }
@@ -145,7 +140,7 @@ public class TestRunner {
 
             runIfAnnotated(clzz, After.class, instance);
         } catch (Exception e) {
-            printer.add("Failed to test " + method + " " + e);
+            printer.add("Failed to test " + method);
         }
     }
 
@@ -177,6 +172,10 @@ public class TestRunner {
     }
 
     private class Printer {
+        private int counter;
+        private int totalCounter;
+        @NotNull private final Object object1 = "a";
+        @NotNull private final Object object2 = "b";
         private final StringBuilder buffer;
 
         private Printer() {
@@ -187,8 +186,22 @@ public class TestRunner {
             buffer.append(string).append("\n");
         }
 
+        private void incTests() {
+            synchronized (object1) {
+                totalCounter++;
+            }
+        }
+        
+        private void incPassed() {
+            incTests();
+            synchronized (object2) {
+                counter++;
+            }
+        }
+        
         private void addFailed(Object test, String message) {
             add("Test " + test + " failed " + message);
+            incTests();
         }
 
         private void addIgnore(Object test, String message) {
@@ -197,8 +210,13 @@ public class TestRunner {
 
         private void addPassed(Object test) {
             add("Test " + test + " passed");
+            incPassed();
         }
-
+        
+        private void addStatistic() {
+            add("Statistic is " + counter + "/" + totalCounter);
+        }
+        
         private String get() {
             return buffer.toString();
         }

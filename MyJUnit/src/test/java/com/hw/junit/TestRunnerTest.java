@@ -100,7 +100,6 @@ class TestRunnerTest {
     @Test
     void OneClassBeforeTest() throws IOException {
         var result = testOneFile("nested/TestBefore");
-        System.out.println(result);
         assertTrue(result.contains("1/1"));
     }
 
@@ -121,7 +120,6 @@ class TestRunnerTest {
             System.out.flush();
             System.setOut(old);
             var message = stream.toString();
-            System.out.println(message);
             assertTrue(message.contains("4/5"));
             assertTrue(message.contains("no reason"));
         }
