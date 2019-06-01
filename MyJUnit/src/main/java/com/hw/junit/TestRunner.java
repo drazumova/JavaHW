@@ -39,7 +39,7 @@ public class TestRunner {
             i.join();
         }
 
-        printer.add("Statistics is " + counter + "/" + totalCounter);
+        printer.add("Statistic is " + counter + "/" + totalCounter);
         System.out.println(printer.get());
     }
 
@@ -139,7 +139,7 @@ public class TestRunner {
                     printer.addPassed(method);
                     ++counter;
                 } else {
-                    printer.addFailed(method, "throwed " + e + " because of " + e.getCause());
+                    printer.addFailed(method, "throws " + e + " because of " + e.getCause());
                 }
             }
 
