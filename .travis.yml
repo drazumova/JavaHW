@@ -7,6 +7,7 @@ os:
 - linux
 
 env:
+- PROJECT_DIR=MyJUnit
 - PROJECT_DIR=Reflector
 - PROJECT_DIR=Qsort
 - PROJECT_DIR=DataBase
