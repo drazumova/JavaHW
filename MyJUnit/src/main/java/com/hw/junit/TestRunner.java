@@ -63,14 +63,14 @@ public class TestRunner {
             var list = new ArrayList<Class<?>>();
             try (var jarFile = new JarFile(file.getPath());
                  var classLoader = URLClassLoader.newInstance(new URL[]{new URL("jar:file:" + file.getPath() + "!/")})) {
-                var e = jarFile.entries();
-                while (e.hasMoreElements()) {
-                    var je = e.nextElement();
-                    if(je.isDirectory() || !je.getName().endsWith(".class")) {
+                var entries = jarFile.entries();
+                while (entries.hasMoreElements()) {
+                    var jarEntry = entries.nextElement();
+                    if(jarEntry.isDirectory() || !jarEntry.getName().endsWith(".class")) {
                         continue;
                     }
 
-                    list.add(classLoader.loadClass(getClassName(new File(je.getName()))));
+                    list.add(classLoader.loadClass(getClassName(new File(jarEntry.getName()))));
                 }
             } catch (IOException e) {
                 return List.of();
