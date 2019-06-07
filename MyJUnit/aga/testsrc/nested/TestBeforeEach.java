@@ -4,7 +4,7 @@ import com.hw.junit.annotaion.*;
 
 public class TestBeforeEach {
 
-    private volatile int a = 1;
+    private static volatile int a = 1;
 
     @Before
     public void lel() {

@@ -3,7 +3,7 @@ package aga.testsrc.nested;
 import com.hw.junit.annotaion.*;
 
 public class TestAfterEach {
-    int b = 10;
+    static volatile int b = 10;
     int cnt;
 
     @After
