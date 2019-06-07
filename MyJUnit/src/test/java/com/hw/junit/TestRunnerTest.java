@@ -119,6 +119,7 @@ class TestRunnerTest {
             System.out.flush();
             System.setOut(old);
             var message = stream.toString();
+            System.out.println(message);
             assertTrue(message.contains("4/5"));
             assertTrue(message.contains("no reason"));
         }

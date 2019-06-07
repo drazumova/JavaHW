@@ -5,7 +5,7 @@ import com.hw.junit.annotaion.*;
 public class TestAfter {
 
     @AfterClass
-    private void printKek() {
+    static private void printKek() {
         System.out.println("KEK");
     }
 

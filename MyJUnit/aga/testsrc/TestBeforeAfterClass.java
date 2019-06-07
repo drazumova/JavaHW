@@ -4,10 +4,10 @@ import com.hw.junit.annotaion.*;
 
 public class TestBeforeAfterClass {
 
-    private int cnt = 0;
+    private static int cnt = 0;
 
     @BeforeClass
-    public void add() {
+    static public void add() {
         if (cnt != 0) {
             throw new NullPointerException();
         }
@@ -19,7 +19,7 @@ public class TestBeforeAfterClass {
     }
 
     @AfterClass
-    public void check() {
+    static public void check() {
         if (cnt != 1) {
             throw new NullPointerException();
         }

@@ -119,7 +119,7 @@ public class TestRunner {
         return List.of();
     }
 
-    private static void runIfAnnotated(@NotNull Class<?> clazz, @NotNull Class<? extends Annotation> annotation, @NotNull Object instance)
+    private static void runIfAnnotated(@NotNull Class<?> clazz, @NotNull Class<? extends Annotation> annotation, @Nullable Object instance)
             throws IllegalAccessException, InvocationTargetException {
 
         for (var method : clazz.getDeclaredMethods()) {
@@ -130,21 +130,24 @@ public class TestRunner {
         }
     }
 
-    private void runTest(@NotNull Class<?> clzz, @NotNull Method method, @NotNull Object instance) {
+    private void runTest(@NotNull Class<?> clzz, @NotNull Method method) {
         try {
+            var instance = clzz.getConstructor().newInstance();
             runIfAnnotated(clzz, Before.class, instance);
             var annotation = method.getAnnotation(Test.class);
             var exception = annotation.expected();
 
+            var time = System.currentTimeMillis();
             try {
                 method.setAccessible(true);
                 method.invoke(instance);
-                printer.addPassed(method);
+                printer.addPassed(method, System.currentTimeMillis() - time);
             } catch (Exception e) {
                 if (exception.isAssignableFrom(e.getCause().getClass())) {
-                    printer.addPassed(method);
+                    printer.addPassed(method, System.currentTimeMillis() - time);
                 } else {
-                    printer.addFailed(method, "throws " + e + " because of " + e.getCause());
+                    printer.addFailed(method, "throws " + e + " because of " + e.getCause(),
+                            System.currentTimeMillis() - time);
                 }
             }
             runIfAnnotated(clzz, After.class, instance);
@@ -157,22 +160,27 @@ public class TestRunner {
         try {
 
             var instance = clzz.getConstructor().newInstance();
-            runIfAnnotated(clzz, BeforeClass.class, instance);
+            runIfAnnotated(clzz, BeforeClass.class, null);
 
+            var taskList = new ArrayList<ForkJoinTask<?>>();
             for (var method : clzz.getDeclaredMethods()) {
                 method.setAccessible(true);
                 if (method.isAnnotationPresent(Test.class)) {
                     var annotation = method.getAnnotation(Test.class);
                     if (annotation.ignore().equals(Test.EMPTY_VALUE)) {
-                        runTest(clzz, method, instance);
+                        taskList.add(forkJoinPool.submit(() -> runTest(clzz, method)));
                     } else {
                         printer.addIgnore(method, annotation.ignore());
                     }
                 }
             }
-            runIfAnnotated(clzz, AfterClass.class, instance);
+            for (var task : taskList) {
+                task.join();
+            }
+
+            runIfAnnotated(clzz, AfterClass.class, null);
         } catch (Exception e) {
-            printer.add("Testing class " + clzz + " failed because of" + e);
+            printer.add("Testing class " + clzz + " failed because of " + e);
         }
     }
 
@@ -204,8 +212,8 @@ public class TestRunner {
             }
         }
         
-        private void addFailed(Object test, String message) {
-            add("Test " + test + " failed " + message);
+        private void addFailed(Object test, String message, long time) {
+            add("Test " + test + " failed " + message + " ( " + time  + " ms  )");
             incTests();
         }
 
@@ -213,8 +221,8 @@ public class TestRunner {
             add("Test " + test + " ignored " + message);
         }
 
-        private void addPassed(Object test) {
-            add("Test " + test + " passed");
+        private void addPassed(Object test, long time) {
+            add("Test " + test + " passed ( " + time + " ms )");
             incPassed();
         }
         
