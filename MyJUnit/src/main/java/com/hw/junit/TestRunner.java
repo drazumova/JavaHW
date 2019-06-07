@@ -93,7 +93,7 @@ public class TestRunner {
 
     private String getClassName(File file) {
         return new File(path).toPath().relativize(file.toPath()).toString()
-                .replace("/", ".").replace(".class", "");
+                .replace(File.separator, ".").replace(".class", "");
     }
 
     private static String getDirectory(@NotNull File fie) {
