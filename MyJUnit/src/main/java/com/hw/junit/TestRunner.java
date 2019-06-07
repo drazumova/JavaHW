@@ -119,13 +119,25 @@ public class TestRunner {
         return List.of();
     }
 
-    private static void runIfAnnotated(@NotNull Class<?> clazz, @NotNull Class<? extends Annotation> annotation, @Nullable Object instance)
+    private void runIfAnnotated(@NotNull Class<?> clazz, @NotNull Class<? extends Annotation> annotation, @Nullable Object instance)
             throws IllegalAccessException, InvocationTargetException {
 
         for (var method : clazz.getDeclaredMethods()) {
             method.setAccessible(true);
             if (method.isAnnotationPresent(annotation)) {
-                method.invoke(instance);
+                if (method.getParameterCount() != 0) {
+                    printer.failedAnnotated(method, annotation, "nonzero number of parameters");
+                    continue;
+                }
+                if (instance == null) {
+                    if (Modifier.isStatic(method.getModifiers())) {
+                        method.invoke(null);
+                    } else {
+                        printer.failedAnnotated(method, annotation, "nonstatic declaration");
+                    }
+                } {
+                    method.invoke(instance);
+                }
             }
         }
     }
@@ -224,6 +236,10 @@ public class TestRunner {
         private void addPassed(Object test, long time) {
             add("Test " + test + " passed ( " + time + " ms )");
             incPassed();
+        }
+
+        private void failedAnnotated(Object test, Object annotaion, String message) {
+            add("Cannot run " + test + " annotated with " + annotaion + " because of " + message);
         }
         
         private void addStatistic() {

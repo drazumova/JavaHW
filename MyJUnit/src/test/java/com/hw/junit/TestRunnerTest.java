@@ -81,6 +81,27 @@ class TestRunnerTest {
     }
 
     @Test
+    void NonstaticTest() throws IOException {
+        var message = testOneFile("TestNonstatic");
+        assertTrue(message.contains("1/1"));
+        assertTrue(message.contains("because of nonstatic declaration"));
+    }
+
+    @Test
+    void ArgsTest() throws IOException {
+        var message = testOneFile("TestArgs");
+        assertTrue(message.contains("1/1"));
+        assertTrue(message.contains("nonzero number of parameters"));
+    }
+
+    @Test
+    void ArgsStaticTest() throws IOException {
+        var message = testOneFile("TestArgsStatic");
+        assertTrue(message.contains("1/1"));
+        assertTrue(message.contains("nonzero number of parameters"));
+    }
+
+    @Test
     void OneClassWithAfteEachTest() throws IOException {
         var message = testOneFile("nested/TestAfterEach");
          assertTrue(message.contains("5/5"));
@@ -119,8 +140,9 @@ class TestRunnerTest {
             System.out.flush();
             System.setOut(old);
             var message = stream.toString();
-            System.out.println(message);
-            assertTrue(message.contains("4/5"));
+            assertTrue(message.contains("7/8"));
+            assertTrue(message.contains("nonstatic declaration"));
+            assertTrue(message.contains("nonzero number of parameters"));
             assertTrue(message.contains("no reason"));
         }
     }
