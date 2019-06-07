@@ -1,10 +1,11 @@
 package com.hw.cannon;
 
 import javafx.animation.*;
-import javafx.event.*;
+import javafx.scene.layout.*;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
 import javafx.util.*;
+import org.jetbrains.annotations.*;
 
 import java.util.*;
 
@@ -56,7 +57,7 @@ public class Bomb {
     /**
      * Creates a new bomb with given parameters
      */
-    public Bomb(double x, double y, double radius, Color color, double viewRadius, double speed) {
+    public Bomb(double x, double y, double radius, Color color, double viewRadius, double speed, @Nullable Pane pane) {
         this.x = x;
         this.y = y;
         view = new Circle(x, y, 1);
@@ -65,14 +66,16 @@ public class Bomb {
         this.speed = speed;
         r = radius;
 
-        Main.GameElements.getPane().getChildren().add(view);
+        if (pane != null) {
+            pane.getChildren().add(view);
+        }
     }
 
     /**
      * Creates a new bomb with default parameters from types element number type
      */
-    public Bomb(double x, double y, int type) {
-        this(x, y, types.get(type).radius, types.get(type).color, types.get(type).viewRadius, types.get(type).speed);
+    public Bomb(double x, double y, int type, Pane pane) {
+        this(x, y, types.get(type).radius, types.get(type).color, types.get(type).viewRadius, types.get(type).speed, pane);
     }
 
     /**
@@ -90,7 +93,7 @@ public class Bomb {
     }
 
     private static double yConvert(double y) {
-        return Main.GameElements.getPane().getBoundsInLocal().getHeight() - y;
+        return Main.GameElements.getInstance().getPane().getBoundsInLocal().getHeight() - y;
     }
 
     /**
@@ -109,7 +112,7 @@ public class Bomb {
             targetX = x + t * StrictMath.cos(phi) * speed;
             targetY = y + t * StrictMath.sin(phi) * speed - G * t * t / 2;
             t += DELTA_T;
-        } while (Main.GameElements.getMount().isUnder(targetX, yConvert(targetY)));
+        } while (Main.GameElements.getInstance().getMount().isUnder(targetX, yConvert(targetY)));
 
         var flyTime = 2 * speed * StrictMath.cos(phi) / G;
         var focusX = x + speed * flyTime / 2;
@@ -128,8 +131,8 @@ public class Bomb {
         y = yConvert(targetY);
 
         pathTransition.setOnFinished(event -> {
-            if (Main.GameElements.getTarget().isClose(this)) {
-                Main.GameElements.getTarget().destroy();
+            if (Main.GameElements.getInstance().getTarget().isClose(this)) {
+                Main.GameElements.getInstance().getTarget().destroy();
             }
             destroy();
         });
@@ -138,6 +141,6 @@ public class Bomb {
     }
 
     public void destroy() {
-        Main.GameElements.getPane().getChildren().remove(view);
+        Main.GameElements.getInstance().getPane().getChildren().remove(view);
     }
 }

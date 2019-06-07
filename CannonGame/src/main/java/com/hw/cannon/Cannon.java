@@ -1,6 +1,5 @@
 package com.hw.cannon;
 
-import javafx.scene.layout.*;
 import javafx.scene.shape.*;
 
 /**
@@ -16,35 +15,35 @@ public class Cannon {
     private Line lineView;
     private int type;
 
-    private static final double LENGHT_LINE = 20;
+    private static final double LENGTH_LINE = 20;
     private static final double DELTA_PHI = Math.PI / 20;
     private static final double DELTA_X = 5;
 
     /**
      * Creates new cannon
      */
-    public Cannon(double x, double y){
+    public Cannon(double x, double y) {
         type = 1;
         this.x = x;
         this.y = y;
         phi = 3 * Math.PI / 2;
         view = new Circle(x, y, 10);
         lineView = new Line(x, y,
-                x + LENGHT_LINE * StrictMath.cos(phi), y + LENGHT_LINE * StrictMath.sin(phi));
-        Main.GameElements.getPane().getChildren().addAll(view, lineView);
+                x + LENGTH_LINE * StrictMath.cos(phi), y + LENGTH_LINE * StrictMath.sin(phi));
+        Main.GameElements.getInstance().getPane().getChildren().addAll(view, lineView);
     }
 
     /**
      * Drops a bomb by angle of the muzzle
      */
-    public Bomb shot(){
-        var bomb = new Bomb(x, y, type);
+    public Bomb shot() {
+        var bomb = new Bomb(x, y, type, Main.GameElements.getInstance().getPane());
         bomb.fly(2*Math.PI - phi);
         return bomb;
     }
 
     private void updateViewCannon() {
-        y = Main.GameElements.getMount().getYCor(x);
+        y = Main.GameElements.getInstance().getMount().getYCoordinate(x);
         view.setCenterX(x);
         view.setCenterY(y);
         lineView.setStartX(x);
@@ -53,8 +52,8 @@ public class Cannon {
     }
 
     private void updateViewLine() {
-        lineView.setEndX(x + LENGHT_LINE * StrictMath.cos(phi));
-        lineView.setEndY(y + LENGHT_LINE * StrictMath.sin(phi));
+        lineView.setEndX(x + LENGTH_LINE * StrictMath.cos(phi));
+        lineView.setEndY(y + LENGTH_LINE * StrictMath.sin(phi));
     }
 
     /**
@@ -75,8 +74,8 @@ public class Cannon {
     public void moveRight() {
         x += DELTA_X;
 
-        if (x > Main.GameElements.getPane().getBoundsInLocal().getWidth()) {
-            x = Main.GameElements.getPane().getBoundsInLocal().getWidth();
+        if (x > Main.GameElements.getInstance().getPane().getBoundsInLocal().getWidth()) {
+            x = Main.GameElements.getInstance().getPane().getBoundsInLocal().getWidth();
         }
 
         updateViewCannon();

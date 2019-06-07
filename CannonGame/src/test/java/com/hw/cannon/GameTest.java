@@ -9,24 +9,24 @@ class GameTest {
 
     @Test
     void simpleIsCloseTest() {
-        var firstBomb = new Bomb(0, 0, 10, Color.RED, 1, 1);
-        var secondBomb = new Bomb(1, 1, 20, Color.BLACK, 1, 1);
+        var firstBomb = new Bomb(0, 0, 10, Color.RED, 1, 1, null);
+        var secondBomb = new Bomb(1, 1, 20, Color.BLACK, 1, 1, null);
         assertTrue(firstBomb.isClose(secondBomb));
         assertTrue(secondBomb.isClose(firstBomb));
     }
 
     @Test
     void isCloseInOneTest() {
-        var firstBomb = new Bomb(0, 0, 1, Color.RED, 1, 1);
-        var secondBomb = new Bomb(1.1, 1.1, 20, Color.BLACK, 1, 1);
+        var firstBomb = new Bomb(0, 0, 1, Color.RED, 1, 1, null);
+        var secondBomb = new Bomb(1.1, 1.1, 20, Color.BLACK, 1, 1, null);
         assertFalse(firstBomb.isClose(secondBomb));
         assertFalse(secondBomb.isClose(firstBomb));
     }
 
     @Test
     void isCloseOutOfRadiusTest() {
-        var firstBomb = new Bomb(0, 0, 10, Color.RED, 1, 1);
-        var secondBomb = new Bomb(100, 100, 20, Color.BLACK, 1, 1);
+        var firstBomb = new Bomb(0, 0, 10, Color.RED, 1, 1, null);
+        var secondBomb = new Bomb(100, 100, 20, Color.BLACK, 1, 1, null);
         assertFalse(firstBomb.isClose(secondBomb));
         assertFalse(secondBomb.isClose(firstBomb));
     }
@@ -37,7 +37,7 @@ class GameTest {
         var ys = new Double[] {0.0, 1.0, 0.0};
         var mount = new Mount(xs, ys);
         for (int i = 0; i < 3; i++) {
-            assertEquals(mount.getYCor(xs[i]), ys[i]);
+            assertEquals(mount.getYCoordinate(xs[i]), ys[i]);
         }
     }
 
@@ -46,7 +46,7 @@ class GameTest {
         var xs = new Double[] {0.0, 2.0};
         var ys = new Double[] {0.0, 0.0};
         var mount = new Mount(xs, ys);
-        assertEquals(Double.valueOf(0.0), mount.getYCor(1.0));
+        assertEquals(Double.valueOf(0.0), mount.getYCoordinate(1.0));
     }
 
     @Test

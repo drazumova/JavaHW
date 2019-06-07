@@ -65,14 +65,14 @@ public class Mount {
      * Tells if given point under the mount
      */
     public boolean isUnder(double x, double y) {
-        var mountY = getYCor(x);
+        var mountY = getYCoordinate(x);
         return y < mountY;
     }
 
     /**
      * Returns y coordinate of point on the mountain top border related to given x coordinate
      */
-    public Double getYCor(Double x) {
+    public Double getYCoordinate(Double x) {
         int last = 1;
         while (last < size && listX[last] < x) {
             last++;
