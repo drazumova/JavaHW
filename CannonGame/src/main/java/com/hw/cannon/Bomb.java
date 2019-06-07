@@ -1,6 +1,7 @@
 package com.hw.cannon;
 
 import javafx.animation.*;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
@@ -8,6 +9,7 @@ import javafx.util.*;
 import org.jetbrains.annotations.*;
 
 import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * Sturcture for 'bullets' of the cannon.
@@ -21,7 +23,7 @@ public class Bomb {
     private double y;
     private final double r;
     private final double speed;
-    private final Circle view;
+    private final @NotNull Circle view;
 
     private static class Parameters {
         private final double radius;
@@ -74,21 +76,21 @@ public class Bomb {
     /**
      * Creates a new bomb with default parameters from types element number type
      */
-    public Bomb(double x, double y, int type, Pane pane) {
+    public Bomb(double x, double y, int type, @NotNull Pane pane) {
         this(x, y, types.get(type).radius, types.get(type).color, types.get(type).viewRadius, types.get(type).speed, pane);
     }
 
     /**
      * Returns distance between this bomb and other
      */
-    public double distance(Bomb other) {
+    public double distance(@NotNull Bomb other) {
         return (x - other.x) * (x - other.x) + (y - other.y)*(y - other.y);
     }
 
     /**
      * Tells if this bomb and other are within each other's blast radius
      */
-    public boolean isClose(Bomb other) {
+    public boolean isClose(@NotNull Bomb other) {
         return distance(other) < Math.min(r * r, other.r * other.r);
     }
 
@@ -133,10 +135,16 @@ public class Bomb {
         pathTransition.setOnFinished(event -> {
             if (Main.GameElements.getInstance().getTarget().isClose(this)) {
                 Main.GameElements.getInstance().getTarget().destroy();
+                var alert = new Alert(Alert.AlertType.INFORMATION);
+
+                alert.setTitle("congratulations");
+                alert.setHeaderText("END GAME");
+                alert.setContentText("You won!");
+
+                alert.show();
             }
             destroy();
         });
-
         pathTransition.play();
     }
 

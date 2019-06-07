@@ -5,6 +5,7 @@ import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
+import org.jetbrains.annotations.*;
 
 import java.security.*;
 
@@ -15,12 +16,12 @@ public class Main extends Application {
      * Class to store unique game elements on which depends moving and drawing of other objects
      */
     public static class GameElements {
-        private final Pane pane;
-        private final Mount mount;
-        private final Bomb target;
+        private final @NotNull Pane pane;
+        private final @NotNull Mount mount;
+        private final @NotNull Bomb target;
 
-        private int maxPaneSize = 1000;
-        private int maxMountSize = 1000;
+        private final int maxPaneSize = 1000;
+        private final int maxMountSize = 1000;
         
         private static class GameElementsHolder {
             private static final GameElements gameElements = new GameElements();
@@ -79,15 +80,6 @@ public class Main extends Application {
                     break;
                 case ENTER:
                     var bomb = cannon.shot();
-                    if (bomb.isClose(target)) {
-                        var alert = new Alert(Alert.AlertType.INFORMATION);
-
-                        alert.setTitle("congratulations");
-                        alert.setHeaderText("END GAME");
-                        alert.setContentText("You won!");
-
-                        alert.showAndWait();
-                    }
                     break;
                 case Q:
                     cannon.nextType();

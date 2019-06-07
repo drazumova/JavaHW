@@ -3,6 +3,7 @@ package com.hw.cannon;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
+import org.jetbrains.annotations.*;
 
 import java.security.*;
 import java.util.*;
@@ -11,8 +12,8 @@ import java.util.*;
  * Class that represents mount in the game
  */
 public class Mount {
-    private final Double[] listX;
-    private final Double[] listY;
+    private final double[] listX;
+    private final double[] listY;
     private final int size;
 
     private static final int POINTS_DEFAULT_COUNT = 10;
@@ -20,7 +21,7 @@ public class Mount {
     /**
      * Creates a new mount by given points
      */
-    public Mount(Double[] listX, Double[] listY) {
+    public Mount(double[] listX, double[] listY) {
         this.listX = listX.clone();
         this.listY = listY.clone();
         size = listX.length;
@@ -29,11 +30,11 @@ public class Mount {
     /**
      * Generates new mount
      */
-    public Mount(double maxSize, Pane pane) {
+    public Mount(double maxSize, @NotNull Pane pane) {
         var random = new SecureRandom();
         size = random.nextInt(POINTS_DEFAULT_COUNT) + 2;
-        listX = new Double[size];
-        listY = new Double[size];
+        listX = new double[size];
+        listY = new double[size];
 
         for (int i = 0; i < size; i++) {
             listX[i] = maxSize / (size - 1) * i;
@@ -72,7 +73,12 @@ public class Mount {
     /**
      * Returns y coordinate of point on the mountain top border related to given x coordinate
      */
-    public Double getYCoordinate(Double x) {
+    public double getYCoordinate(double x) {
+
+        if (x >= listX[size - 1]) {
+            return listY[size - 1];
+        }
+
         int last = 1;
         while (last < size && listX[last] < x) {
             last++;
@@ -84,5 +90,12 @@ public class Mount {
         var y2 = listY[last];
 
         return (y2 - y1) / (x2 - x1) * (x - x1) + y1;
+    }
+
+    /**
+     * Returns right border of the mount
+     */
+    public double getMaxXCoordinate() {
+        return listX[size - 1];
     }
 }

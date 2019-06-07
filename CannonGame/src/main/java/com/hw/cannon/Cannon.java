@@ -1,6 +1,7 @@
 package com.hw.cannon;
 
 import javafx.scene.shape.*;
+import org.jetbrains.annotations.*;
 
 /**
  * Class for interaction this cannon
@@ -11,8 +12,8 @@ public class Cannon {
     private double y;
     private double phi;
 
-    private Circle view;
-    private Line lineView;
+    private @NotNull Circle view;
+    private @NotNull Line lineView;
     private int type;
 
     private static final double LENGTH_LINE = 20;
@@ -74,8 +75,8 @@ public class Cannon {
     public void moveRight() {
         x += DELTA_X;
 
-        if (x > Main.GameElements.getInstance().getPane().getBoundsInLocal().getWidth()) {
-            x = Main.GameElements.getInstance().getPane().getBoundsInLocal().getWidth();
+        if (x >= Main.GameElements.getInstance().getMount().getMaxXCoordinate()) {
+            x = Main.GameElements.getInstance().getMount().getMaxXCoordinate();
         }
 
         updateViewCannon();

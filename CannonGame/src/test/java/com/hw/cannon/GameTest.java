@@ -33,8 +33,8 @@ class GameTest {
 
     @Test
     void simpleCorYTest() {
-        var xs = new Double[] {0.0, 1.0, 2.0};
-        var ys = new Double[] {0.0, 1.0, 0.0};
+        var xs = new double[] {0.0, 1.0, 2.0};
+        var ys = new double[] {0.0, 1.0, 0.0};
         var mount = new Mount(xs, ys);
         for (int i = 0; i < 3; i++) {
             assertEquals(mount.getYCoordinate(xs[i]), ys[i]);
@@ -43,16 +43,16 @@ class GameTest {
 
     @Test
     void complexCorYTest() {
-        var xs = new Double[] {0.0, 2.0};
-        var ys = new Double[] {0.0, 0.0};
+        var xs = new double[] {0.0, 2.0};
+        var ys = new double[] {0.0, 0.0};
         var mount = new Mount(xs, ys);
-        assertEquals(Double.valueOf(0.0), mount.getYCoordinate(1.0));
+        assertEquals(0.0, mount.getYCoordinate(1.0));
     }
 
     @Test
     void simpleIsUnderTest() {
-        var xs = new Double[] {0.0, 1.0, 2.0};
-        var ys = new Double[] {0.0, 1.0, 0.0};
+        var xs = new double[] {0.0, 1.0, 2.0};
+        var ys = new double[] {0.0, 1.0, 0.0};
         var mount = new Mount(xs, ys);
         for (int i = 0; i < 3; i++) {
             assertFalse(mount.isUnder(xs[i], ys[i]));
@@ -61,16 +61,16 @@ class GameTest {
 
     @Test
     void underIsUnderTest() {
-        var xs = new Double[] {0.0, 1.0, 2.0};
-        var ys = new Double[] {0.0, 1.0, 0.0};
+        var xs = new double[] {0.0, 1.0, 2.0};
+        var ys = new double[] {0.0, 1.0, 0.0};
         var mount = new Mount(xs, ys);
         assertTrue(mount.isUnder(1.5, 0.0));
     }
 
     @Test
     void aboveIsUnderTest() {
-        var xs = new Double[] {0.0, 1.0, 2.0};
-        var ys = new Double[] {0.0, 1.0, 0.0};
+        var xs = new double[] {0.0, 1.0, 2.0};
+        var ys = new double[] {0.0, 1.0, 0.0};
         var mount = new Mount(xs, ys);
         assertFalse(mount.isUnder(0.5, 1.0));
     }
