@@ -135,7 +135,7 @@ public class TestRunner {
                     } else {
                         printer.failedAnnotated(method, annotation, "nonstatic declaration");
                     }
-                } {
+                } else {
                     method.invoke(instance);
                 }
             }
