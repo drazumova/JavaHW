@@ -39,7 +39,7 @@ public class Cannon {
      */
     public Bomb shot() {
         var bomb = new Bomb(x, y, type, Main.GameElements.getInstance().getPane());
-        bomb.fly(2*Math.PI - phi);
+        bomb.fly(2 * Math.PI - phi);
         return bomb;
     }
 

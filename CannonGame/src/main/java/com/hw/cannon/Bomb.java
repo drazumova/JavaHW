@@ -103,6 +103,13 @@ public class Bomb {
      */
     public void fly(double phi) {
 
+        if (phi < Math.PI / 2) {
+            phi -= Math.PI / 2;
+        } else if (phi > Math.PI / 2) {
+            phi = 3 * Math.PI / 2 - phi;
+        }
+
+
         var path = new Path();
         var pathTransition = new PathTransition();
 
@@ -118,10 +125,14 @@ public class Bomb {
 
         var flyTime = 2 * speed * StrictMath.cos(phi) / G;
         var focusX = x + speed * flyTime / 2;
-        var focusY = y - Math.abs(focusX - x) / StrictMath.tan(phi);
+        var focusY = yConvert(y) - Math.abs(focusX - x) / StrictMath.tan(phi);
+
+        if (StrictMath.tan(phi) == 0) {
+
+        }
 
         path.getElements().add(new MoveTo(x, y));
-        path.getElements().add(new QuadCurveTo(focusX, yConvert(y), targetX, yConvert(targetY)));
+        path.getElements().add(new QuadCurveTo(focusX, yConvert(focusY), targetX, yConvert(targetY)));
 
         pathTransition.setDuration(Duration.millis(1000));
         pathTransition.setNode(view);
