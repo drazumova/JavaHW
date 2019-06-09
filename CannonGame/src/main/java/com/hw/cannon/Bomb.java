@@ -102,13 +102,11 @@ public class Bomb {
      * Simulate and draws flight of the bomb with given angle and relatively given mount
      */
     public void fly(double phi) {
-
         if (phi < Math.PI / 2) {
             phi -= Math.PI / 2;
         } else if (phi > Math.PI / 2) {
             phi = 3 * Math.PI / 2 - phi;
         }
-
 
         var path = new Path();
         var pathTransition = new PathTransition();

@@ -8,8 +8,6 @@ import org.jetbrains.annotations.*;
 import java.security.*;
 import java.util.*;
 
-import static java.lang.StrictMath.min;
-
 /**
  * Class that represents mount in the game
  */
@@ -75,7 +73,6 @@ public class Mount {
      * Returns y coordinate of point on the mountain top border related to given x coordinate
      */
     public double getYCoordinate(double x) {
-
         if (x >= listX[size - 1]) {
             return listY[size - 1];
         }

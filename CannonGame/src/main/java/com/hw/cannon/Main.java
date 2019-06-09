@@ -10,9 +10,6 @@ import org.jetbrains.annotations.*;
 import java.awt.*;
 import java.security.*;
 
-import static java.lang.Integer.min;
-
-
 public class Main extends Application {
 
     /**
@@ -38,7 +35,7 @@ public class Main extends Application {
             var device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
             int width = device.getDisplayMode().getWidth();
             int height = device.getDisplayMode().getHeight();
-            paneSize = min(width/2, height/2);
+            paneSize = Integer.min(width/2, height/2);
             mountSize = paneSize;
 
             pane = new Pane();
