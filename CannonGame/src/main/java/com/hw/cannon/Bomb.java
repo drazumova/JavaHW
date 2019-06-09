@@ -9,7 +9,6 @@ import javafx.util.*;
 import org.jetbrains.annotations.*;
 
 import java.util.*;
-import java.util.concurrent.*;
 
 /**
  * Sturcture for 'bullets' of the cannon.

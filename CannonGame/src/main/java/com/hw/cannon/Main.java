@@ -7,6 +7,7 @@ import javafx.scene.layout.*;
 import javafx.stage.*;
 import org.jetbrains.annotations.*;
 
+import java.awt.*;
 import java.security.*;
 
 
@@ -20,8 +21,8 @@ public class Main extends Application {
         private final @NotNull Mount mount;
         private final @NotNull Bomb target;
 
-        private final int maxPaneSize = 1000;
-        private final int maxMountSize = 1000;
+        private final int paneSize = 1000;
+        private final int mountSize = 1000;
         
         private static class GameElementsHolder {
             private static final GameElements gameElements = new GameElements();
@@ -33,8 +34,11 @@ public class Main extends Application {
 
         private GameElements() {
             pane = new Pane();
-            pane.setMaxSize(maxPaneSize, maxPaneSize);
-            mount = new Mount(maxPaneSize, pane);
+            pane.setMaxSize(Integer.MAX_VALUE, Integer.MAX_VALUE);
+            pane.setMinSize(paneSize, paneSize);
+            pane.setCenterShape(true);
+            pane.setPrefSize(paneSize, mountSize);
+            mount = new Mount(paneSize, pane);
             var random = new SecureRandom();
             double randX = random.nextDouble() * 1000;
             target = new Bomb(randX, mount.getYCoordinate(randX), 0, pane);
@@ -50,19 +54,22 @@ public class Main extends Application {
 
         public Bomb getTarget() {return target; }
 
-        public int getMaxPaneSize() {
-            return maxPaneSize;
+        public int getPaneSize() {
+            return paneSize;
         }
     }
 
     @Override
     public void start(Stage primaryStage) {
+        int size = GameElements.getInstance().paneSize;
+
         var cannon = new Cannon(0.0, GameElements.getInstance().getMount().getYCoordinate(0.0));
         var target = GameElements.getInstance().getTarget();
-
-        primaryStage.setScene(new Scene(GameElements.getInstance().getPane(),
-                GameElements.getInstance().getMaxPaneSize(), GameElements.getInstance().getMaxPaneSize()));
+        var scene = new Scene(GameElements.getInstance().getPane(), size, size);
+        primaryStage.setScene(scene);
         primaryStage.setTitle("PUSHKA");
+        primaryStage.setMinHeight(GameElements.getInstance().mountSize);
+        primaryStage.setMinWidth(GameElements.getInstance().paneSize);
         primaryStage.getScene().setOnKeyPressed(event -> {
 
             switch (event.getCode()) {

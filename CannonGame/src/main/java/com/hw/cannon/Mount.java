@@ -16,6 +16,7 @@ public class Mount {
     private final double[] listY;
     private final int size;
 
+    private static final int MOUNT_HEIGTH = 40;
     private static final int POINTS_DEFAULT_COUNT = 10;
 
     /**
@@ -45,7 +46,7 @@ public class Mount {
 
         for (int i = 1; i + 1 < size; i++) {
 //            listY[i] = random.nextDouble() * listY[0];
-            listY[i] = listY[0] - 30;
+            listY[i] = listY[0] - MOUNT_HEIGTH;
         }
 
         var list = new ArrayList<Double>();
@@ -58,7 +59,6 @@ public class Mount {
         var polygon = new Polygon();
         polygon.getPoints().addAll(list);
         polygon.setFill(Color.SADDLEBROWN);
-
         pane.getChildren().add(polygon);
     }
 
@@ -97,5 +97,12 @@ public class Mount {
      */
     public double getMaxXCoordinate() {
         return listX[size - 1];
+    }
+
+    /**
+     * Retuns height of the mount.
+     */
+    public double getHeight() {
+        return MOUNT_HEIGTH;
     }
 }
