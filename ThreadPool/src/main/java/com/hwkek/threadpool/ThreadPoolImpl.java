@@ -141,19 +141,18 @@ public class ThreadPoolImpl {
 
         @Override
         public <U> LightFuture<U> thenApply(@NotNull Function<? super T, U> function) {
-            synchronized (lock) {
-                if (supplier != null) {
-                    var task =  new Task<>(() -> {
-                        try {
-                            return function.apply(get());
-                        } catch (Exception e) {
-                            throw new LightExecutionException("Inner task ended with exception " + e, e);
-                        }
-                    });
-                    waitingQueue.add(task);
-                    return task;
-                }
+            if (supplier != null) {
+                var task =  new Task<>(() -> {
+                    try {
+                        return function.apply(get());
+                    } catch (Exception e) {
+                        throw new LightExecutionException("Inner task ended with exception " + e, e);
+                    }
+                });
+                waitingQueue.add(task);
+                return task;
             }
+
             var task = new Task<>(() -> {
                 try {
                     if (throwable != null) {
