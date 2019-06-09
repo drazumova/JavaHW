@@ -26,11 +26,11 @@ public class Bomb {
 
     private static class Parameters {
         private final double radius;
-        private final Color color;
+        private final @NotNull Color color;
         private final double viewRadius;
         private final double speed;
 
-        private Parameters(double radius, Color color, double modelRadius, double speed) {
+        private Parameters(double radius, @NotNull Color color, double modelRadius, double speed) {
             this.radius = radius;
             this.color = color;
             viewRadius = modelRadius;
@@ -58,7 +58,8 @@ public class Bomb {
     /**
      * Creates a new bomb with given parameters
      */
-    public Bomb(double x, double y, double radius, Color color, double viewRadius, double speed, @Nullable Pane pane) {
+    public Bomb(double x, double y, double radius, @NotNull Color color,
+                double viewRadius, double speed, @Nullable Pane pane) {
         this.x = x;
         this.y = y;
         view = new Circle(x, y, 1);

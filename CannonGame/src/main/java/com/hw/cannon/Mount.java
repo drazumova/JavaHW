@@ -12,8 +12,8 @@ import java.util.*;
  * Class that represents mount in the game
  */
 public class Mount {
-    private final double[] listX;
-    private final double[] listY;
+    private final @NotNull double[] listX;
+    private final @NotNull double[] listY;
     private final int size;
 
     private static final int MOUNT_HEIGTH = 40;

@@ -7,7 +7,6 @@ import javafx.scene.layout.*;
 import javafx.stage.*;
 import org.jetbrains.annotations.*;
 
-import java.awt.*;
 import java.security.*;
 
 
