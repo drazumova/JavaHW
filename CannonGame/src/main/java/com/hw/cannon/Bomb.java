@@ -127,10 +127,6 @@ public class Bomb {
         var focusX = x + speed * flyTime / 2;
         var focusY = yConvert(y) - Math.abs(focusX - x) / StrictMath.tan(phi);
 
-        if (StrictMath.tan(phi) == 0) {
-
-        }
-
         path.getElements().add(new MoveTo(x, y));
         path.getElements().add(new QuadCurveTo(focusX, yConvert(focusY), targetX, yConvert(targetY)));
 

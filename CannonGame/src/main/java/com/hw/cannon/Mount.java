@@ -8,6 +8,8 @@ import org.jetbrains.annotations.*;
 import java.security.*;
 import java.util.*;
 
+import static java.lang.StrictMath.min;
+
 /**
  * Class that represents mount in the game
  */
@@ -33,7 +35,7 @@ public class Mount {
      */
     public Mount(double maxSize, @NotNull Pane pane) {
         var random = new SecureRandom();
-        size = random.nextInt(POINTS_DEFAULT_COUNT) + 2;
+        size = random.nextInt(POINTS_DEFAULT_COUNT) + 3;
         listX = new double[size];
         listY = new double[size];
 
