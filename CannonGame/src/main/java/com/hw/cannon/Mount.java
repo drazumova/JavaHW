@@ -45,7 +45,6 @@ public class Mount {
         listY[size - 1] = listY[0];
 
         for (int i = 1; i + 1 < size; i++) {
-//            listY[i] = random.nextDouble() * listY[0];
             listY[i] = listY[0] - MOUNT_HEIGTH;
         }
 
