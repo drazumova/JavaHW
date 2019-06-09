@@ -112,7 +112,7 @@ public class ThreadPoolImpl {
         }
 
         @Override
-        public void execute(){
+        public void execute() {
             synchronized (lock) {
                 if (supplier == null) {
                     return;
@@ -141,8 +141,6 @@ public class ThreadPoolImpl {
 
         @Override
         public <U> LightFuture<U> thenApply(@NotNull Function<? super T, U> function) {
-
-
             synchronized (lock) {
                 if (supplier != null) {
                     var task =  new Task<>(() -> {
@@ -158,7 +156,7 @@ public class ThreadPoolImpl {
             }
             var task = new Task<>(() -> {
                 try {
-                    if (throwable != null){
+                    if (throwable != null) {
                         throw throwable;
                     }
                     return function.apply(result);
